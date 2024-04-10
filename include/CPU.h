@@ -2,9 +2,14 @@
 #define CPU_H
 
 #include <stack>
+#include <cinttypes>
 #include <iostream>
 
-const uint8_t max_stack_size=16;
+// COWGOD!!!!
+// http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
+
+const static  uint8_t max_stack_size=16;
+const static  uint16_t I_MASK= 0b0000'1111'1111'1111;
 
 class CPU{
 private:
@@ -25,7 +30,7 @@ public:
   uint8_t get_delay() const;
   uint8_t get_Vx(unsigned int i) const;
   uint16_t get_I() const;
-  friend std::ostream& operator <<(std::ostream& output, const CPU& chip8);
+  void print() const;
 };
 
 #endif

@@ -26,14 +26,12 @@ uint8_t CPU::get_Vx(unsigned int i) const{
 }
 uint16_t CPU::get_I() const{return this->I;}
 
-std::ostream& operator <<(std::ostream& output, const CPU& chip8){
-  output << "PC: " << std::hex << std::showbase <<  chip8.get_pc() << std::endl;
-  output << "Sound: " << (unsigned int) chip8.get_sound() << std::endl;
-  output << "Delay: " << (unsigned int) chip8.get_delay() << std::endl;
-  output << "I: " << chip8.get_I() << std::endl;
+void CPU::print() const{
+  std::cout << "PC: " << std::hex << std::showbase <<  get_pc() << std::endl;
+  std::cout << "Sound: " << static_cast<unsigned int>(get_sound()) << std::endl;
+  std::cout << "Delay: " << static_cast<unsigned int>(get_delay()) << std::endl;
+  std::cout << "I: " << get_I() << std::endl;
   for(int i=0; i< 16; ++i){
-    output << "V" << std::hex << std::uppercase << i << " :" << std::dec<<  (unsigned int)chip8.get_Vx(i) << std::endl;
+    std::cout << "V" << std::hex << std::uppercase << i << " :" << std::dec<<  static_cast<unsigned int>(get_Vx(i)) << std::endl;
   }
-// TODO print out stack
-  return output;
 }

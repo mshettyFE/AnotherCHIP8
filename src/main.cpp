@@ -1,11 +1,11 @@
 #include <SDL.h>
-#include "CPU.h"
+#include "CHIP8.h"
 
 int main(int argc, char *argv[])
 {
 
-  CPU val;
-  std::cout << val << std::endl;
+  CHIP8 interpreter;
+  interpreter.print();
 /*
   SDL_Init(SDL_INIT_VIDEO);
 
