@@ -12,6 +12,9 @@ private:
   uint8_t ram[MAX_RAM_SIZE];
 public:
     Memory();
+    uint8_t read(uint16_t address) const;
+    void write(uint16_t address, uint8_t value);
+// Debugging function
     void dump() const;
 };
 

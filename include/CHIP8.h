@@ -5,6 +5,10 @@
 #include "Display.h"
 #include "Memory.h"
 
+// Good references
+// [1] https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
+// [2] http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+
 class CHIP8{
 public:
     CPU cpu;
