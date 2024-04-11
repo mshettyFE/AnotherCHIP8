@@ -2,8 +2,7 @@
 #include "CHIP8.h"
 #include <iostream>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]){
 
   CHIP8 interpreter;
   interpreter.print();
@@ -23,6 +22,14 @@ int main(int argc, char *argv[])
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
+
+  while(1){
+    auto vals = interpreter.keys.which_keys_is_pressed();
+    if(vals == RAGE_QUIT){
+      SDL_DestroyWindow(window);
+      break;
+    }
+  }
 
   return 0;
 }
