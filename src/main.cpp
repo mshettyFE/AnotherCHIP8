@@ -1,12 +1,13 @@
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "CHIP8.h"
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
 
   CHIP8 interpreter;
   interpreter.print();
-/*
+
   SDL_Init(SDL_INIT_VIDEO);
 
   SDL_Window *window = SDL_CreateWindow(
@@ -23,11 +24,5 @@ int main(int argc, char *argv[])
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
 
-  SDL_Delay(3000);
-
-  SDL_DestroyWindow(window);
-  SDL_Quit();
-
-*/
   return 0;
 }
