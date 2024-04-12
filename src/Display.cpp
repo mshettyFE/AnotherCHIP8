@@ -1,11 +1,55 @@
 #include "Display.h"
 #include <iostream>
 #include <stdexcept>
+#include <SDL2/SDL.h>
+#include <cstring>
 
 Display::Display(){
-    for(int i=0; i< dis_height*dis_width; ++i){
-        display[i] = 0;
+    for(int i=0; i< display.size(); i++){
+        display[i] = 0xFFFFFFFF;
     }
+//    std::memset(display.data(),0xFF,display.size());
+    if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0){
+        std::cout << SDL_GetError() << std::endl;
+        throw std::invalid_argument("SDL_Init failed");
+    }
+
+    window = SDL_CreateWindow(
+        "CHIP8",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        dis_width*10,
+        dis_height*10,
+        SDL_WINDOW_SHOWN
+    );
+    if(window==nullptr){
+        std::cout << SDL_GetError() << std::endl;
+        throw std::invalid_argument("SDL_Window failed");
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    if(renderer==nullptr){
+        std::cout << SDL_GetError() << std::endl;
+        throw std::invalid_argument("SDL_Renderer failed");
+    }
+    uint32_t rmask,bmask,gmask,amask;
+    rmask = 0;
+    gmask = 0;
+    bmask = 0;
+    amask = SDL_ALPHA_OPAQUE;
+    surface = SDL_CreateRGBSurfaceFrom(display.data(), dis_width,dis_height,32,dis_width*4,rmask, bmask,gmask,amask);
+//    surface = SDL_LoadBMP("../test/TestImage.bmp");
+    if(surface ==nullptr){
+        std::cout << SDL_GetError() << std::endl;
+        throw std::invalid_argument("SDL_CreateRGBSurfaceFrom failed");
+    }
+    to_screen();
+}
+
+Display::~Display(){
+    SDL_FreeSurface(surface);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
 }
 
 
@@ -23,13 +67,43 @@ uint8_t Display::operator()(unsigned int x, unsigned int y) const{
 void Display::print() const{
     for(char h=0; h<dis_height; h++){
         for(char w=0; w<dis_width; w++){
-            std::cout << (unsigned int)display[get_index(w,h)] << " ";
+            std::cout << std::hex << (unsigned int)display[get_index(w,h)] << " ";
         }
-        std::cout << '\n';
+        std::cout << std::dec<< '\n';
     }
 }
 
-void Display::write(unsigned int x, unsigned int y){
+void Display::write(unsigned int x, unsigned int y, bool on){
     auto index = get_index(x,y);
-    display[index] = 1;
+    if(on){
+        display[index] = 0xFFFFFFFF;
+    }
+    else{
+        display[index] = 0;
+    }
+}
+
+void Display::to_screen(){
+    auto texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if(texture==nullptr){
+        std::cout << SDL_GetError() << std::endl;
+        std::invalid_argument("SDL_Texture failed");
+    }
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer,texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+    SDL_DestroyTexture(texture);
+}
+
+void Display::test_checkers(){
+    for(int i=0; i< dis_height; ++i){
+        for(int j =0; j< dis_width; ++j){
+            if((i+j)%2){
+                write(j,i,true);
+            }
+            else{
+                write(j,i,false);
+            }
+        }
+    }
 }

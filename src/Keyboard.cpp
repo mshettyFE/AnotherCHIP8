@@ -23,7 +23,6 @@ uint16_t KeyPad::which_keys_is_pressed(bool debug) const{
     if(keyboardState[SDL_SCANCODE_X]){output  |= ZERO_PRESENT; if(debug){std::cout << "ZERO" << std::endl;}}
     if(keyboardState[SDL_SCANCODE_C]){output  |= B_PRESENT; if(debug){std::cout << "B" << std::endl;}}
     if(keyboardState[SDL_SCANCODE_V]){output  |= F_PRESENT; if(debug){std::cout << "F" << std::endl;}}
-    if(keyboardState[SDL_SCANCODE_BACKSPACE]){output |= RAGE_QUIT;if(debug){std::cout << "QUIT" << std::endl;}}
     return output;
 }
 
@@ -45,6 +44,5 @@ std::string decode_keys(uint16_t encrypted_keys){
     if(encrypted_keys & ZERO_PRESENT){output += "0";}
     if(encrypted_keys & B_PRESENT){output += "B";}
     if(encrypted_keys & F_PRESENT){output += "F";}
-    if(encrypted_keys & RAGE_QUIT){output  = "QUIT";}
     return output;
 }
