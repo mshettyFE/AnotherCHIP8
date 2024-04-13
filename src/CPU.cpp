@@ -2,18 +2,14 @@
 #include <iostream>
 
 CPU::CPU(){
-// pseudo-registers
-  pc=0; // program counter
-// timers
+  pc=0;
   sound=0;
   delay=0;
-// Public registers directly accessible by program
   for(int i=0; i< 16; ++i){
     Vx[i] = 0;
   }
-  I=0; // Stores memory addresses. Only bottom 12 bits used
+  I=0;
 }
-
 
 uint16_t CPU::get_pc() const{return this->pc;}
 uint8_t CPU::get_sound() const{return this->sound;}
@@ -24,7 +20,15 @@ uint8_t CPU::get_Vx(unsigned int i) const{
   }
   return this->Vx[i];
 }
-uint16_t CPU::get_I() const{return this->I;}
+uint16_t CPU::get_I() const{return this->I&&I_MASK;}
+
+void CPU::set_sound(uint8_t value){
+  this->sound = value;
+}
+
+void CPU::set_delay(uint8_t value){
+  this->delay = value;
+}
 
 void CPU::print() const{
   std::cout << "PC: " << std::hex << std::showbase <<  get_pc() << std::endl;
