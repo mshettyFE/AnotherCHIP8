@@ -16,7 +16,7 @@ private:
   SDL_Surface* surface = nullptr;
   int get_index(unsigned int x, unsigned int y) const;
 public: 
-  Display();
+  Display(bool visible=true);
   ~Display();
   void print() const;
   uint8_t operator()(unsigned int x, unsigned int y) const;

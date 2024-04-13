@@ -1,5 +1,10 @@
 #include "CHIP8.h"
 
+CHIP8::CHIP8(bool visible){
+    Display disp(visible);
+}
+
+
 void CHIP8::print() const{
     std::cout << "CPU" << std::endl;
     cpu.print();

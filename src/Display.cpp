@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <cstring>
 
-Display::Display(){
+Display::Display(bool visible){
     for(int i=0; i< display.size(); i++){
         display[i] = 0xFFFFFFFF;
     }
@@ -14,14 +14,25 @@ Display::Display(){
         throw std::invalid_argument("SDL_Init failed");
     }
 
-    window = SDL_CreateWindow(
-        "CHIP8",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        dis_width*10,
-        dis_height*10,
-        SDL_WINDOW_SHOWN
-    );
+    if(visible){
+        window = SDL_CreateWindow(
+            "CHIP8",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            dis_width*10,
+            dis_height*10,
+            SDL_WINDOW_SHOWN
+        );
+    }
+    else{
+        window = SDL_CreateWindow(
+            "CHIP8",
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            dis_width*10,
+            dis_height*10, SDL_WINDOW_HIDDEN
+        );
+    }
     if(window==nullptr){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Window failed");

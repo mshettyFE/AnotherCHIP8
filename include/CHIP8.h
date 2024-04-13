@@ -16,6 +16,8 @@ public:
     Display disp;
     Memory mem;
     KeyPad keys;
+
+    CHIP8(bool visible=true);
     void print() const;
 };
 
