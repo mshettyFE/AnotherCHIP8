@@ -5,7 +5,6 @@
 int main(int argc, char *argv[]){
 
   CHIP8 interpreter;
-  interpreter.disp.test_checkers();
   interpreter.print();
 
   SDL_Event event;
@@ -17,6 +16,10 @@ int main(int argc, char *argv[]){
             case SDL_QUIT:
               quit=true;
               break;
+          }
+          auto keys = interpreter.keys.which_keys_is_pressed();
+          if(keys&ONE_PRESENT){
+            SDL_PauseAudio(0);            
           }
       }
   }

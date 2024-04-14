@@ -5,8 +5,8 @@
 #include <cinttypes>
 #include <SDL2/SDL.h>
 
-const static  char dis_width = 64;
-const static  char dis_height = 32;
+static constexpr char dis_width = 64;
+static constexpr char dis_height = 32;
 
 class Display{
 private:

@@ -6,13 +6,15 @@
 #include <iostream>
 #include <atomic>
 #include <chrono>
+#include "Sound.h"
 
 // COWGOD!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
 
-const static  uint8_t max_stack_size=16;
-const static  uint16_t I_MASK= 0x0FFF;
-
+static constexpr  uint8_t max_stack_size=16;
+static constexpr  uint16_t I_MASK= 0x0FFF;
+static Oscillator osc = Oscillator(SAMPLE_RATE, INIT_VOLUME); // sampler to play audio
+void oscillator_callback(void *userdata, Uint8 *stream, int len);
 
 constexpr int64_t get_clock_period(){
 // To set the clock frequency at which the delay and sound timers get updated at
@@ -37,8 +39,10 @@ private:
 // decrement register atomically
   void decrement_delay();
   void decrement_sound();
+  SDL_AudioDeviceID audio_device;
 public:
   CPU();
+  ~CPU();
   uint16_t get_pc() const;
   uint8_t get_sound() const;
   uint8_t get_delay() const;

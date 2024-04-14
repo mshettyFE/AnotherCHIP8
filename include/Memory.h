@@ -4,8 +4,8 @@
 #include <cinttypes>
 #include <iostream>
 
-const static int MAX_RAM_SIZE = 4096;
-const static  uint16_t START = 0x200;
+static constexpr int MAX_RAM_SIZE = 4096;
+static  constexpr uint16_t START = 0x200;
 
 class Memory{
 private:
