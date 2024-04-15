@@ -6,7 +6,7 @@
 
 Display::Display(bool visible){
     for(int i=0; i< display.size(); i++){
-        display[i] = 0xFFFFFFFF;
+        display[i] = 0;
     }
 //    std::memset(display.data(),0xFF,display.size());
     if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0){

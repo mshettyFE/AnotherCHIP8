@@ -5,6 +5,7 @@
 #include <cinttypes>
 #include <iostream>
 #include <atomic>
+#include <memory>
 #include <chrono>
 #include "Sound.h"
 
@@ -13,7 +14,6 @@
 
 static constexpr  uint8_t max_stack_size=16;
 static constexpr  uint16_t I_MASK= 0x0FFF;
-static Oscillator osc = Oscillator(SAMPLE_RATE, INIT_VOLUME); // sampler to play audio
 void oscillator_callback(void *userdata, Uint8 *stream, int len);
 
 constexpr int64_t get_clock_period(){
@@ -43,6 +43,7 @@ private:
 public:
   CPU();
   ~CPU();
+  std::unique_ptr<Oscillator> osc = std::make_unique<Oscillator>(Oscillator(SAMPLE_RATE, INIT_VOLUME)); // sampler to play audio
   uint16_t get_pc() const;
   uint8_t get_sound() const;
   uint8_t get_delay() const;

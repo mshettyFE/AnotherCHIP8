@@ -5,6 +5,7 @@
 int main(int argc, char *argv[]){
 
   CHIP8 interpreter;
+  interpreter.cpu.set_sound(255);
   interpreter.print();
 
   SDL_Event event;

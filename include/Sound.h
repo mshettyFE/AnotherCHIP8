@@ -15,6 +15,7 @@ private:
 public:    
     Oscillator(float rate, float volume);
     float next();
+    void print();
 };
 
 #endif
