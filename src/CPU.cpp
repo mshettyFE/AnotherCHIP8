@@ -56,7 +56,7 @@ uint8_t CPU::get_delay() const{
   return this->delay;
 }
 
-uint8_t CPU::get_Vx(unsigned int i) const{
+uint8_t CPU::get_Vx(uint8_t i) const{
   if(i>=16){
     throw std::invalid_argument("Invalid Register");
   }
@@ -130,4 +130,44 @@ void oscillator_callback(void *userdata, Uint8 *stream, int len) {
     float v = (static_cast<CPU*>(userdata))->osc->next();
     fstream[i] = v;
   }
+}
+
+void CPU::set_VF(bool is_set){
+  this->Vx[15] = is_set;
+}
+
+void CPU::set_Vx(uint8_t i,uint8_t value) {
+  if(i>=15){
+    throw std::invalid_argument("invalid register (Also, cant write to F register)");
+  }
+  this->Vx[15] = value;
+}
+
+void CPU::set_I(uint16_t value) {
+  this->I = value;
+}
+
+void CPU::increment_pc(){
+  this->pc++;
+}
+
+void CPU::decrement_pc(){
+  this->pc--;
+}
+
+void CPU::set_pc(uint16_t value){
+  this->pc = value;
+}
+
+void CPU::push_stack(uint16_t value){
+  if(chip_stack.size() == max_stack_size){
+    throw std::invalid_argument("Stack overflow");
+  }
+  this->chip_stack.push_front(value);
+}
+
+uint16_t CPU::pop_stack(){
+  auto output = chip_stack[0];
+  this->chip_stack.pop_front();
+  return output;
 }

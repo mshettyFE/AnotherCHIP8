@@ -47,11 +47,21 @@ public:
   uint16_t get_pc() const;
   uint8_t get_sound() const;
   uint8_t get_delay() const;
-  uint8_t get_Vx(unsigned int i) const;
+  uint8_t get_Vx(uint8_t i) const;
   uint16_t get_I() const;
 
   void set_sound(uint8_t value);
   void set_delay(uint8_t value);
+  void set_Vx(uint8_t i,uint8_t value);
+  void set_VF(bool is_set);
+  void set_I(uint16_t value);
+
+  void increment_pc();
+  void decrement_pc();
+  void set_pc(uint16_t value);
+
+  void push_stack(uint16_t value);
+  uint16_t pop_stack();
 
   void print() const;
 };

@@ -5,6 +5,10 @@ Memory::Memory(){
     for(int i =0; i<MAX_RAM_SIZE; ++i){
         ram[i] = 0;
     }
+    write_character_set();
+}
+
+void Memory::write_character_set(unsigned char offset){
 // See [1] in CHIP8.h For where the heck this character set came from
     uint8_t vals[80] = {0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -23,10 +27,10 @@ Memory::Memory(){
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
-    unsigned char offset = 0x050;
     for(int i=0; i< 80; ++i){
         ram[i+offset] = vals[i];
     }
+
 }
 
 void Memory::dump() const{
@@ -58,6 +62,15 @@ uint8_t Memory::read(uint16_t address) const{
         throw std::invalid_argument("address out of bounds");
     }
     return ram[address];
+}
+
+uint16_t Memory::read_instruction(uint16_t address) const{
+    if(address%2!=0){
+        throw std::invalid_argument("address should be even");
+    }
+    uint16_t first = ram[address];
+    uint16_t second = ram[address+1];
+    return (first << 8) | second;
 }
 
 void Memory::write(uint16_t address, uint8_t value){
