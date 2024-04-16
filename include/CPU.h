@@ -8,7 +8,9 @@
 #include <memory>
 #include <chrono>
 #include "Sound.h"
+
 #include "Constants.h"
+#include "Instruction.h"
 
 // COWGOD!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
@@ -61,7 +63,6 @@ public:
 
   void push_stack(uint16_t value);
   uint16_t pop_stack();
-
   void print() const;
 };
 

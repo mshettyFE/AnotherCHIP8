@@ -78,11 +78,15 @@ std::string CHIP8::disassemble() const{
     return output.str();
 }
 
-uint16_t CHIP8::fetch(){
+uint16_t CHIP8::fetch() const{
     if(loaded){
         return this->mem.read_instruction(this->cpu.get_pc());
     }
     throw std::invalid_argument("No program loaded");
+}
+
+Instruction CHIP8::decode(uint16_t machine_code) const{
+    return Instruction(machine_code);
 }
 
 
@@ -93,15 +97,4 @@ bool is_big_endian(void){
     } bint = {0x01020304};
 
     return bint.c[0] == 1;
-}
-
-uint16_t build_instruction(uint8_t hhb, uint8_t lhb, uint8_t hlb, uint8_t llb){
-// arguments from left to right are: highest 4 bits of high byte, lowest 4 bits of high byte, highest 4 bits of low byte, lowest 4 bits of low byte
-// We first select the lowest 4 bits of each input, since you can't really pass in 4 bits as an argument without some confusing schnanigans
-  hhb &= 0x0F;
-  lhb &= 0x0F;
-  hlb &= 0x0F;
-  llb &= 0x0F;
-// do the appropriate left shifting to each argument to get a properly formatted instruction
-  return ((uint16_t)hhb <<12)|((uint16_t)lhb << 8)|((uint16_t)hlb<< 4)|((uint16_t)llb);
 }
