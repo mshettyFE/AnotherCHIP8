@@ -8,8 +8,7 @@ Display::Display(bool visible){
     for(int i=0; i< display.size(); i++){
         display[i] = 0;
     }
-//    std::memset(display.data(),0xFF,display.size());
-    if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0){
+    if(SDL_InitSubSystem(SDL_INIT_VIDEO) != 0){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Init failed");
     }
@@ -37,7 +36,6 @@ Display::Display(bool visible){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Window failed");
     }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     if(renderer==nullptr){
         std::cout << SDL_GetError() << std::endl;

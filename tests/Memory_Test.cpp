@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <thread>
-
 #include <SDL2/SDL.h>
 #include "CHIP8.h"
 #include <iostream>
@@ -24,4 +23,6 @@ TEST(MemTest, LoadROM){
     EXPECT_EQ(interpreter.mem.read(0x201),0x00);
     EXPECT_EQ(interpreter.mem.read(0x276),0xe0);
     EXPECT_EQ(interpreter.mem.read(0x277),0x00);
+    EXPECT_EQ(interpreter.mem.read(0x220),0x1F);
+    EXPECT_EQ(interpreter.mem.read(0x221),0xD0);
 }

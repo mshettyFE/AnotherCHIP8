@@ -3,10 +3,7 @@
 
 #include <cinttypes>
 #include <iostream>
-
-static constexpr int MAX_RAM_SIZE = 4096;
-static  constexpr uint16_t START = 0x200;
-static constexpr uint16_t MAX_PROGRAM_SIZE = 0xFFF-0x200;
+#include "Constants.h"
 
 class Memory{
 private:

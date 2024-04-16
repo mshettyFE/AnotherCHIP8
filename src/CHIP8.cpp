@@ -55,6 +55,7 @@ void CHIP8::load(std::string filename){
         this->mem.write(START+i+1, second);
     }
     program.close();
+    loaded = true;
 }
 
 void CHIP8::print() const{
@@ -75,6 +76,13 @@ std::string CHIP8::disassemble() const{
         }
     }
     return output.str();
+}
+
+uint16_t CHIP8::fetch(){
+    if(loaded){
+        return this->mem.read_instruction(this->cpu.get_pc());
+    }
+    throw std::invalid_argument("No program loaded");
 }
 
 

@@ -4,9 +4,7 @@
 #include <array>
 #include <cinttypes>
 #include <SDL2/SDL.h>
-
-static constexpr char dis_width = 64;
-static constexpr char dis_height = 32;
+#include "Constants.h"
 
 class Display{
 private:

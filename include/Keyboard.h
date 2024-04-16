@@ -3,13 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
-
-static const std::string physical_keys[16] = {
-    "1","2","3","C",
-    "4","5","6","D",
-    "7","8","9","E",
-    "A","0","B","F"            
-};
+#include "Constants.h"
 
 enum KEYS{
     NOTHING       = 0,

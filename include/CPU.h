@@ -8,12 +8,11 @@
 #include <memory>
 #include <chrono>
 #include "Sound.h"
+#include "Constants.h"
 
 // COWGOD!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
 
-static constexpr  uint8_t max_stack_size=16;
-static constexpr  uint16_t I_MASK= 0x0FFF;
 void oscillator_callback(void *userdata, Uint8 *stream, int len);
 
 constexpr int64_t get_clock_period(){

@@ -6,7 +6,7 @@
 #include <chrono>
 
 CPU::CPU(){
-  pc=0;
+  pc=START;
   sound = 0;
   delay=0;
   for(int i=0; i< 16; ++i){
@@ -22,8 +22,7 @@ CPU::CPU(){
       .userdata = this,
   };
   SDL_AudioSpec obtained_spec;
-
-  if(SDL_Init(SDL_INIT_AUDIO) != 0){
+  if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
       std::cout <<  SDL_GetError() << std::endl;
       throw std::invalid_argument("SDL_Init failed");
   }
@@ -33,7 +32,6 @@ CPU::CPU(){
       throw std::invalid_argument(message);
   }
   SDL_PauseAudioDevice(audio_device,0);     
-
 // Create and detach deamon thread that auto-decrements delay counter if non-zero
   std::thread delay_dec( [this] { this->decrement_delay(); } );
   delay_dec.detach();
