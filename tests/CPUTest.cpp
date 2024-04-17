@@ -11,6 +11,6 @@ TEST(CPUTest,EncodeDecode){
     EXPECT_EQ(a.get_hlb(), b.get_hlb());
     EXPECT_EQ(a.get_lhb(), b.get_lhb());
     EXPECT_EQ(a.get_llb(), b.get_llb());
-    auto val = a.emit();
+    auto val = a.get_machine_code();
     EXPECT_EQ(val, starting);
 }

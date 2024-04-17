@@ -67,20 +67,22 @@ void CHIP8::print() const{
     mem.dump();
 }
 
-std::string CHIP8::disassemble() const{
-    std::stringstream output;
+std::string CHIP8::disassemble() {
+    std::string output;
     for(int addr=START; addr<MAX_PROGRAM_SIZE; addr+=2){
-        auto instruction = this->mem.read_instruction(addr);
-        if(instruction!=0){
-            output << std::hex << addr << " " << instruction << '\n' << std::dec;
+        auto machine_code = this->mem.read_machine_code(addr);
+        if(machine_code!=0){
+            auto instruction = Instruction(machine_code);
+            std::string assembly = cpu.decompile(instruction)+"\n";
+            output.append(assembly);
         }
     }
-    return output.str();
+    return output;
 }
 
 uint16_t CHIP8::fetch() const{
     if(loaded){
-        return this->mem.read_instruction(this->cpu.get_pc());
+        return this->mem.read_machine_code(this->cpu.get_pc());
     }
     throw std::invalid_argument("No program loaded");
 }

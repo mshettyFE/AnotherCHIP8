@@ -25,11 +25,11 @@ uint8_t Instruction::get_upper_byte() const{
 }
 
 uint16_t Instruction::get_mem_addr() const{
-  return (static_cast<uint16_t>(get_lhb()) << 8) | (static_cast<uint16_t>(get_hlb()) << 4) | (static_cast<uint16_t>(get_llb()));
+  return (static_cast<uint16_t>(lhb) << 8) | (static_cast<uint16_t>(hlb) << 4) | (static_cast<uint16_t>(llb));
 }
 
 uint16_t Instruction::get_machine_code() const{
 // We first select the lowest 4 bits of each input, since you can't really pass in 4 bits as an argument without some confusing schnanigans
 // do the appropriate left shifting to each argument to get a properly formatted instruction
-  return (static_cast<uint16_t>(this->hhb) <<12) | (static_cast<uint16_t>(this->lhb) << 8) | (static_cast<uint16_t>(this->hlb)<< 4) | (static_cast<uint16_t>(this->llb));
+  return (static_cast<uint16_t>(hhb) <<12) | (static_cast<uint16_t>(lhb) << 8) | (static_cast<uint16_t>(hlb)<< 4) | (static_cast<uint16_t>(llb));
 }

@@ -11,7 +11,7 @@ TEST(MemTest,LoadInstruction){
     uint8_t first = 0xF0;
     uint8_t second =  0x90;
     uint16_t test_value  = ((uint16_t) first) << 8 | second;
-    auto val =  interpreter.mem.read_instruction(0x50);
+    auto val =  interpreter.mem.read_machine_code(0x50);
     EXPECT_EQ(test_value, val);
 }
 

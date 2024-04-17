@@ -2,6 +2,7 @@
 #define INSTRUCTION_H
 
 #include <cinttypes>
+#include <string>
 
 class Instruction{
 private:

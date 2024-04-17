@@ -169,3 +169,11 @@ uint16_t CPU::pop_stack(){
   this->chip_stack.pop_front();
   return output;
 }
+
+std::string CPU::decompile(const Instruction& instr) {
+  return decode_and_execute(instr,false,true);
+}
+
+std::string CPU::decode_and_execute(const Instruction& instr ,bool execute,bool debug){
+  return "";
+}

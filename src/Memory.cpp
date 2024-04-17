@@ -64,7 +64,7 @@ uint8_t Memory::read(uint16_t address) const{
     return ram[address];
 }
 
-uint16_t Memory::read_instruction(uint16_t address) const{
+uint16_t Memory::read_machine_code(uint16_t address) const{
     if(address%2!=0){
         throw std::invalid_argument("address should be even");
     }

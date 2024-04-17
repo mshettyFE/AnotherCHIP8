@@ -21,7 +21,7 @@ public:
     CHIP8(bool visible=true);
     void print() const;
     void load(std::string file);
-    std::string disassemble() const;
+    std::string disassemble();
     uint16_t fetch() const;
     Instruction decode(uint16_t instruction) const;
 };
