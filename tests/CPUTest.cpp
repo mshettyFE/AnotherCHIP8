@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 #include "Instruction.h"
-#include "CPU.h"
+#include "CHIP8.h"
 
-
-TEST(CPUTest,EncodeDecode){
+TEST(CPUTest,EncodeDecodeMachine){
     uint16_t starting = 0x1234;
     Instruction a(starting);
     Instruction b(0x01,0x02,0x03,0x04);

@@ -64,12 +64,6 @@ public:
   void push_stack(uint16_t value);
   uint16_t pop_stack();
 
-  std::string decode_and_execute(const Instruction& instr ,bool execute=true,bool debug=false);
-  std::string decompile(const Instruction& instr);
-// Assembly functions
-    void CLS(const Instruction& instr);
-
-
   void print() const;
 };
 
