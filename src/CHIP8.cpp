@@ -12,6 +12,15 @@ CHIP8::CHIP8(bool visible){
     Display disp(visible);
 }
 
+bool CHIP8::is_big_endian(void){
+    union {
+        uint32_t i;
+        char c[4];
+    } bint = {0x01020304};
+
+    return bint.c[0] == 1;
+}
+
 void CHIP8::load(std::string filename){
     std::ifstream program(filename,std::ios::binary);
     if ( !(program.is_open()) ) {
@@ -323,57 +332,65 @@ std::string CHIP8::decoding_error(const Instruction& instr){
     return output;
 }
 
-int CHIP8::execute(assembly_func fnc, const Instruction& instr){
-    return (this->*fnc)(instr);
+void CHIP8::execute(assembly_func fnc, const Instruction& instr){
+    (this->*fnc)(instr);
+    return;
 }
 
 std::string CHIP8::decompile(const Instruction& instr) {
   std::string debug_msg;
-  CHIP8::assembly_func func = decode(instr, debug_msg,true);
-  return std::move(debug_msg);
+  decode(instr, debug_msg,true);
+  return debug_msg;
 }
 
-bool is_big_endian(void){
-    union {
-        uint32_t i;
-        char c[4];
-    } bint = {0x01020304};
-
-    return bint.c[0] == 1;
+std::string CHIP8::test_instruction(const Instruction& instr){
+    std::string debug_msg;
+    CHIP8::assembly_func func = decode(instr, debug_msg,true);
+    execute(func,instr);
+    return debug_msg;
 }
 
-int CHIP8::SYS(const Instruction& instr){}
-int CHIP8::CLS(const Instruction& instr){}
-int CHIP8::RET(const Instruction& instr){}
-int CHIP8::JP_DIRECT(const Instruction& instr){}
-int CHIP8::CALL(const Instruction& instr){}
-int CHIP8::SE_DIRECT(const Instruction& instr){}
-int CHIP8::SNE_DIRECT(const Instruction& instr){}
-int CHIP8::SE_REG(const Instruction& instr){}
-int CHIP8::LD_DIRECT(const Instruction& instr){}
-int CHIP8::ADD_DIRECT(const Instruction& instr){}
-int CHIP8::LD_REG(const Instruction& instr){}
-int CHIP8::OR(const Instruction& instr){}
-int CHIP8::AND(const Instruction& instr){}
-int CHIP8::XOR(const Instruction& instr){}
-int CHIP8::ADD(const Instruction& instr){}
-int CHIP8::SUB(const Instruction& instr){}
-int CHIP8::SHR(const Instruction& instr){}
-int CHIP8::SUBN(const Instruction& instr){}
-int CHIP8::SHL(const Instruction& instr){}
-int CHIP8::SNE(const Instruction& instr){}
-int CHIP8::LD_DIRECT_I(const Instruction& instr){}
-int CHIP8::JP_OFFSET(const Instruction& instr){}
-int CHIP8::RND(const Instruction& instr){}
-int CHIP8::DRW(const Instruction& instr){}
-int CHIP8::SKP(const Instruction& instr){}
-int CHIP8::SKNP(const Instruction& instr){}
-int CHIP8::LD_DELAY(const Instruction& instr){}
-int CHIP8::LD_KEY(const Instruction& instr){}
-int CHIP8::SET_DELAY(const Instruction& instr){}
-int CHIP8::SET_SOUND(const Instruction& instr){}
-int CHIP8::ADD_I(const Instruction& instr){}
-int CHIP8::LD_SPRITE(const Instruction& instr){}
-int CHIP8::STORE_BCD(const Instruction& instr){}
-int CHIP8::LD_ARR(const Instruction& instr){}
-int CHIP8::LOAD_BCD(const Instruction& instr){}
+
+void CHIP8::SYS(const Instruction& instr){
+// do nothing but increment PC
+    cpu.increment_pc();
+}
+
+void CHIP8::CLS(const Instruction& instr){
+    disp.clear();
+    cpu.increment_pc();
+}
+
+void CHIP8::RET(const Instruction& instr){}
+void CHIP8::JP_DIRECT(const Instruction& instr){}
+void CHIP8::CALL(const Instruction& instr){}
+void CHIP8::SE_DIRECT(const Instruction& instr){}
+void CHIP8::SNE_DIRECT(const Instruction& instr){}
+void CHIP8::SE_REG(const Instruction& instr){}
+void CHIP8::LD_DIRECT(const Instruction& instr){}
+void CHIP8::ADD_DIRECT(const Instruction& instr){}
+void CHIP8::LD_REG(const Instruction& instr){}
+void CHIP8::OR(const Instruction& instr){}
+void CHIP8::AND(const Instruction& instr){}
+void CHIP8::XOR(const Instruction& instr){}
+void CHIP8::ADD(const Instruction& instr){}
+void CHIP8::SUB(const Instruction& instr){}
+void CHIP8::SHR(const Instruction& instr){}
+void CHIP8::SUBN(const Instruction& instr){}
+void CHIP8::SHL(const Instruction& instr){}
+void CHIP8::SNE(const Instruction& instr){}
+void CHIP8::LD_DIRECT_I(const Instruction& instr){}
+void CHIP8::JP_OFFSET(const Instruction& instr){}
+void CHIP8::RND(const Instruction& instr){}
+void CHIP8::DRW(const Instruction& instr){}
+void CHIP8::SKP(const Instruction& instr){}
+void CHIP8::SKNP(const Instruction& instr){}
+void CHIP8::LD_DELAY(const Instruction& instr){}
+void CHIP8::LD_KEY(const Instruction& instr){}
+void CHIP8::SET_DELAY(const Instruction& instr){}
+void CHIP8::SET_SOUND(const Instruction& instr){}
+void CHIP8::ADD_I(const Instruction& instr){}
+void CHIP8::LD_SPRITE(const Instruction& instr){}
+void CHIP8::STORE_BCD(const Instruction& instr){}
+void CHIP8::LD_ARR(const Instruction& instr){}
+void CHIP8::LOAD_BCD(const Instruction& instr){}

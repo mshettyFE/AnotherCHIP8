@@ -13,3 +13,23 @@ TEST(CPUTest,EncodeDecodeMachine){
     auto val = a.get_machine_code();
     EXPECT_EQ(val, starting);
 }
+
+TEST(CPUTest, SYS){
+    CHIP8 interpreter;
+    auto instr = Instruction(0,0,0,5);
+    auto current_pc = interpreter.cpu.get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+1, interpreter.cpu.get_pc());
+}
+
+TEST(CPUTest, CLS){
+    CHIP8 interpreter;
+    interpreter.disp.write(dis_width-1,dis_height-1); // Set last pixel to white
+    auto value = interpreter.disp(dis_width-1,dis_height-1);
+    auto instr = Instruction(0,0,0xE,0);
+    auto current_pc = interpreter.cpu.get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+1, interpreter.cpu.get_pc());
+}

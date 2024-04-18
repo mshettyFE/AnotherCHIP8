@@ -1,11 +1,12 @@
 #include "Display.h"
+#include "Constants.h"
 #include <iostream>
 #include <stdexcept>
 #include <SDL2/SDL.h>
 #include <cstring>
 
 Display::Display(bool visible){
-    for(int i=0; i< display.size(); i++){
+    for(long unsigned int i=0; i< display.size(); i++){
         display[i] = 0;
     }
     if(SDL_InitSubSystem(SDL_INIT_VIDEO) != 0){
@@ -18,8 +19,8 @@ Display::Display(bool visible){
             "CHIP8",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            dis_width*10,
-            dis_height*10,
+            dis_width*screen_scaling,
+            dis_height*screen_scaling,
             SDL_WINDOW_SHOWN
         );
     }
@@ -28,8 +29,8 @@ Display::Display(bool visible){
             "CHIP8",
             SDL_WINDOWPOS_UNDEFINED,
             SDL_WINDOWPOS_UNDEFINED,
-            dis_width*10,
-            dis_height*10, SDL_WINDOW_HIDDEN
+            dis_width*screen_scaling,
+            dis_height*screen_scaling, SDL_WINDOW_HIDDEN
         );
     }
     if(window==nullptr){
@@ -68,7 +69,7 @@ int Display::get_index(unsigned int  x, unsigned int  y) const{
     return y*64+x;
 }
 
-uint8_t Display::operator()(unsigned int x, unsigned int y) const{
+uint32_t Display::operator()(unsigned int x, unsigned int y) const{
     return display[get_index(x,y)];
 }
 
@@ -82,14 +83,15 @@ void Display::print() const{
     }
 }
 
-void Display::write(unsigned int x, unsigned int y, bool on){
+void Display::write(unsigned int x, unsigned int y){
+// spec demands that you XOR the selected pixel with WHITE
     auto index = get_index(x,y);
-    if(on){
-        display[index] = 0xFFFFFFFF;
-    }
-    else{
-        display[index] = 0;
-    }
+    display[index] = display[index] ^ 0xFFFFFFFF;
+}
+
+void Display::clear(){
+// set everything to 0 in display array
+    memset(this->display.data(),0,dis_height*dis_width);
 }
 
 void Display::to_screen(){
@@ -108,10 +110,7 @@ void Display::test_checkers(){
     for(int i=0; i< dis_height; ++i){
         for(int j =0; j< dis_width; ++j){
             if((i+j)%2){
-                write(j,i,true);
-            }
-            else{
-                write(j,i,false);
+                write(j,i);
             }
         }
     }

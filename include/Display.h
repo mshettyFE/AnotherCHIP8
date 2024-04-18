@@ -17,8 +17,9 @@ public:
   Display(bool visible=true);
   ~Display();
   void print() const;
-  uint8_t operator()(unsigned int x, unsigned int y) const;
-  void write(unsigned int x, unsigned int y, bool on);
+  void clear();
+  uint32_t operator()(unsigned int x, unsigned int y) const; // read value at x,y coordinate
+  void write(unsigned int x, unsigned int y);
   void test_checkers();
   void to_screen();
 };

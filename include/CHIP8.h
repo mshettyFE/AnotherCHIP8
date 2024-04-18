@@ -17,41 +17,41 @@ class CHIP8{
 private:
     bool loaded=true;
 // assembly instructions
-    int SYS(const Instruction& instr);
-    int CLS(const Instruction& instr);
-    int RET(const Instruction& instr);
-    int JP_DIRECT(const Instruction& instr);
-    int CALL(const Instruction& instr);
-    int SE_DIRECT(const Instruction& instr);
-    int SNE_DIRECT(const Instruction& instr);
-    int SE_REG(const Instruction& instr);
-    int LD_DIRECT(const Instruction& instr);
-    int ADD_DIRECT(const Instruction& instr);
-    int LD_REG(const Instruction& instr);
-    int OR(const Instruction& instr);
-    int AND(const Instruction& instr);
-    int XOR(const Instruction& instr);
-    int ADD(const Instruction& instr);
-    int SUB(const Instruction& instr);
-    int SHR(const Instruction& instr);
-    int SUBN(const Instruction& instr);
-    int SHL(const Instruction& instr);
-    int SNE(const Instruction& instr);
-    int LD_DIRECT_I(const Instruction& instr);
-    int JP_OFFSET(const Instruction& instr);
-    int RND(const Instruction& instr);
-    int DRW(const Instruction& instr);
-    int SKP(const Instruction& instr);
-    int SKNP(const Instruction& instr);
-    int LD_DELAY(const Instruction& instr);
-    int LD_KEY(const Instruction& instr);
-    int SET_DELAY(const Instruction& instr);
-    int SET_SOUND(const Instruction& instr);
-    int ADD_I(const Instruction& instr);
-    int LD_SPRITE(const Instruction& instr);
-    int STORE_BCD(const Instruction& instr);
-    int LD_ARR(const Instruction& instr);
-    int LOAD_BCD(const Instruction& instr);
+    void SYS(const Instruction& instr);
+    void CLS(const Instruction& instr);
+    void RET(const Instruction& instr);
+    void JP_DIRECT(const Instruction& instr);
+    void CALL(const Instruction& instr);
+    void SE_DIRECT(const Instruction& instr);
+    void SNE_DIRECT(const Instruction& instr);
+    void SE_REG(const Instruction& instr);
+    void LD_DIRECT(const Instruction& instr);
+    void ADD_DIRECT(const Instruction& instr);
+    void LD_REG(const Instruction& instr);
+    void OR(const Instruction& instr);
+    void AND(const Instruction& instr);
+    void XOR(const Instruction& instr);
+    void ADD(const Instruction& instr);
+    void SUB(const Instruction& instr);
+    void SHR(const Instruction& instr);
+    void SUBN(const Instruction& instr);
+    void SHL(const Instruction& instr);
+    void SNE(const Instruction& instr);
+    void LD_DIRECT_I(const Instruction& instr);
+    void JP_OFFSET(const Instruction& instr);
+    void RND(const Instruction& instr);
+    void DRW(const Instruction& instr);
+    void SKP(const Instruction& instr);
+    void SKNP(const Instruction& instr);
+    void LD_DELAY(const Instruction& instr);
+    void LD_KEY(const Instruction& instr);
+    void SET_DELAY(const Instruction& instr);
+    void SET_SOUND(const Instruction& instr);
+    void ADD_I(const Instruction& instr);
+    void LD_SPRITE(const Instruction& instr);
+    void STORE_BCD(const Instruction& instr);
+    void LD_ARR(const Instruction& instr);
+    void LOAD_BCD(const Instruction& instr);
 
     template<
         typename T,
@@ -63,12 +63,16 @@ private:
         return ss.str();
     }
     std::string decoding_error(const Instruction& instr);
+// Grab binary of current instruction
+    uint16_t fetch() const;
 // function pointer to arbitrary assembly instruction
-    typedef int(CHIP8::*assembly_func)(const Instruction&);
+    typedef void(CHIP8::*assembly_func)(const Instruction&);
 // Take a bundled instruction and map it to the appropriate assembly instruction
     assembly_func decode(const Instruction& instr, std::string& out_msg, bool debug=false);
 // take an assembly instruction, and do it (debug is is to print out debug info)
-    int execute(assembly_func fnc, const Instruction& instr);
+    void execute(assembly_func fnc, const Instruction& instr);
+// check endianness of system
+    bool is_big_endian();
 public:
     CPU cpu;
     Display disp;
@@ -78,7 +82,6 @@ public:
     void print() const;
     void load(std::string file);
     std::string disassemble();
-    uint16_t fetch() const;
 
     Instruction bundle(uint16_t instruction) const; // wrap machine code instruction into a class for easier handling
     std::string decompile(const Instruction& instr); // convert instruction to associated assembly instruction
@@ -86,5 +89,4 @@ public:
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 };
 
-bool is_big_endian(void);
 #endif
