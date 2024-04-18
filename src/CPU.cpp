@@ -5,7 +5,7 @@
 #include <mutex>
 #include <chrono>
 
-CPU::CPU(){
+CPU::CPU(bool threading_on){
   pc=START;
   sound = 0;
   delay=0;
@@ -32,16 +32,19 @@ CPU::CPU(){
       throw std::invalid_argument(message);
   }
   SDL_PauseAudioDevice(audio_device,0);     
-// Create and detach deamon thread that auto-decrements delay counter if non-zero
-  std::thread delay_dec( [this] { this->decrement_delay(); } );
-  delay_dec.detach();
-// same for sound
-  std::thread sound_dec( [this] { this->decrement_sound(); } );
-  sound_dec.detach();
+  if(threading_on){
+    std::cout << "Threading On" << std::endl;
+  // Create and detach deamon thread that auto-decrements delay counter if non-zero
+    std::thread delay_dec( [this] { this->decrement_delay(); } );
+    delay_dec.detach();
+  // same for sound
+    std::thread sound_dec( [this] { this->decrement_sound(); } );
+    sound_dec.detach();
+  }
 }
 
 CPU::~CPU(){
-  SDL_CloseAudioDevice(audio_device);
+    SDL_CloseAudioDevice(audio_device);
 }
 
 uint16_t CPU::get_pc() const{return this->pc;}
@@ -146,11 +149,11 @@ void CPU::set_I(uint16_t value) {
 }
 
 void CPU::increment_pc(){
-  this->pc++;
+  this->pc = this->pc + instruction_size;
 }
 
 void CPU::decrement_pc(){
-  this->pc--;
+  this->pc = this->pc - instruction_size;
 }
 
 void CPU::set_pc(uint16_t value){
@@ -180,4 +183,5 @@ uint16_t CPU::poke_stack(uint8_t value){
     std::cout << e.what() << std::endl;
     return 0; // PC should never ever end up in this state normally
   }
+  return output;
 }

@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <sstream>
+#include <memory>
 
 // Good references
 // [1] https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
@@ -74,11 +75,12 @@ private:
 // check endianness of system
     bool is_big_endian();
 public:
-    CPU cpu;
-    Display disp;
-    Memory mem;
-    KeyPad keys;
-    CHIP8(bool visible=true);
+
+    std::unique_ptr<CPU> cpu;
+    std::unique_ptr<Display> disp;
+    std::unique_ptr<Memory> mem;
+    std::unique_ptr<KeyPad> keys;
+    CHIP8(bool visible=true, bool threading=true);
     void print() const;
     void load(std::string file);
     std::string disassemble();

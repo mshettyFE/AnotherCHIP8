@@ -7,6 +7,8 @@
 // CPU
 static constexpr  uint8_t max_stack_size=16; // The stack can't be bigger than this number. 16 is standard.
 static constexpr  uint16_t I_MASK= 0x0FFF; // Allows one to only select the bottom 3 nibbles of the I register
+static constexpr uint8_t instruction_size = 2; // number of bytes that each instruction is
+
 // Display
 static constexpr char dis_width = 64; // width of screen
 static constexpr char dis_height = 32; // height of screen

@@ -44,9 +44,11 @@ private:
   void decrement_sound();
   SDL_AudioDeviceID audio_device;
 public:
-  CPU();
-  ~CPU();
   std::unique_ptr<Oscillator> osc = std::make_unique<Oscillator>(Oscillator(SAMPLE_RATE, INIT_VOLUME)); // sampler to play audio
+
+  CPU(bool threading_on=true);
+  ~CPU();
+
   uint16_t get_pc() const;
   uint8_t get_sound() const;
   uint8_t get_delay() const;

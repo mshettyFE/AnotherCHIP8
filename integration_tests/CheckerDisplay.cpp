@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]){
 
-  CHIP8 interpreter;
+  CHIP8 interpreter(true,true);
   interpreter.disp.test_checkers();
   interpreter.print();
 

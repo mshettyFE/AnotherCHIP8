@@ -8,8 +8,12 @@
 
 #define VERBOSE_CPU
 
-CHIP8::CHIP8(bool visible){
-    Display disp(visible);
+CHIP8::CHIP8(bool visible, bool threading){
+    // problem here. cpu not gettin initialized with threading
+    cpu = std::make_unique<CPU>(threading);
+    disp = std::make_unique<Display>(visible);
+    mem = std::make_unique<Memory>();
+    keys = std::make_unique<KeyPad>();
 }
 
 bool CHIP8::is_big_endian(void){
@@ -61,8 +65,8 @@ void CHIP8::load(std::string filename){
             first = buffer[i+1];
             second = buffer[i];
         }
-        this->mem.write(START+i, first);
-        this->mem.write(START+i+1, second);
+        this->mem->write(START+i, first);
+        this->mem->write(START+i+1, second);
     }
     program.close();
     loaded = true;
@@ -70,17 +74,17 @@ void CHIP8::load(std::string filename){
 
 void CHIP8::print() const{
     std::cout << "CPU" << std::endl;
-    cpu.print();
+    cpu->print();
     std::cout << "Display" << std::endl;
-    disp.print();
+    disp->print();
     std::cout << "Memory" << std::endl;
-    mem.dump();
+    mem->dump();
 }
 
 std::string CHIP8::disassemble() {
     std::string output;
     for(int addr=START; addr<MAX_PROGRAM_SIZE; addr+=2){
-        auto machine_code = this->mem.read_machine_code(addr);
+        auto machine_code = this->mem->read_machine_code(addr);
         if(machine_code!=0){
             auto instruction = Instruction(machine_code);
             std::string assembly = decompile(instruction)+"\n";
@@ -92,7 +96,7 @@ std::string CHIP8::disassemble() {
 
 uint16_t CHIP8::fetch() const{
     if(loaded){
-        return this->mem.read_machine_code(this->cpu.get_pc());
+        return this->mem->read_machine_code(this->cpu->get_pc());
     }
     throw std::invalid_argument("No program loaded");
 }
@@ -353,24 +357,30 @@ std::string CHIP8::test_instruction(const Instruction& instr){
 
 void CHIP8::SYS(const Instruction& instr){
 // do nothing but increment PC
-    cpu.increment_pc();
+    cpu->increment_pc();
 }
 
 void CHIP8::CLS(const Instruction& instr){
-    disp.clear();
-    cpu.increment_pc();
+    disp->clear();
+    cpu->increment_pc();
 }
 
 void CHIP8::RET(const Instruction& instr){
-    auto new_pc = this->cpu.pop_stack();
-    this->cpu.set_pc(new_pc);
+    auto new_pc = this->cpu->pop_stack();
+    this->cpu->set_pc(new_pc);
 }
 
-void CHIP8::JP_DIRECT(const Instruction& instr){}
+void CHIP8::JP_DIRECT(const Instruction& instr){
+    auto mem_addr = instr.get_mem_addr();
+    if(mem_addr%2==1){
+        throw std::invalid_argument("Jumping to odd address");
+    }
+    this->cpu->set_pc(mem_addr);
+}
 
 void CHIP8::CALL(const Instruction& instr){
-    this->cpu.push_stack(this->cpu.get_pc());
-    this->cpu.set_pc(instr.get_mem_addr());
+    this->cpu->push_stack(this->cpu->get_pc());
+    this->cpu->set_pc(instr.get_mem_addr());
 }
 
 void CHIP8::SE_DIRECT(const Instruction& instr){}

@@ -16,11 +16,12 @@ private:
   SDL_Surface* surface = nullptr;
   int get_index(unsigned int x, unsigned int y) const;
 public: 
-  Display(bool visible=true);
+  Display(bool visible);
   ~Display();
+
   void print() const;
   void clear();
-  uint32_t operator()(unsigned int x, unsigned int y) const; // read value at x,y coordinate
+  uint32_t read(unsigned int x, unsigned int y) const; // read value at x,y coordinate
   void write(unsigned int x, unsigned int y);
   void test_checkers();
   void to_screen();

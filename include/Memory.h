@@ -11,6 +11,7 @@ private:
   void write_character_set(unsigned char offset=0x050);
 public:
     Memory();
+    
     uint8_t read(uint16_t address) const;
     void write(uint16_t address, uint8_t value);
     uint16_t read_machine_code(uint16_t address) const;

@@ -62,14 +62,13 @@ Display::~Display(){
     SDL_DestroyWindow(window);
 }
 
-
 int Display::get_index(unsigned int  x, unsigned int  y) const{
     if(x>=64){    throw std::invalid_argument("x out of bounds");}
     if(y>=32){    throw std::invalid_argument("y out of bounds");}
     return y*64+x;
 }
 
-uint32_t Display::operator()(unsigned int x, unsigned int y) const{
+uint32_t Display::read(unsigned int x, unsigned int y) const{
     return display[get_index(x,y)];
 }
 
