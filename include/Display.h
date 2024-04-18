@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 #include "Constants.h"
 
+enum{BLACK=0, WHITE=0xFFFFFFFF};
+
 class Display{
 private:
   std::array<uint32_t,dis_height*dis_width> display;

@@ -134,11 +134,11 @@ void CPU::set_VF(bool is_set){
   this->Vx[15] = is_set;
 }
 
-void CPU::set_Vx(uint8_t i,uint8_t value) {
+void CPU::set_Vx(uint8_t i,uint8_t value) {  
   if(i>=15){
     throw std::invalid_argument("invalid register (Also, cant write to F register)");
   }
-  this->Vx[15] = value;
+  this->Vx[i] = value;
 }
 
 void CPU::set_I(uint16_t value) {
@@ -165,7 +165,19 @@ void CPU::push_stack(uint16_t value){
 }
 
 uint16_t CPU::pop_stack(){
-  auto output = chip_stack[0];
+  auto output = chip_stack.at(0);
   this->chip_stack.pop_front();
   return output;
+}
+
+uint16_t CPU::poke_stack(uint8_t value){
+// debugging function to check values in the stack without desturbing it
+  uint16_t output;
+  try{
+    output =   this->chip_stack.at(value);
+  }
+  catch(const std::out_of_range& e){
+    std::cout << e.what() << std::endl;
+    return 0; // PC should never ever end up in this state normally
+  }
 }

@@ -7,6 +7,8 @@
 #include <atomic>
 #include <memory>
 #include <chrono>
+#include <array>
+
 #include "Sound.h"
 
 #include "Constants.h"
@@ -35,7 +37,7 @@ private:
   std::atomic<uint8_t>  sound;
   std::atomic<uint8_t>  delay;
 // Public registers directly accessible by program
-  uint8_t Vx[16]; // public 16-bit registers. Don't use register F
+  std::array<uint8_t,16> Vx; // public 16-bit registers. Don't use register F
   uint16_t I; // Stores memory addresses. Only bottom 12 bits used
 // decrement register atomically
   void decrement_delay();
@@ -63,6 +65,8 @@ public:
 
   void push_stack(uint16_t value);
   uint16_t pop_stack();
+  uint16_t poke_stack(uint8_t value);
+  uint8_t get_stack_size() const{return this->chip_stack.size();}
 
   void print() const;
 };

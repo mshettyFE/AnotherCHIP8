@@ -86,12 +86,14 @@ void Display::print() const{
 void Display::write(unsigned int x, unsigned int y){
 // spec demands that you XOR the selected pixel with WHITE
     auto index = get_index(x,y);
-    display[index] = display[index] ^ 0xFFFFFFFF;
+    display[index] = display[index] ^ WHITE;
 }
 
 void Display::clear(){
 // set everything to 0 in display array
-    memset(this->display.data(),0,dis_height*dis_width);
+    for(unsigned long int i=0; i<dis_height*dis_width; ++i){
+        display[i]=0;        
+    }
 }
 
 void Display::to_screen(){

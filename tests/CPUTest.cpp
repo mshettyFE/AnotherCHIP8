@@ -26,10 +26,20 @@ TEST(CPUTest, SYS){
 TEST(CPUTest, CLS){
     CHIP8 interpreter;
     interpreter.disp.write(dis_width-1,dis_height-1); // Set last pixel to white
-    auto value = interpreter.disp(dis_width-1,dis_height-1);
+    EXPECT_EQ(interpreter.disp(dis_width-1,dis_height-1), WHITE);
     auto instr = Instruction(0,0,0xE,0);
     auto current_pc = interpreter.cpu.get_pc();
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(current_pc+1, interpreter.cpu.get_pc());
+    EXPECT_EQ(interpreter.disp(dis_width-1,dis_height-1), BLACK);
+}
+
+TEST(CPUTest, CALL){
+    CHIP8 interpreter;
+    auto instr = Instruction(2,0xF,0xF,0xF);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu.get_stack_size(), 1);
+    EXPECT_EQ(interpreter.cpu.get_pc(), 0xFFF);
 }

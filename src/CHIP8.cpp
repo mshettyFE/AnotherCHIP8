@@ -110,7 +110,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
                 case 0x00E0:                
                     // CLS
                     if(debug){out_msg = "CLS";}
-                    return &CHIP8::SYS;
+                    return &CHIP8::CLS;
                     break;
                 case 0x00EE:
                     // RET
@@ -363,7 +363,12 @@ void CHIP8::CLS(const Instruction& instr){
 
 void CHIP8::RET(const Instruction& instr){}
 void CHIP8::JP_DIRECT(const Instruction& instr){}
-void CHIP8::CALL(const Instruction& instr){}
+
+void CHIP8::CALL(const Instruction& instr){
+    this->cpu.push_stack(this->cpu.get_pc());
+    this->cpu.set_pc(instr.get_mem_addr());
+}
+
 void CHIP8::SE_DIRECT(const Instruction& instr){}
 void CHIP8::SNE_DIRECT(const Instruction& instr){}
 void CHIP8::SE_REG(const Instruction& instr){}
