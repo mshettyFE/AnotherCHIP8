@@ -361,7 +361,11 @@ void CHIP8::CLS(const Instruction& instr){
     cpu.increment_pc();
 }
 
-void CHIP8::RET(const Instruction& instr){}
+void CHIP8::RET(const Instruction& instr){
+    auto new_pc = this->cpu.pop_stack();
+    this->cpu.set_pc(new_pc);
+}
+
 void CHIP8::JP_DIRECT(const Instruction& instr){}
 
 void CHIP8::CALL(const Instruction& instr){

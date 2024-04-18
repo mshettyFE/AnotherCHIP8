@@ -15,7 +15,7 @@ TEST(CPUTest,EncodeDecodeMachine){
 }
 
 TEST(CPUTest, SYS){
-    CHIP8 interpreter;
+    CHIP8 interpreter(false);
     auto instr = Instruction(0,0,0,5);
     auto current_pc = interpreter.cpu.get_pc();
     auto msg = interpreter.test_instruction(instr);
@@ -24,7 +24,7 @@ TEST(CPUTest, SYS){
 }
 
 TEST(CPUTest, CLS){
-    CHIP8 interpreter;
+    CHIP8 interpreter(false);
     interpreter.disp.write(dis_width-1,dis_height-1); // Set last pixel to white
     EXPECT_EQ(interpreter.disp(dis_width-1,dis_height-1), WHITE);
     auto instr = Instruction(0,0,0xE,0);
@@ -36,10 +36,23 @@ TEST(CPUTest, CLS){
 }
 
 TEST(CPUTest, CALL){
-    CHIP8 interpreter;
+    CHIP8 interpreter(false);
     auto instr = Instruction(2,0xF,0xF,0xF);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu.get_stack_size(), 1);
     EXPECT_EQ(interpreter.cpu.get_pc(), 0xFFF);
+}
+
+TEST(CPUTest, RET){
+    CHIP8 interpreter(false);
+    auto instr = Instruction(2,0xF,0xF,0xF);
+    auto old_pc = interpreter.cpu.get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    instr = Instruction(0x0,0x0,0xE,0xE);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu.get_stack_size(), 0);
+    EXPECT_EQ(interpreter.cpu.get_pc(), old_pc);
 }
