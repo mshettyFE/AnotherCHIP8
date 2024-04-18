@@ -97,21 +97,22 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
     switch(instr.get_hhb()){
         case 0x0:
-            // CLS
-            auto mem_addr = instr.get_mem_addr();
-            if(mem_addr==0x00E0){
-                if(debug){out_msg = "CLS";}
-                return &CHIP8::SYS;
-            }
-            // RET
-            else if(mem_addr = 0x00EE){
-                if(debug){out_msg = "RET";}
-                return &CHIP8::RET;
-            }
-            // SYS addr
-            else{
-                if(debug){out_msg  = "SYS "+ hex_to_string<uint16_t>(instr.get_mem_addr());}
-                return &CHIP8::SYS;
+            switch(instr.get_mem_addr()){
+                case 0x00E0:                
+                    // CLS
+                    if(debug){out_msg = "CLS";}
+                    return &CHIP8::SYS;
+                    break;
+                case 0x00EE:
+                    // RET
+                    if(debug){out_msg = "RET";}
+                    return &CHIP8::RET;
+                    break;
+                default:
+                    // SYS addr
+                    if(debug){out_msg  = "SYS "+ hex_to_string<uint16_t>(instr.get_mem_addr());}
+                    return &CHIP8::SYS;
+                    break;
             }
             break;
         case 0x1:
@@ -122,7 +123,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
         case 0x2:
             // CALL addr
             if(debug){out_msg  = "CALL "+ hex_to_string<uint16_t>(instr.get_mem_addr());}
-            return &CHIP8::CALL_DIRECT;
+            return &CHIP8::CALL;
             break;
         case 0x3:
             // SE Vx, byte
@@ -135,10 +136,16 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
             return &CHIP8::SNE_DIRECT;
             break;
         case 0x5:
-            // SE Vx, Vy
-            if(debug){out_msg  = "SE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " + hex_to_string<uint8_t>(instr.get_hlb())+" "+hex_to_string<uint8_t>(instr.get_llb());}
-            return &CHIP8::SE_REG;
-            break;
+            switch(instr.get_llb()){
+                case 0x0:
+                    // SE Vx, Vy
+                    if(debug){out_msg  = "SE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " + hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SE_REG;
+                    break;
+                default:
+                    throw std::invalid_argument(decoding_error(instr));
+                    break;
+            }
         case 0x6:
             // LD Vx, byte
             if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_lower_byte());}
@@ -150,23 +157,161 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
             return &CHIP8::LD_DIRECT;
             break;
         case 0x8:
+            switch(instr.get_llb()){
+                case 0x0:
+                    // LD Vx, Vy
+                    if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::LD_REG;
+                    break;
+                case 0x1:
+                    // OR Vx, Vy
+                    if(debug){out_msg  = "OR "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::OR;
+                    break;
+                case 0x2:
+                    // AND Vx, Vy
+                    if(debug){out_msg  = "AND "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::AND;
+                    break;
+                case 0x3:
+                    // XOR Vx, Vy
+                    if(debug){out_msg  = "XOR "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::XOR;
+                    break;
+                case 0x4:
+                    // ADD Vx, Vy
+                    if(debug){out_msg  = "XOR "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::ADD;
+                    break;
+                case 0x5:
+                    // SUB Vx, Vy
+                    if(debug){out_msg  = "SUB "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SUB;
+                    break;
+                case 0x6:
+                    // SHR Vx, Vy
+                    if(debug){out_msg  = "SHR "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SHR;
+                    break;
+                case 0x7:
+                    // SUBN Vx, Vy
+                    if(debug){out_msg  = "SUBN "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SUBN;
+                    break;
+                case 0xE:
+                    // SHL Vx {, Vy}
+                    if(debug){out_msg  = "SHL "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SHL;
+                    break;
+                default:
+                   throw std::invalid_argument(decoding_error(instr));
+                    break;
+            }
             break;
         case 0x9:
-            break;
+            switch(instr.get_llb()){
+                case 0x0:
+                    // SNE Vx, Vy
+                    if(debug){out_msg  = "SNE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    return &CHIP8::SNE;
+                    break;
+                default:
+                   throw std::invalid_argument(decoding_error(instr));
+                    break;
+            }
         case 0xA:
+            // LD I, addr
+            if(debug){out_msg  = "LD I,"+ instr.get_mem_addr();}
+            return &CHIP8::LD_DIRECT_I;
             break;
         case 0xB:
+            // JP V0, addr
+            if(debug){out_msg  = "JP V0"+ instr.get_mem_addr();}
+            return &CHIP8::JP_OFFSET;
             break;
         case 0xC:
+            // RND Vx, byte
+            if(debug){out_msg  = "RND "+ hex_to_string<uint8_t>(instr.get_lhb())+" " +hex_to_string<uint8_t>(instr.get_lower_byte());}
+            return &CHIP8::RND;
             break;
         case 0xD:
+            // DRW Vx, Vy, nibble
+            if(debug){out_msg  = "DRW "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb())+" "+hex_to_string<uint8_t>(instr.get_llb());}
+            return &CHIP8::DRW;
             break;
         case 0xE:
+            switch(instr.get_lower_byte()){
+                case 0x9E:
+                    // SKP Vx
+                    if(debug){out_msg  = "SKP "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::SKP;
+                    break;
+                case 0xA1:
+                    // SKNP Vx
+                    if(debug){out_msg  = "SKNP "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::SKNP;
+                    break;
+                default:
+                    throw std::invalid_argument(decoding_error(instr));
+                    break;
+            }
             break;
         case 0xF:
+            switch (instr.get_lower_byte()){
+                case 0x07:
+                    // LD Vx, DT
+                    if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+" DT";}
+                    return &CHIP8::LD_DIRECT;
+                    break;
+                case 0x0A:
+                    // LD Vx, K
+                    if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+" K";}
+                    return &CHIP8::LD_KEY;
+                    break;
+                case 0x15:
+                    // LD DT, Vx
+                    if(debug){out_msg  = "LD DT "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::SET_DELAY;
+                    break;
+                case 0x18:
+                    // LD DT, Vx
+                    if(debug){out_msg  = "LD ST "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::SET_SOUND;
+                    break;
+                case 0x1E:
+                    // ADD I, Vx
+                    if(debug){out_msg  = "ADD I, "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::ADD_I;
+                    break;
+                case 0x29:
+                    // LD F, Vx
+                    if(debug){out_msg  = "LD F, "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::LD_SPRITE;
+                    break;
+                case 0x33:
+                    // LD B, Vx
+                    if(debug){out_msg  = "LD B, "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::STORE_BCD;
+                    break;
+                case 0x055:
+                    // LD [I], Vx
+                    if(debug){out_msg  = "LD [I], "+ hex_to_string<uint8_t>(instr.get_lhb());}
+                    return &CHIP8::LD_ARR;
+                    break;
+                case 0x65:
+                    // LD Vx, [I]
+                    if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " [I]";}
+                    return &CHIP8::LOAD_BCD;
+                    break;
+                
+                default:
+                    throw std::invalid_argument(decoding_error(instr));
+                    break;
+            }
             break;
         default:
-        throw std::invalid_argument(decoding_error(instr));
+            throw std::invalid_argument(decoding_error(instr));
+            break;
     }
 }
 
@@ -201,7 +346,7 @@ int CHIP8::SYS(const Instruction& instr){}
 int CHIP8::CLS(const Instruction& instr){}
 int CHIP8::RET(const Instruction& instr){}
 int CHIP8::JP_DIRECT(const Instruction& instr){}
-int CHIP8::CALL_DIRECT(const Instruction& instr){}
+int CHIP8::CALL(const Instruction& instr){}
 int CHIP8::SE_DIRECT(const Instruction& instr){}
 int CHIP8::SNE_DIRECT(const Instruction& instr){}
 int CHIP8::SE_REG(const Instruction& instr){}
@@ -222,7 +367,7 @@ int CHIP8::JP_OFFSET(const Instruction& instr){}
 int CHIP8::RND(const Instruction& instr){}
 int CHIP8::DRW(const Instruction& instr){}
 int CHIP8::SKP(const Instruction& instr){}
-int CHIP8::SKPN(const Instruction& instr){}
+int CHIP8::SKNP(const Instruction& instr){}
 int CHIP8::LD_DELAY(const Instruction& instr){}
 int CHIP8::LD_KEY(const Instruction& instr){}
 int CHIP8::SET_DELAY(const Instruction& instr){}

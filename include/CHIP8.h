@@ -5,7 +5,9 @@
 #include "Display.h"
 #include "Memory.h"
 #include "Keyboard.h"
+#include <iomanip>
 #include <type_traits>
+#include <sstream>
 
 // Good references
 // [1] https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
@@ -19,7 +21,7 @@ private:
     int CLS(const Instruction& instr);
     int RET(const Instruction& instr);
     int JP_DIRECT(const Instruction& instr);
-    int CALL_DIRECT(const Instruction& instr);
+    int CALL(const Instruction& instr);
     int SE_DIRECT(const Instruction& instr);
     int SNE_DIRECT(const Instruction& instr);
     int SE_REG(const Instruction& instr);
@@ -40,7 +42,7 @@ private:
     int RND(const Instruction& instr);
     int DRW(const Instruction& instr);
     int SKP(const Instruction& instr);
-    int SKPN(const Instruction& instr);
+    int SKNP(const Instruction& instr);
     int LD_DELAY(const Instruction& instr);
     int LD_KEY(const Instruction& instr);
     int SET_DELAY(const Instruction& instr);
@@ -56,9 +58,9 @@ private:
         typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
     >
     std::string hex_to_string(T variable){
-        std::stringstream out;
-        out << std::hex << instr.get_machine_code();
-        return out.str();
+        std::stringstream ss;
+        ss << "0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << variable;
+        return ss.str();
     }
     std::string decoding_error(const Instruction& instr);
 // function pointer to arbitrary assembly instruction
