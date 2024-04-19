@@ -167,7 +167,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
         case 0x7:
             // ADD Vx, byte
             if(debug){out_msg  = "ADD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_lower_byte());}
-            return &CHIP8::LD_DIRECT;
+            return &CHIP8::ADD_DIRECT;
             break;
         case 0x8:
             switch(instr.get_llb()){
@@ -413,7 +413,12 @@ void CHIP8::LD_DIRECT(const Instruction& instr){
     this->cpu->set_Vx(instr.get_lhb(),instr.get_lower_byte());
 }
 
-void CHIP8::ADD_DIRECT(const Instruction& instr){}
+void CHIP8::ADD_DIRECT(const Instruction& instr){
+    auto reg= instr.get_lhb();
+    auto result = this->cpu->get_Vx(reg)+instr.get_lower_byte();
+    this->cpu->set_Vx(reg,result);
+}
+
 void CHIP8::LD_REG(const Instruction& instr){}
 void CHIP8::OR(const Instruction& instr){}
 void CHIP8::AND(const Instruction& instr){}
