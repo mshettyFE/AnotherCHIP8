@@ -528,8 +528,17 @@ void CHIP8::LD_DELAY(const Instruction& instr){}
 void CHIP8::LD_KEY(const Instruction& instr){}
 void CHIP8::SET_DELAY(const Instruction& instr){}
 void CHIP8::SET_SOUND(const Instruction& instr){}
-void CHIP8::ADD_I(const Instruction& instr){}
-void CHIP8::LD_SPRITE(const Instruction& instr){}
+
+void CHIP8::ADD_I(const Instruction& instr){
+    auto I = this->cpu->get_I();
+    auto VX = this->cpu->get_Vx(instr.get_lhb());
+    this->cpu->set_I(I+VX);
+}
+
+void CHIP8::LD_SPRITE(const Instruction& instr){
+    auto val = instr.get_lhb();
+    this->cpu->set_I(CHAR_OFFSET+val*5);
+}
 
 void CHIP8::STORE_BCD(const Instruction& instr){
     uint16_t cur_I = this->cpu->get_I();

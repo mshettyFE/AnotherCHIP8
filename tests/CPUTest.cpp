@@ -524,6 +524,38 @@ TEST(CPUTest, Read_Regs_Good){
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 
+TEST(CPUTest, Store_BCD_OOB){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0FFF;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0x1,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, true);
+}
+
+TEST(CPUTest, Store_BCD_VF){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0FFF;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0xF,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, true);
+}
+
 TEST(CPUTest, Store_BCD_All_Good){
     CHIP8 interpreter(false,false);
     auto current_pc = interpreter.cpu->get_pc();
@@ -543,4 +575,132 @@ TEST(CPUTest, Store_BCD_All_Good){
     EXPECT_EQ(interpreter.mem->read(starting_addr), 2);
     EXPECT_EQ(interpreter.mem->read(starting_addr+1), 5);
     EXPECT_EQ(interpreter.mem->read(starting_addr+2), 4);
+}
+
+TEST(CPUTest, LoadSprite){
+    CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
+// 0
+    auto instr = Instruction(0xF,0x0,0x2,0x9);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*0);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+// 1
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x1,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*1);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+// 2
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x2,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*2);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 3
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x3,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*3);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 4
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x4,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*4);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 5
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x5,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*5);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 6
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x6,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*6);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 7
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x7,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*7);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 8
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x8,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*8);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 9
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,0x9,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*9);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 10
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,10,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*10);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 11
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,11,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*11);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 12
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,12,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*12);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 13
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,13,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*13);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 14
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,14,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*14);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+// 15
+    current_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0xF,15,0x2,0x9);
+    msg = interpreter.test_instruction(instr);
+    EXPECT_EQ(interpreter.cpu->get_I(), CHAR_OFFSET+5*15);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    std::cout << msg << std::endl;
+}
+
+TEST(CPUTest, ADD_I){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0x0A00);
+    interpreter.cpu->set_Vx(1,0x05);
+    auto instr = Instruction(0xF,1,1,0xE);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    EXPECT_EQ(interpreter.cpu->get_I() , 0xA05);
 }

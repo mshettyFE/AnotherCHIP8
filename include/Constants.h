@@ -25,6 +25,7 @@ static const std::string physical_keys[16] = {
 static constexpr int MAX_RAM_SIZE = 4096; // Size of RAM. Include character set, program data, and normal RAM slots
 static  constexpr uint16_t START = 0x200; // Starting location of all programs
 static constexpr uint16_t MAX_PROGRAM_SIZE = 0xFFF-0x200; // MAX size of program allowed
+static constexpr uint16_t CHAR_OFFSET = 0x050;
 
 // Sound
 static constexpr uint16_t SAMPLE_RATE = 44100; // Number of samples SDL plays per second

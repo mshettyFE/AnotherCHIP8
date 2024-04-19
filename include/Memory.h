@@ -8,7 +8,7 @@
 class Memory{
 private:
   uint8_t ram[MAX_RAM_SIZE];
-  void write_character_set(unsigned char offset=0x050);
+  void write_character_set(unsigned char offset=CHAR_OFFSET);
 public:
     Memory();
     
