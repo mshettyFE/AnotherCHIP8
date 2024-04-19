@@ -63,6 +63,11 @@ uint8_t CPU::get_Vx(uint8_t i) const{
   }
   return this->Vx[i];
 }
+
+uint8_t CPU::get_VF() const{
+  return this->Vx[15];  
+}
+
 uint16_t CPU::get_I() const{return this->I&&I_MASK;}
 
 void CPU::set_sound(uint8_t value){

@@ -53,6 +53,7 @@ public:
   uint8_t get_sound() const;
   uint8_t get_delay() const;
   uint8_t get_Vx(uint8_t i) const;
+  uint8_t get_VF() const;
   uint16_t get_I() const;
 
   void set_sound(uint8_t value);

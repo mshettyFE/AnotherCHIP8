@@ -193,7 +193,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
                     break;
                 case 0x4:
                     // ADD Vx, Vy
-                    if(debug){out_msg  = "XOR "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
+                    if(debug){out_msg  = "ADD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +hex_to_string<uint8_t>(instr.get_hlb());}
                     return &CHIP8::ADD;
                     break;
                 case 0x5:
@@ -428,9 +428,25 @@ void CHIP8::OR(const Instruction& instr){
     this->cpu->set_Vx(instr.get_lhb(),result);
 }
 
-void CHIP8::AND(const Instruction& instr){}
-void CHIP8::XOR(const Instruction& instr){}
-void CHIP8::ADD(const Instruction& instr){}
+void CHIP8::AND(const Instruction& instr){
+    auto result = this->cpu->get_Vx(instr.get_lhb()) & this->cpu->get_Vx(instr.get_hlb());
+    this->cpu->set_Vx(instr.get_lhb(),result);
+}
+
+void CHIP8::XOR(const Instruction& instr){
+    auto result = this->cpu->get_Vx(instr.get_lhb()) ^ this->cpu->get_Vx(instr.get_hlb());
+    this->cpu->set_Vx(instr.get_lhb(),result);
+}
+
+void CHIP8::ADD(const Instruction& instr){
+
+    uint16_t result = static_cast<uint16_t>(this->cpu->get_Vx(instr.get_lhb())) + static_cast<uint16_t>(this->cpu->get_Vx(instr.get_hlb()));
+    this->cpu->set_Vx(instr.get_lhb(),result & 0x00FF);
+    if(result & 0xFF00){
+        this->cpu->set_VF(1);
+    }
+}
+
 void CHIP8::SUB(const Instruction& instr){}
 void CHIP8::SHR(const Instruction& instr){}
 void CHIP8::SUBN(const Instruction& instr){}

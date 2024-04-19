@@ -172,3 +172,41 @@ TEST(CPUTest, OR){
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0x12);
 }
+
+TEST(CPUTest, AND){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x10);
+    interpreter.cpu->set_Vx(3,0x02);
+    auto instr = Instruction(0x8,0x2,0x3,0x2);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x00);
+}
+
+TEST(CPUTest, XOR){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x11);
+    interpreter.cpu->set_Vx(3,0x03);
+    auto instr = Instruction(0x8,0x2,0x3,0x3);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x12);
+}
+
+TEST(CPUTest, ADD){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x11);
+    interpreter.cpu->set_Vx(3,0x03);
+    auto instr = Instruction(0x8,0x2,0x3,0x4);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x14);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x00);
+    interpreter.cpu->set_Vx(2,0xFF);
+    interpreter.cpu->set_Vx(3,0x01);
+    instr = Instruction(0x8,0x2,0x3,0x4);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x00);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x01);
+}
