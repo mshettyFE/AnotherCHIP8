@@ -312,12 +312,12 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
                 case 0x055:
                     // LD [I], Vx
                     if(debug){out_msg  = "LD [I], "+ hex_to_string<uint8_t>(instr.get_lhb());}
-                    return &CHIP8::LD_ARR;
+                    return &CHIP8::STR_ARR;
                     break;
                 case 0x65:
                     // LD Vx, [I]
                     if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+ " [I]";}
-                    return &CHIP8::LOAD_BCD;
+                    return &CHIP8::LD_ARR;
                     break;
                 
                 default:
@@ -532,7 +532,7 @@ void CHIP8::ADD_I(const Instruction& instr){}
 void CHIP8::LD_SPRITE(const Instruction& instr){}
 void CHIP8::STORE_BCD(const Instruction& instr){}
 
-void CHIP8::LD_ARR(const Instruction& instr){
+void CHIP8::STR_ARR(const Instruction& instr){
     uint8_t largest_reg = instr.get_lhb();
     if(largest_reg==0xF){
         throw std::invalid_argument("Can't Save VF to Memory");
@@ -548,4 +548,20 @@ void CHIP8::LD_ARR(const Instruction& instr){
     }
 }
 
-void CHIP8::LOAD_BCD(const Instruction& instr){}
+void CHIP8::LD_ARR(const Instruction& instr){
+    uint8_t largest_reg = instr.get_lhb();
+    if(largest_reg==0xF){
+        throw std::invalid_argument("Can't Load VF to Memory");
+    }
+    uint16_t starting_addr = this->cpu->get_I();
+    for(int i=0; i<=largest_reg; ++i){
+        uint8_t mem_val;
+        try{
+            mem_val = this->mem->read(starting_addr+i);
+        }
+        catch(std::invalid_argument& e){
+            throw e;
+        }
+        this->cpu->set_Vx(i, mem_val);
+    }
+}

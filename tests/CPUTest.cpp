@@ -411,7 +411,7 @@ TEST(CPUTest, Store_Regs_All_VF){
 TEST(CPUTest, Store_Regs_All_Ok){
     CHIP8 interpreter(false,false);
     uint16_t starting_addr = 0x0A00 ;
-    interpreter.cpu->set_I(0x0A00);
+    interpreter.cpu->set_I(starting_addr);
     for(int i=0; i<15; i++){
         interpreter.cpu->set_Vx(i,i);
     }
@@ -447,4 +447,40 @@ TEST(CPUTest, Store_Regs_OOB){
     EXPECT_EQ(thrown,true);
 }
 
-TEST(CPUTest, Read_Regs_OOB){}
+TEST(CPUTest, Read_Regs_OOB){
+// First, load values into memory
+    CHIP8 interpreter(false,false);
+    uint16_t starting_addr = 0x0A00;
+    interpreter.cpu->set_I(starting_addr);
+    for(int i=0; i<15; i++){
+        interpreter.cpu->set_Vx(i,i);
+    }
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    bool thrown = false;
+    std::string msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    std::cout << msg << std::endl;
+    EXPECT_EQ(thrown,false);
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
+    }
+    instr = Instruction(0xF,0xE,0x6,0x5);
+    thrown = false;
+    msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    std::cout << msg << std::endl;
+    EXPECT_EQ(thrown,false);
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.cpu->get_Vx(i),i);
+    }
+}

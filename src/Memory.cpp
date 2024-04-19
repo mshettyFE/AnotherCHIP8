@@ -60,14 +60,14 @@ void Memory::dump() const{
 
 uint8_t Memory::read(uint16_t address) const{
     if(address> MAX_RAM_SIZE){
-        throw std::invalid_argument("address out of bounds");
+        throw std::invalid_argument("Address out of bounds. Can't read");
     }
     return ram[address];
 }
 
 uint16_t Memory::read_machine_code(uint16_t address) const{
     if(address%2!=0){
-        throw std::invalid_argument("address should be even");
+        throw std::invalid_argument("Address should be even");
     }
     uint16_t first = ram[address];
     uint16_t second = ram[address+1];

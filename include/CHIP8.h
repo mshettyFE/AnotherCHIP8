@@ -52,8 +52,8 @@ private:
     void ADD_I(const Instruction& instr);
     void LD_SPRITE(const Instruction& instr);
     void STORE_BCD(const Instruction& instr);
+    void STR_ARR(const Instruction& instr);
     void LD_ARR(const Instruction& instr);
-    void LOAD_BCD(const Instruction& instr);
 
     template<
         typename T,
