@@ -370,3 +370,25 @@ TEST(CPUTest, RND){
     EXPECT_EQ(interpreter.cpu->get_Vx(2),33);
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
+
+TEST(CPUTest, DRW){}
+
+TEST(CPUTest, SKP_Key){}
+
+TEST(CPUTest,SKNP_KEY){}
+
+TEST(CPUTest, LD_Delay){}
+
+TEST(CPUTest,LD_Key_Block){}
+
+TEST(CPUTest, Set_Delay){}
+
+TEST(CPUTest, Add_reg_I){}
+
+TEST(CPUTest, LD_Sprite){}
+
+TEST(CPUTest, Store_BCD){}
+
+TEST(CPUTest, Store_Regs){}
+
+TEST(CPUTest, Read_Regs){}
