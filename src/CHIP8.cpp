@@ -4,7 +4,8 @@
 #include <bitset>
 #include <string>
 #include <iterator>
-#include <sstream> 
+#include <sstream>
+#include <random>
 
 #define VERBOSE_CPU
 
@@ -239,7 +240,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
             break;
         case 0xB:
             // JP V0, addr
-            if(debug){out_msg  = "JP V0"+ hex_to_string<uint8_t>(instr.get_mem_addr());}
+            if(debug){out_msg  = "JP V0 "+ hex_to_string<uint8_t>(instr.get_mem_addr());}
             return &CHIP8::JP_OFFSET;
             break;
         case 0xC:
@@ -337,6 +338,7 @@ std::string CHIP8::decoding_error(const Instruction& instr){
 }
 
 void CHIP8::execute(assembly_func fnc, const Instruction& instr){
+    this->cpu->increment_pc();
     (this->*fnc)(instr);
     return;
 }
@@ -362,12 +364,10 @@ void CHIP8::reset(){
 
 void CHIP8::SYS(const Instruction& instr){
 // do nothing but increment PC
-    cpu->increment_pc();
 }
 
 void CHIP8::CLS(const Instruction& instr){
     disp->reset();
-    cpu->increment_pc();
 }
 
 void CHIP8::RET(const Instruction& instr){
@@ -392,21 +392,18 @@ void CHIP8::SE_DIRECT(const Instruction& instr){
     if(this->cpu->get_Vx(instr.get_lhb()) == instr.get_lower_byte()){
         this->cpu->increment_pc();
     }
-    this->cpu->increment_pc();
 }
 
 void CHIP8::SNE_DIRECT(const Instruction& instr){
     if(this->cpu->get_Vx(instr.get_lhb()) != instr.get_lower_byte()){
         this->cpu->increment_pc();
     }
-    this->cpu->increment_pc();
 }
 
 void CHIP8::SE_REG(const Instruction& instr){
     if(this->cpu->get_Vx(instr.get_hlb()) == this->cpu->get_Vx(instr.get_lhb())){
         this->cpu->increment_pc();
     }
-    this->cpu->increment_pc();
 }
 
 void CHIP8::LD_DIRECT(const Instruction& instr){
@@ -507,15 +504,21 @@ void CHIP8::SNE(const Instruction& instr){
     if(vx_val != vy_val){
         this->cpu->increment_pc();
     }
-    this->cpu->increment_pc();
 }
 
 void CHIP8::LD_DIRECT_I(const Instruction& instr){
     this->cpu->set_I(instr.get_machine_code());
 }
 
-void CHIP8::JP_OFFSET(const Instruction& instr){}
-void CHIP8::RND(const Instruction& instr){}
+void CHIP8::JP_OFFSET(const Instruction& instr){
+    this->cpu->set_pc(this->cpu->get_Vx(0)+instr.get_mem_addr());
+}
+
+void CHIP8::RND(const Instruction& instr){
+    auto random_val = random_gen.roll();
+    this->cpu->set_Vx(instr.get_lhb(),instr.get_lower_byte()& random_val);
+}
+
 void CHIP8::DRW(const Instruction& instr){}
 void CHIP8::SKP(const Instruction& instr){}
 void CHIP8::SKNP(const Instruction& instr){}

@@ -5,6 +5,7 @@
 #include "Display.h"
 #include "Memory.h"
 #include "Keyboard.h"
+#include "RNG.h"
 #include <iomanip>
 #include <type_traits>
 #include <sstream>
@@ -80,6 +81,9 @@ public:
     std::unique_ptr<Display> disp;
     std::unique_ptr<Memory> mem;
     std::unique_ptr<KeyPad> keys;
+
+    RNG random_gen;
+
     CHIP8(bool visible=true, bool threading=true);
     void print() const;
     void load(std::string file);
