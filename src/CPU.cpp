@@ -145,7 +145,7 @@ void CPU::set_Vx(uint8_t i,uint8_t value) {
 }
 
 void CPU::set_I(uint16_t value) {
-  this->I = value;
+  this->I = value & I_MASK; //  mask out top nibble of the input value
 }
 
 void CPU::increment_pc(){

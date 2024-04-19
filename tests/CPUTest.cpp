@@ -162,3 +162,13 @@ TEST(CPUTest, LD_REG){
     EXPECT_EQ(interpreter.cpu->get_Vx(3),0x0B);
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0x0B);
 }
+
+TEST(CPUTest, OR){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x10);
+    interpreter.cpu->set_Vx(3,0x02);
+    auto instr = Instruction(0x8,0x2,0x3,0x1);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x12);
+}

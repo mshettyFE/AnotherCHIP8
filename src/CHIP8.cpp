@@ -423,7 +423,11 @@ void CHIP8::LD_REG(const Instruction& instr){
     this->cpu->set_Vx(instr.get_lhb(),this->cpu->get_Vx(instr.get_hlb()));
 }
 
-void CHIP8::OR(const Instruction& instr){}
+void CHIP8::OR(const Instruction& instr){
+    auto result = this->cpu->get_Vx(instr.get_lhb()) | this->cpu->get_Vx(instr.get_hlb());
+    this->cpu->set_Vx(instr.get_lhb(),result);
+}
+
 void CHIP8::AND(const Instruction& instr){}
 void CHIP8::XOR(const Instruction& instr){}
 void CHIP8::ADD(const Instruction& instr){}
