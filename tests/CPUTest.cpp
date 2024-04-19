@@ -146,9 +146,19 @@ TEST(CPUTest, LD_DIRECT){
 TEST(CPUTest, ADD_Direct){
     CHIP8 interpreter(false,false);
     interpreter.cpu->set_Vx(2,0xA0);
-    EXPECT_EQ(interpreter.cpu->get_Vx(2), 0xA0);
     auto instr = Instruction(0x7,0x2,0x0,0xF);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0xAF);
+}
+
+TEST(CPUTest, LD_REG){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0xA0);
+    interpreter.cpu->set_Vx(3,0x0B);
+    auto instr = Instruction(0x8,0x2,0x3,0x0);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(3),0x0B);
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x0B);
 }
