@@ -288,3 +288,29 @@ TEST(CPUTest, SHL){
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0xFE);
     EXPECT_EQ(interpreter.cpu->get_VF(),0x01  );
 }
+
+TEST(CPUTest, SNE){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x04);
+    interpreter.cpu->set_Vx(3,0x05);
+    auto cur_pc = interpreter.cpu->get_pc();
+    auto instr = Instruction(0x9,0x2,0x3,0x0);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_pc(),cur_pc+instruction_size*2);
+    interpreter.cpu->set_Vx(2,0x04);
+    interpreter.cpu->set_Vx(3,0x04);
+    cur_pc = interpreter.cpu->get_pc();
+    instr = Instruction(0x9,0x2,0x3,0x0);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_pc(),cur_pc+instruction_size);
+}
+
+TEST(CPUTest, LD_Direct_I){
+    CHIP8 interpreter(false,false);
+    auto instr = Instruction(0xA,0xF,0xF,0xF);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_I(),0x0FFF);
+}

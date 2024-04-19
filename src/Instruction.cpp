@@ -1,4 +1,5 @@
 #include "Instruction.h"
+#include <iostream>
 
 Instruction::Instruction(uint16_t machine_code){
 // arguments from left to right are: highest 4 bits of high byte, lowest 4 bits of high byte, highest 4 bits of low byte, lowest 4 bits of low byte

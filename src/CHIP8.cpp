@@ -234,12 +234,12 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
             }
         case 0xA:
             // LD I, addr
-            if(debug){out_msg  = "LD I,"+ instr.get_mem_addr();}
+            if(debug){out_msg  = "LD I, "+ hex_to_string<uint16_t>(instr.get_mem_addr());}
             return &CHIP8::LD_DIRECT_I;
             break;
         case 0xB:
             // JP V0, addr
-            if(debug){out_msg  = "JP V0"+ instr.get_mem_addr();}
+            if(debug){out_msg  = "JP V0"+ hex_to_string<uint8_t>(instr.get_mem_addr());}
             return &CHIP8::JP_OFFSET;
             break;
         case 0xC:
@@ -501,8 +501,19 @@ void CHIP8::SHL(const Instruction& instr){
     this->cpu->set_Vx(vx,vx_val <<1);
 }
 
-void CHIP8::SNE(const Instruction& instr){}
-void CHIP8::LD_DIRECT_I(const Instruction& instr){}
+void CHIP8::SNE(const Instruction& instr){
+    auto vx_val = this->cpu->get_Vx(instr.get_lhb());
+    auto vy_val = this->cpu->get_Vx(instr.get_hlb());
+    if(vx_val != vy_val){
+        this->cpu->increment_pc();
+    }
+    this->cpu->increment_pc();
+}
+
+void CHIP8::LD_DIRECT_I(const Instruction& instr){
+    this->cpu->set_I(instr.get_machine_code());
+}
+
 void CHIP8::JP_OFFSET(const Instruction& instr){}
 void CHIP8::RND(const Instruction& instr){}
 void CHIP8::DRW(const Instruction& instr){}
