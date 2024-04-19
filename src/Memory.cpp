@@ -38,8 +38,9 @@ void Memory::dump() const{
 // Print the beginning address value
         std::cout << std::showbase<<  std::setw(5) << std::hex << std::uppercase << i << " ";
 // Print the Hex values from the beginning offset
-        for(int offset=0; offset<16; offset++){
-            std::cout << std::hex << std::uppercase << std::noshowbase << std::setw(2) << std::setfill ( '0' ) << static_cast<unsigned int>(ram[i+offset]) << " ";
+        for(int offset=0; offset<8; offset+=2){
+            uint16_t instruction = (static_cast<uint16_t>(ram[i+offset]) << 8) | static_cast<uint16_t>(ram[i+offset+1]);
+            std::cout << std::hex << std::uppercase << std::noshowbase << std::setw(4) << std::setfill ( '0' ) << instruction << " ";
         }
 // Print the ASCII version.. if you can
         std::cout <<std::setfill ( ' ' )<< "|" << std::dec;
@@ -75,7 +76,7 @@ uint16_t Memory::read_machine_code(uint16_t address) const{
 
 void Memory::write(uint16_t address, uint8_t value){
     if(address> MAX_RAM_SIZE){
-        throw std::invalid_argument("address out of bounds");
+        throw std::invalid_argument("Address out of bounds. Can't write");
     }
     ram[address] = value;
 }

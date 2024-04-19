@@ -392,6 +392,59 @@ TEST(CPUTest, LD_Sprite){}
 
 TEST(CPUTest, Store_BCD){}
 
-TEST(CPUTest, Store_Regs){}
+TEST(CPUTest, Store_Regs_All_VF){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0xA00);
+    auto instr = Instruction(0xF,0xF,0x5,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Can't Save VF to Memory",e.what());
+    }
+    EXPECT_EQ(thrown,true);
+}
 
-TEST(CPUTest, Read_Regs){}
+TEST(CPUTest, Store_Regs_All_Ok){
+    CHIP8 interpreter(false,false);
+    uint16_t starting_addr = 0x0A00 ;
+    interpreter.cpu->set_I(0x0A00);
+    for(int i=0; i<15; i++){
+        interpreter.cpu->set_Vx(i,i);
+    }
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    bool thrown = false;
+    std::string msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    std::cout << msg << std::endl;
+    EXPECT_EQ(thrown,false);
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
+    }
+}
+
+TEST(CPUTest, Store_Regs_OOB){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0x0FFA);
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Address out of bounds. Can't write",e.what());
+    }
+    EXPECT_EQ(thrown,true);
+}
+
+TEST(CPUTest, Read_Regs_OOB){}

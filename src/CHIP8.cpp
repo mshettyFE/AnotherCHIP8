@@ -17,16 +17,8 @@ CHIP8::CHIP8(bool visible, bool threading){
     keys = std::make_unique<KeyPad>();
 }
 
-bool CHIP8::is_big_endian(void){
-    union {
-        uint32_t i;
-        char c[4];
-    } bint = {0x01020304};
-
-    return bint.c[0] == 1;
-}
-
 void CHIP8::load(std::string filename){
+// assumes that filename is big_endian
     std::ifstream program(filename,std::ios::binary);
     if ( !(program.is_open()) ) {
         std::cout << "File " << __FILE__ << " Line " << __LINE__ << " " << std::endl;
@@ -58,14 +50,8 @@ void CHIP8::load(std::string filename){
 // iterate by two since we read two bytes at a time
     for(int i=0; i< length; i+=2){
         uint8_t first, second;
-        if(is_big_endian()){
-            first = buffer[i];
-            second = buffer[i+1];
-        }
-        else{
-            first = buffer[i+1];
-            second = buffer[i];
-        }
+        first = buffer[i];
+        second = buffer[i+1];
         this->mem->write(START+i, first);
         this->mem->write(START+i+1, second);
     }
@@ -82,13 +68,29 @@ void CHIP8::print() const{
     mem->dump();
 }
 
-std::string CHIP8::disassemble() {
+std::string CHIP8::disassemble(bool raw) {
     std::string output;
+    std::cout << "ADDR INST ASSM" << std::endl;
     for(int addr=START; addr<MAX_PROGRAM_SIZE; addr+=2){
         auto machine_code = this->mem->read_machine_code(addr);
         if(machine_code!=0){
             auto instruction = Instruction(machine_code);
-            std::string assembly = decompile(instruction)+"\n";
+            std::string assembly;
+            try{
+                assembly = decompile(instruction);
+            }
+            catch(std::invalid_argument &e){
+                // NOTE: as per https://www.reddit.com/r/EmuDev/comments/iel9cg/chip8_distinguish_opcode_and_sprite_data/
+                // You can't differentiate between sprite_data and opcodes just from raw binary file. So "UNKNOWN CODE" might just be sprite data. You don't know a priori!
+                std::cout <<"UNKONWN CODE: " <<  hex_to_string<uint16_t>(addr) << " " << hex_to_string<uint16_t>(machine_code) << std::endl;
+                continue;
+            }
+            if(raw){
+                std::cout << hex_to_string<uint16_t>(addr) << " " << hex_to_string<uint16_t>(machine_code) << ": " << assembly << std::endl;
+            }
+            else{
+                std::cout << hex_to_string<uint16_t>(addr) << ": " << assembly << std::endl;
+            }
             output.append(assembly);
         }
     }
@@ -529,5 +531,21 @@ void CHIP8::SET_SOUND(const Instruction& instr){}
 void CHIP8::ADD_I(const Instruction& instr){}
 void CHIP8::LD_SPRITE(const Instruction& instr){}
 void CHIP8::STORE_BCD(const Instruction& instr){}
-void CHIP8::LD_ARR(const Instruction& instr){}
+
+void CHIP8::LD_ARR(const Instruction& instr){
+    uint8_t largest_reg = instr.get_lhb();
+    if(largest_reg==0xF){
+        throw std::invalid_argument("Can't Save VF to Memory");
+    }
+    uint16_t starting_addr = this->cpu->get_I();
+    for(int i=0; i<=largest_reg; ++i){
+        try{
+            this->mem->write(starting_addr+i,this->cpu->get_Vx(i));
+        }
+        catch(std::invalid_argument& e){
+            throw e;
+        }
+    }
+}
+
 void CHIP8::LOAD_BCD(const Instruction& instr){}

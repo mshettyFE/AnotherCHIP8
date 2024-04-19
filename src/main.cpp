@@ -5,7 +5,8 @@
 int main(int argc, char *argv[]){
   CHIP8 interpreter(true,false);
   interpreter.load("../tests/IBM.ch8");
-  std::cout << interpreter.disassemble() << std::endl;
+  interpreter.mem->dump();
+  interpreter.disassemble(true);
   SDL_Quit();
   return 0;
 }

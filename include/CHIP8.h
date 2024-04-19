@@ -73,8 +73,6 @@ private:
     assembly_func decode(const Instruction& instr, std::string& out_msg, bool debug=false);
 // take an assembly instruction, and do it (debug is is to print out debug info)
     void execute(assembly_func fnc, const Instruction& instr);
-// check endianness of system
-    bool is_big_endian();
 public:
 
     std::unique_ptr<CPU> cpu;
@@ -86,8 +84,8 @@ public:
 
     CHIP8(bool visible=true, bool threading=true);
     void print() const;
-    void load(std::string file);
-    std::string disassemble();
+    void load(std::string file); // assumes file is big_endian
+    std::string disassemble(bool raw=false);
 
     void reset();
 
