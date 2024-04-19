@@ -210,3 +210,21 @@ TEST(CPUTest, ADD){
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0x00);
     EXPECT_EQ(interpreter.cpu->get_VF(),0x01);
 }
+
+TEST(CPUTest, SUB){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x05);
+    interpreter.cpu->set_Vx(3,0x03);
+    auto instr = Instruction(0x8,0x2,0x3,0x5);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x02);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x01);
+    interpreter.cpu->set_Vx(2,0x00);
+    interpreter.cpu->set_Vx(3,0x01);
+    instr = Instruction(0x8,0x2,0x3,0x5);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0xFF);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x00);
+}

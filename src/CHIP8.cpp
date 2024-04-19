@@ -439,15 +439,30 @@ void CHIP8::XOR(const Instruction& instr){
 }
 
 void CHIP8::ADD(const Instruction& instr){
-
     uint16_t result = static_cast<uint16_t>(this->cpu->get_Vx(instr.get_lhb())) + static_cast<uint16_t>(this->cpu->get_Vx(instr.get_hlb()));
     this->cpu->set_Vx(instr.get_lhb(),result & 0x00FF);
     if(result & 0xFF00){
         this->cpu->set_VF(1);
     }
+    else{
+        this->cpu->set_VF(0);
+    }
 }
 
-void CHIP8::SUB(const Instruction& instr){}
+void CHIP8::SUB(const Instruction& instr){
+    auto vx = instr.get_lhb();
+    auto vy = instr.get_hlb();
+    auto vx_val = this->cpu->get_Vx(vx);
+    auto vy_val = this->cpu->get_Vx(vy);
+    if(vx_val > vy_val){
+        this->cpu->set_VF(1);
+    }
+    else{
+        this->cpu->set_VF(0);
+    }
+    this->cpu->set_Vx(vx, vx_val - vy_val);
+}
+
 void CHIP8::SHR(const Instruction& instr){}
 void CHIP8::SUBN(const Instruction& instr){}
 void CHIP8::SHL(const Instruction& instr){}
