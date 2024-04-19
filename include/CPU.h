@@ -71,6 +71,7 @@ public:
   uint8_t get_stack_size() const{return this->chip_stack.size();}
 
   void print() const;
+  void reset();
 };
 
 #endif

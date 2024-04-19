@@ -60,7 +60,7 @@ private:
     >
     std::string hex_to_string(T variable){
         std::stringstream ss;
-        ss << "0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << variable;
+        ss << "0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << static_cast<unsigned int>(variable);
         return ss.str();
     }
     std::string decoding_error(const Instruction& instr);
@@ -84,6 +84,8 @@ public:
     void print() const;
     void load(std::string file);
     std::string disassemble();
+
+    void reset();
 
     Instruction bundle(uint16_t instruction) const; // wrap machine code instruction into a class for easier handling
     std::string decompile(const Instruction& instr); // convert instruction to associated assembly instruction

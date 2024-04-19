@@ -20,7 +20,8 @@ public:
   ~Display();
 
   void print() const;
-  void clear();
+  void reset();
+
   uint32_t read(unsigned int x, unsigned int y) const; // read value at x,y coordinate
   void write(unsigned int x, unsigned int y);
   void test_checkers();

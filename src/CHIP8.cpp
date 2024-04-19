@@ -140,12 +140,12 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
             break;
         case 0x3:
             // SE Vx, byte
-            if(debug){out_msg  = "SE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " + hex_to_string<uint8_t>(instr.get_lower_byte());}
+            if(debug){out_msg  = "SE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " +  hex_to_string<uint8_t>(instr.get_lower_byte());}
             return &CHIP8::SE_DIRECT;
             break;
         case 0x4:
             // SNE Vx, byte
-            if(debug){out_msg  = "SEN "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " + hex_to_string<uint8_t>(instr.get_lower_byte());}
+            if(debug){out_msg  = "SNE "+ hex_to_string<uint8_t>(instr.get_lhb())+ " " + hex_to_string<uint8_t>(instr.get_lower_byte());}
             return &CHIP8::SNE_DIRECT;
             break;
         case 0x5:
@@ -354,6 +354,11 @@ std::string CHIP8::test_instruction(const Instruction& instr){
     return debug_msg;
 }
 
+void CHIP8::reset(){
+    cpu->reset();
+    disp->reset();
+    mem->reset();
+}
 
 void CHIP8::SYS(const Instruction& instr){
 // do nothing but increment PC
@@ -361,7 +366,7 @@ void CHIP8::SYS(const Instruction& instr){
 }
 
 void CHIP8::CLS(const Instruction& instr){
-    disp->clear();
+    disp->reset();
     cpu->increment_pc();
 }
 
@@ -383,8 +388,20 @@ void CHIP8::CALL(const Instruction& instr){
     this->cpu->set_pc(instr.get_mem_addr());
 }
 
-void CHIP8::SE_DIRECT(const Instruction& instr){}
-void CHIP8::SNE_DIRECT(const Instruction& instr){}
+void CHIP8::SE_DIRECT(const Instruction& instr){
+    if(this->cpu->get_Vx(instr.get_lhb()) == instr.get_lower_byte()){
+        this->cpu->increment_pc();
+    }
+    this->cpu->increment_pc();
+}
+
+void CHIP8::SNE_DIRECT(const Instruction& instr){
+    if(this->cpu->get_Vx(instr.get_lhb()) != instr.get_lower_byte()){
+        this->cpu->increment_pc();
+    }
+    this->cpu->increment_pc();
+}
+
 void CHIP8::SE_REG(const Instruction& instr){}
 void CHIP8::LD_DIRECT(const Instruction& instr){}
 void CHIP8::ADD_DIRECT(const Instruction& instr){}

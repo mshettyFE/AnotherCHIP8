@@ -79,3 +79,11 @@ void Memory::write(uint16_t address, uint8_t value){
     }
     ram[address] = value;
 }
+
+void Memory::reset(){
+    for(int i =0; i<MAX_RAM_SIZE; ++i){
+        ram[i] = 0;
+    }
+    write_character_set();
+}
+

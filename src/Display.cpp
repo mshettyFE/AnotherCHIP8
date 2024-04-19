@@ -88,7 +88,7 @@ void Display::write(unsigned int x, unsigned int y){
     display[index] = display[index] ^ WHITE;
 }
 
-void Display::clear(){
+void Display::reset(){
 // set everything to 0 in display array
     for(unsigned long int i=0; i<dis_height*dis_width; ++i){
         display[i]=0;        

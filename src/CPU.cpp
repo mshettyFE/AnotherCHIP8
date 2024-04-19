@@ -185,3 +185,16 @@ uint16_t CPU::poke_stack(uint8_t value){
   }
   return output;
 }
+
+void CPU::reset(){
+  pc=START;
+  sound = 0;
+  delay=0;
+  for(int i=0; i< 16; ++i){
+    Vx[i] = 0;
+  }
+  I=0;
+  SDL_PauseAudioDevice(audio_device,1);
+  this->set_delay(0);
+  this->set_sound(0);
+}
