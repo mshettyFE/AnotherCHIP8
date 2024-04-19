@@ -112,3 +112,25 @@ TEST(CPUTest, SNE_Direct_NO_SKIP){
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size*2);
 }
+
+TEST(CPUTest, SEReg_SKIP){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(1,0xFF);
+    interpreter.cpu->set_Vx(2,0xFF);
+    auto instr = Instruction(0x5,0x1,0x2,0x0);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size*2);
+}
+
+TEST(CPUTest, SEReg_NO_SKIP){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(1,0xFF);
+    interpreter.cpu->set_Vx(2,0xFE);
+    auto instr = Instruction(0x5,0x2,0x1,0x0);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+}

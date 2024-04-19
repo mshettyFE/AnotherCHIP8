@@ -402,7 +402,13 @@ void CHIP8::SNE_DIRECT(const Instruction& instr){
     this->cpu->increment_pc();
 }
 
-void CHIP8::SE_REG(const Instruction& instr){}
+void CHIP8::SE_REG(const Instruction& instr){
+    if(this->cpu->get_Vx(instr.get_hlb()) == this->cpu->get_Vx(instr.get_lhb())){
+        this->cpu->increment_pc();
+    }
+    this->cpu->increment_pc();
+}
+
 void CHIP8::LD_DIRECT(const Instruction& instr){}
 void CHIP8::ADD_DIRECT(const Instruction& instr){}
 void CHIP8::LD_REG(const Instruction& instr){}
