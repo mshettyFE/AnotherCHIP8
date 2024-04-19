@@ -362,12 +362,15 @@ TEST(CPUTest, RND){
     CHIP8 interpreter(false,false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.random_gen.seed_statically();
-    interpreter.random_gen.roll(); // Throwing away 0
-    // next value is gaurenteed to be 33 (on my machine. Should be consistent on another machine? IDK)
+    interpreter.random_gen.roll();
+    auto value = interpreter.random_gen.roll();
+    interpreter.random_gen.seed_statically();
+    interpreter.random_gen.roll();
+    auto expected = value & 0xFF;
     auto instr = Instruction(0xc,0x2,0xF,0xF);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
-    EXPECT_EQ(interpreter.cpu->get_Vx(2),33);
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),expected);
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 

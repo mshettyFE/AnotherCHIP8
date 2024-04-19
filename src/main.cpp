@@ -3,22 +3,9 @@
 #include <iostream>
 
 int main(int argc, char *argv[]){
-
-  CHIP8 interpreter;
-  interpreter.disp.test_checkers();
-  interpreter.print();
-
-  SDL_Event event;
-  bool quit = false;
-  while (!quit) {
-      interpreter.disp.to_screen();
-      while (SDL_PollEvent(&event)) {
-          switch (event.type) {
-            case SDL_QUIT:
-              quit=true;
-              break;
-          }
-      }
-  }
+  CHIP8 interpreter(true,false);
+  interpreter.load("../tests/IBM.ch8");
+  std::cout << interpreter.disassemble() << std::endl;
+  SDL_Quit();
   return 0;
 }
