@@ -197,6 +197,7 @@ TEST(CPUTest, ADD){
     CHIP8 interpreter(false,false);
     interpreter.cpu->set_Vx(2,0x11);
     interpreter.cpu->set_Vx(3,0x03);
+    interpreter.cpu->set_VF(1);
     auto instr = Instruction(0x8,0x2,0x3,0x4);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
@@ -204,6 +205,7 @@ TEST(CPUTest, ADD){
     EXPECT_EQ(interpreter.cpu->get_VF(),0x00);
     interpreter.cpu->set_Vx(2,0xFF);
     interpreter.cpu->set_Vx(3,0x01);
+    interpreter.cpu->set_VF(0);
     instr = Instruction(0x8,0x2,0x3,0x4);
     msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
@@ -215,6 +217,7 @@ TEST(CPUTest, SUB){
     CHIP8 interpreter(false,false);
     interpreter.cpu->set_Vx(2,0x05);
     interpreter.cpu->set_Vx(3,0x03);
+    interpreter.cpu->set_VF(0);
     auto instr = Instruction(0x8,0x2,0x3,0x5);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
@@ -222,9 +225,28 @@ TEST(CPUTest, SUB){
     EXPECT_EQ(interpreter.cpu->get_VF(),0x01);
     interpreter.cpu->set_Vx(2,0x00);
     interpreter.cpu->set_Vx(3,0x01);
+    interpreter.cpu->set_VF(1);
     instr = Instruction(0x8,0x2,0x3,0x5);
     msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu->get_Vx(2),0xFF);
     EXPECT_EQ(interpreter.cpu->get_VF(),0x00);
+}
+
+TEST(CPUTest,SHR){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(2,0x04);
+    interpreter.cpu->set_VF(1);
+    auto instr = Instruction(0x8,0x2,0x3,0x6);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x02);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x00);
+    interpreter.cpu->set_Vx(2,0x03);
+    interpreter.cpu->set_VF(0);
+    instr = Instruction(0x8,0x2,0x3,0x6);
+    msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(2),0x01);
+    EXPECT_EQ(interpreter.cpu->get_VF(),0x01);
 }

@@ -463,7 +463,18 @@ void CHIP8::SUB(const Instruction& instr){
     this->cpu->set_Vx(vx, vx_val - vy_val);
 }
 
-void CHIP8::SHR(const Instruction& instr){}
+void CHIP8::SHR(const Instruction& instr){
+    auto vx  =instr.get_lhb();
+    auto vx_val = this->cpu->get_Vx(vx);
+    if(vx_val & 0x01){
+        this->cpu->set_VF(1);
+    }
+    else{
+        this->cpu->set_VF(0);
+    }
+    this->cpu->set_Vx(vx,vx_val >>1);
+}
+
 void CHIP8::SUBN(const Instruction& instr){}
 void CHIP8::SHL(const Instruction& instr){}
 void CHIP8::SNE(const Instruction& instr){}
