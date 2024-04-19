@@ -487,10 +487,20 @@ void CHIP8::SUBN(const Instruction& instr){
         this->cpu->set_VF(0);
     }
     this->cpu->set_Vx(vx, vy_val - vx_val);
-
 }
 
-void CHIP8::SHL(const Instruction& instr){}
+void CHIP8::SHL(const Instruction& instr){
+    auto vx  =instr.get_lhb();
+    auto vx_val = this->cpu->get_Vx(vx);
+    if(vx_val & 0b1000'0000){
+        this->cpu->set_VF(1);
+    }
+    else{
+        this->cpu->set_VF(0);
+    }
+    this->cpu->set_Vx(vx,vx_val <<1);
+}
+
 void CHIP8::SNE(const Instruction& instr){}
 void CHIP8::LD_DIRECT_I(const Instruction& instr){}
 void CHIP8::JP_OFFSET(const Instruction& instr){}
