@@ -530,7 +530,25 @@ void CHIP8::SET_DELAY(const Instruction& instr){}
 void CHIP8::SET_SOUND(const Instruction& instr){}
 void CHIP8::ADD_I(const Instruction& instr){}
 void CHIP8::LD_SPRITE(const Instruction& instr){}
-void CHIP8::STORE_BCD(const Instruction& instr){}
+
+void CHIP8::STORE_BCD(const Instruction& instr){
+    uint16_t cur_I = this->cpu->get_I();
+    if(cur_I+2 > MAX_RAM_SIZE){
+        throw std::invalid_argument("Can't Store BCD");
+    }
+    auto reg = instr.get_lhb();
+    if(reg==0xF){
+        throw std::invalid_argument("Can't Store Vf in BCD");
+    }
+    uint8_t val = this->cpu->get_Vx(reg);
+    uint8_t B,C,D;
+    B = (val / 100);
+    C = (val/10) %10;
+    D = val %10;
+    this->mem->write(cur_I,B);
+    this->mem->write(cur_I+1,C);
+    this->mem->write(cur_I+2,D);
+}
 
 void CHIP8::STR_ARR(const Instruction& instr){
     uint8_t largest_reg = instr.get_lhb();

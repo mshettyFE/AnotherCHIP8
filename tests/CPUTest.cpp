@@ -410,6 +410,7 @@ TEST(CPUTest, Store_Regs_All_VF){
 
 TEST(CPUTest, Store_Regs_All_Ok){
     CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
     uint16_t starting_addr = 0x0A00 ;
     interpreter.cpu->set_I(starting_addr);
     for(int i=0; i<15; i++){
@@ -429,6 +430,7 @@ TEST(CPUTest, Store_Regs_All_Ok){
     for(int i=0; i<15; i++){
         EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
     }
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 
 TEST(CPUTest, Store_Regs_OOB){
@@ -482,6 +484,7 @@ TEST(CPUTest, Read_Regs_OOB){
 TEST(CPUTest, Read_Regs_Good){
 // First, load values into memory
     CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
     uint16_t starting_addr = 0x0A00;
     interpreter.cpu->set_I(starting_addr);
     for(int i=0; i<15; i++){
@@ -498,10 +501,13 @@ TEST(CPUTest, Read_Regs_Good){
     }
     std::cout << msg << std::endl;
     EXPECT_EQ(thrown,false);
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
     for(int i=0; i<15; i++){
         EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
     }
+
     instr = Instruction(0xF,0xE,0x6,0x5);
+    current_pc = interpreter.cpu->get_pc();
     thrown = false;
     msg="";
     try{
@@ -515,4 +521,26 @@ TEST(CPUTest, Read_Regs_Good){
     for(int i=0; i<15; i++){
         EXPECT_EQ(interpreter.cpu->get_Vx(i),i);
     }
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+}
+
+TEST(CPUTest, Store_BCD_All_Good){
+    CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0A00;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0x1,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, false);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    EXPECT_EQ(interpreter.mem->read(starting_addr), 2);
+    EXPECT_EQ(interpreter.mem->read(starting_addr+1), 5);
+    EXPECT_EQ(interpreter.mem->read(starting_addr+2), 4);
 }
