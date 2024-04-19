@@ -409,7 +409,10 @@ void CHIP8::SE_REG(const Instruction& instr){
     this->cpu->increment_pc();
 }
 
-void CHIP8::LD_DIRECT(const Instruction& instr){}
+void CHIP8::LD_DIRECT(const Instruction& instr){
+    this->cpu->set_Vx(instr.get_lhb(),instr.get_lower_byte());
+}
+
 void CHIP8::ADD_DIRECT(const Instruction& instr){}
 void CHIP8::LD_REG(const Instruction& instr){}
 void CHIP8::OR(const Instruction& instr){}

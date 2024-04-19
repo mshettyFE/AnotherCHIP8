@@ -134,3 +134,11 @@ TEST(CPUTest, SEReg_NO_SKIP){
     std::cout << msg << std::endl;
     EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
 }
+
+TEST(CPUTest, LD_DIRECT){
+    CHIP8 interpreter(false,false);
+    auto instr = Instruction(0x6,0x2,0xF,0xA);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(interpreter.cpu->get_Vx(0x2),0xFA);
+}
