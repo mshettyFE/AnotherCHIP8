@@ -704,3 +704,25 @@ TEST(CPUTest, ADD_I){
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
     EXPECT_EQ(interpreter.cpu->get_I() , 0xA05);
 }
+
+TEST(CPUTest, SET_SOUND){
+    CHIP8 interpreter(false,true);
+    interpreter.cpu->set_Vx(1,0xFF);
+    auto instr = Instruction(0xF,1,1,8);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_GE(interpreter.cpu->get_sound() ,0);
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+} 
+
+TEST(CPUTest, SET_DELAY){
+    CHIP8 interpreter(false,true);
+    interpreter.cpu->set_Vx(1,0xFF);
+    auto instr = Instruction(0xF,1,1,5);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_GE(interpreter.cpu->get_delay() ,0);
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+}

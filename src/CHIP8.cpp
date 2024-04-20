@@ -526,8 +526,14 @@ void CHIP8::SKP(const Instruction& instr){}
 void CHIP8::SKNP(const Instruction& instr){}
 void CHIP8::LD_DELAY(const Instruction& instr){}
 void CHIP8::LD_KEY(const Instruction& instr){}
-void CHIP8::SET_DELAY(const Instruction& instr){}
-void CHIP8::SET_SOUND(const Instruction& instr){}
+
+void CHIP8::SET_DELAY(const Instruction& instr){
+    this->cpu->set_delay(this->cpu->get_Vx(instr.get_lhb()));
+}
+
+void CHIP8::SET_SOUND(const Instruction& instr){
+    this->cpu->set_sound(this->cpu->get_Vx(instr.get_lhb()));
+}
 
 void CHIP8::ADD_I(const Instruction& instr){
     auto I = this->cpu->get_I();
