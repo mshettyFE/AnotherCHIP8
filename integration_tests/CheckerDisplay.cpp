@@ -5,13 +5,13 @@
 int main(int argc, char *argv[]){
 
   CHIP8 interpreter(true,true);
-  interpreter.disp.test_checkers();
+  interpreter.disp->test_checkers();
   interpreter.print();
 
   SDL_Event event;
   bool quit = false;
   while (!quit) {
-      interpreter.disp.to_screen();
+      interpreter.disp->to_screen();
       while (SDL_PollEvent(&event)) {
           switch (event.type) {
             case SDL_QUIT:

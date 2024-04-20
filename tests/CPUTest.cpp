@@ -384,197 +384,40 @@ TEST(CPUTest, LD_Delay){}
 
 TEST(CPUTest,LD_Key_Block){}
 
-TEST(CPUTest, Set_Delay){}
-
-TEST(CPUTest, Add_reg_I){}
-
-TEST(CPUTest, LD_Sprite){}
-
-TEST(CPUTest, Store_BCD){}
-
-TEST(CPUTest, Store_Regs_All_VF){
-    CHIP8 interpreter(false,false);
-    interpreter.cpu->set_I(0xA00);
-    auto instr = Instruction(0xF,0xF,0x5,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Can't Save VF to Memory",e.what());
-    }
-    EXPECT_EQ(thrown,true);
-}
-
-TEST(CPUTest, Store_Regs_All_Ok){
-    CHIP8 interpreter(false,false);
+TEST(CPUTest, SET_DELAY){
+    EXPECT_EQ(1,0); // ENSURE that this test fails until I work out threading issue
+    CHIP8 interpreter(false,true);
+    interpreter.cpu->set_Vx(1,0xFF);
+    auto instr = Instruction(0xF,1,1,5);
     auto current_pc = interpreter.cpu->get_pc();
-    uint16_t starting_addr = 0x0A00 ;
-    interpreter.cpu->set_I(starting_addr);
-    for(int i=0; i<15; i++){
-        interpreter.cpu->set_Vx(i,i);
-    }
-    auto instr = Instruction(0xF,0xE,0x5,0x5);
-    bool thrown = false;
-    std::string msg="";
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
+    auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
-    EXPECT_EQ(thrown,false);
-    for(int i=0; i<15; i++){
-        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
-    }
+    EXPECT_GE(interpreter.cpu->get_delay() ,0);
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 
-TEST(CPUTest, Store_Regs_OOB){
-    CHIP8 interpreter(false,false);
-    interpreter.cpu->set_I(0x0FFA);
-    auto instr = Instruction(0xF,0xE,0x5,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Address out of bounds. Can't write",e.what());
-    }
-    EXPECT_EQ(thrown,true);
-}
-
-TEST(CPUTest, Load_Regs_All_VF){
-    CHIP8 interpreter(false,false);
-    interpreter.cpu->set_I(0xA00);
-    auto instr = Instruction(0xF,0xF,0x6,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Can't Load VF to Memory",e.what());
-    }
-    EXPECT_EQ(thrown,true);
-}
-
-TEST(CPUTest, Read_Regs_OOB){
-    CHIP8 interpreter(false,false);
-    interpreter.cpu->set_I(0x0FFA);
-    auto instr = Instruction(0xF,0xE,0x6,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Address out of bounds. Can't read",e.what());
-    }
-    EXPECT_EQ(thrown,true);
-}
-
-TEST(CPUTest, Read_Regs_Good){
-// First, load values into memory
-    CHIP8 interpreter(false,false);
+TEST(CPUTest, SET_SOUND){
+    EXPECT_EQ(1,0); // ENSURE that this test fails until I work out threading issue
+    CHIP8 interpreter(false,true);
+    interpreter.cpu->set_Vx(1,0xFF);
+    auto instr = Instruction(0xF,1,1,8);
     auto current_pc = interpreter.cpu->get_pc();
-    uint16_t starting_addr = 0x0A00;
-    interpreter.cpu->set_I(starting_addr);
-    for(int i=0; i<15; i++){
-        interpreter.cpu->set_Vx(i,i);
-    }
-    auto instr = Instruction(0xF,0xE,0x5,0x5);
-    bool thrown = false;
-    std::string msg="";
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
+    auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
-    EXPECT_EQ(thrown,false);
-    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    for(int i=0; i<15; i++){
-        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
-    }
-
-    instr = Instruction(0xF,0xE,0x6,0x5);
-    current_pc = interpreter.cpu->get_pc();
-    thrown = false;
-    msg="";
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
-    std::cout << msg << std::endl;
-    EXPECT_EQ(thrown,false);
-    for(int i=0; i<15; i++){
-        EXPECT_EQ(interpreter.cpu->get_Vx(i),i);
-    }
+    EXPECT_GE(interpreter.cpu->get_sound() ,0);
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 
-TEST(CPUTest, Store_BCD_OOB){
+TEST(CPUTest, ADD_I){
     CHIP8 interpreter(false,false);
-    interpreter.cpu->set_Vx(1,0xFE);
-    uint16_t starting_addr = 0x0FFF;
-    interpreter.cpu->set_I(starting_addr);
-    auto instr = Instruction(0xf,0x1,0x3,0x3);
-    bool thrown = false;
-    try{
-        auto msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
-    EXPECT_EQ(thrown, true);
-}
-
-TEST(CPUTest, Store_BCD_VF){
-    CHIP8 interpreter(false,false);
-    interpreter.cpu->set_Vx(1,0xFE);
-    uint16_t starting_addr = 0x0FFF;
-    interpreter.cpu->set_I(starting_addr);
-    auto instr = Instruction(0xf,0xF,0x3,0x3);
-    bool thrown = false;
-    try{
-        auto msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
-    EXPECT_EQ(thrown, true);
-}
-
-TEST(CPUTest, Store_BCD_All_Good){
-    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0x0A00);
+    interpreter.cpu->set_Vx(1,0x05);
+    auto instr = Instruction(0xF,1,1,0xE);
     auto current_pc = interpreter.cpu->get_pc();
-    interpreter.cpu->set_Vx(1,0xFE);
-    uint16_t starting_addr = 0x0A00;
-    interpreter.cpu->set_I(starting_addr);
-    auto instr = Instruction(0xf,0x1,0x3,0x3);
-    bool thrown = false;
-    try{
-        auto msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-    }
-    EXPECT_EQ(thrown, false);
-    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
-    EXPECT_EQ(interpreter.mem->read(starting_addr), 2);
-    EXPECT_EQ(interpreter.mem->read(starting_addr+1), 5);
-    EXPECT_EQ(interpreter.mem->read(starting_addr+2), 4);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    EXPECT_EQ(interpreter.cpu->get_I() , 0xA05);
 }
 
 TEST(CPUTest, LoadSprite){
@@ -693,36 +536,187 @@ TEST(CPUTest, LoadSprite){
     std::cout << msg << std::endl;
 }
 
-TEST(CPUTest, ADD_I){
+TEST(CPUTest, Store_BCD_OOB){
     CHIP8 interpreter(false,false);
-    interpreter.cpu->set_I(0x0A00);
-    interpreter.cpu->set_Vx(1,0x05);
-    auto instr = Instruction(0xF,1,1,0xE);
-    auto current_pc = interpreter.cpu->get_pc();
-    auto msg = interpreter.test_instruction(instr);
-    std::cout << msg << std::endl;
-    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    EXPECT_EQ(interpreter.cpu->get_I() , 0xA05);
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0FFF;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0x1,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, true);
 }
 
-TEST(CPUTest, SET_SOUND){
-    CHIP8 interpreter(false,true);
-    interpreter.cpu->set_Vx(1,0xFF);
-    auto instr = Instruction(0xF,1,1,8);
-    auto current_pc = interpreter.cpu->get_pc();
-    auto msg = interpreter.test_instruction(instr);
-    std::cout << msg << std::endl;
-    EXPECT_GE(interpreter.cpu->get_sound() ,0);
-    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-} 
+TEST(CPUTest, Store_BCD_VF){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0FFF;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0xF,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, true);
+}
 
-TEST(CPUTest, SET_DELAY){
-    CHIP8 interpreter(false,true);
-    interpreter.cpu->set_Vx(1,0xFF);
-    auto instr = Instruction(0xF,1,1,5);
+TEST(CPUTest, Store_BCD_All_Good){
+    CHIP8 interpreter(false,false);
     auto current_pc = interpreter.cpu->get_pc();
-    auto msg = interpreter.test_instruction(instr);
+    interpreter.cpu->set_Vx(1,0xFE);
+    uint16_t starting_addr = 0x0A00;
+    interpreter.cpu->set_I(starting_addr);
+    auto instr = Instruction(0xf,0x1,0x3,0x3);
+    bool thrown = false;
+    try{
+        auto msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    EXPECT_EQ(thrown, false);
+    EXPECT_EQ(interpreter.cpu->get_pc(), current_pc+instruction_size);
+    EXPECT_EQ(interpreter.mem->read(starting_addr), 2);
+    EXPECT_EQ(interpreter.mem->read(starting_addr+1), 5);
+    EXPECT_EQ(interpreter.mem->read(starting_addr+2), 4);
+}
+
+TEST(CPUTest, Load_Regs_All_VF){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0xA00);
+    auto instr = Instruction(0xF,0xF,0x6,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Can't Load VF to Memory",e.what());
+    }
+    EXPECT_EQ(thrown,true);
+}
+
+TEST(CPUTest, Read_Regs_OOB){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0x0FFA);
+    auto instr = Instruction(0xF,0xE,0x6,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Address out of bounds. Can't read",e.what());
+    }
+    EXPECT_EQ(thrown,true);
+}
+
+TEST(CPUTest, Read_Regs_Good){
+// First, load values into memory
+    CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
+    uint16_t starting_addr = 0x0A00;
+    interpreter.cpu->set_I(starting_addr);
+    for(int i=0; i<15; i++){
+        interpreter.cpu->set_Vx(i,i);
+    }
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    bool thrown = false;
+    std::string msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
     std::cout << msg << std::endl;
-    EXPECT_GE(interpreter.cpu->get_delay() ,0);
+    EXPECT_EQ(thrown,false);
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
+    }
+
+    instr = Instruction(0xF,0xE,0x6,0x5);
+    current_pc = interpreter.cpu->get_pc();
+    thrown = false;
+    msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    std::cout << msg << std::endl;
+    EXPECT_EQ(thrown,false);
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.cpu->get_Vx(i),i);
+    }
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+}
+
+TEST(CPUTest, Store_Regs_All_VF){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0xA00);
+    auto instr = Instruction(0xF,0xF,0x5,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Can't Save VF to Memory",e.what());
+    }
+    EXPECT_EQ(thrown,true);
+}
+
+TEST(CPUTest, Store_Regs_All_Ok){
+    CHIP8 interpreter(false,false);
+    auto current_pc = interpreter.cpu->get_pc();
+    uint16_t starting_addr = 0x0A00 ;
+    interpreter.cpu->set_I(starting_addr);
+    for(int i=0; i<15; i++){
+        interpreter.cpu->set_Vx(i,i);
+    }
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    bool thrown = false;
+    std::string msg="";
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+    }
+    std::cout << msg << std::endl;
+    EXPECT_EQ(thrown,false);
+    for(int i=0; i<15; i++){
+        EXPECT_EQ(interpreter.mem->read(0xA00+i),i);
+    }
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+}
+
+TEST(CPUTest, Store_Regs_OOB){
+    CHIP8 interpreter(false,false);
+    interpreter.cpu->set_I(0x0FFA);
+    auto instr = Instruction(0xF,0xE,0x5,0x5);
+    std::string msg;
+    bool thrown = false;
+    try{
+        msg = interpreter.test_instruction(instr);
+    }
+    catch(const std::exception& e){
+        thrown = true;
+        EXPECT_STREQ("Address out of bounds. Can't write",e.what());
+    }
+    EXPECT_EQ(thrown,true);
 }

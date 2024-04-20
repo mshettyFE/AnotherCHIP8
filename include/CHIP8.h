@@ -4,7 +4,7 @@
 #include "CPU.h"
 #include "Display.h"
 #include "Memory.h"
-#include "Keyboard.h"
+#include "Input.h"
 #include "RNG.h"
 #include <iomanip>
 #include <type_traits>

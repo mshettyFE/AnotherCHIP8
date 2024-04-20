@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <string>
+#include <memory>
 #include "Constants.h"
 
 enum KEYS{
@@ -27,10 +28,14 @@ enum KEYS{
 
 class KeyPad{
 private:
-    const uint8_t* keyboardState = SDL_GetKeyboardState(NULL);
+    std::unique_ptr<SDL_Event> event;
+    bool quit=false;
 public:
-    uint16_t which_keys_is_pressed(bool debug=false) const;
+    KeyPad();
+    uint16_t which_keys_is_pressed(bool debug=false);
+    bool exit();
 };
+
 
 std::string decode_keys(uint16_t encrypted_keys);
 
