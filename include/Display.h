@@ -23,7 +23,7 @@ public:
   void reset();
 
   uint32_t read(unsigned int x, unsigned int y) const; // read value at x,y coordinate
-  void write(unsigned int x, unsigned int y);
+  bool write(unsigned int x, unsigned int y);
   void test_checkers();
   void to_screen();
 };

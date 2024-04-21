@@ -83,10 +83,15 @@ void Display::print() const{
     }
 }
 
-void Display::write(unsigned int x, unsigned int y){
+bool Display::write(unsigned int x, unsigned int y){
 // spec demands that you XOR the selected pixel with WHITE
     auto index = get_index(x,y);
+    bool set_VF = false;
+    if(display[index]==WHITE){
+        set_VF = true;
+    }
     display[index] = display[index] ^ WHITE;
+    return set_VF;
 }
 
 void Display::reset(){
