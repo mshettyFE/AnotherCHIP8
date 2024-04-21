@@ -6,6 +6,25 @@
 #include <memory>
 #include "Constants.h"
 
+enum KEYS_MAPS{
+    ONE_KEY=0,
+    TWO_KEY=1,
+    THREE_KEY=2,
+    FOUR_KEY=3,
+    Q_KEY=4,
+    W_KEY=5,
+    E_KEY=6,
+    R_KEY=7,
+    A_KEY=8,
+    S_KEY=9,
+    D_KEY=10,
+    F_KEY=11,
+    Z_KEY=12,
+    X_KEY=13,
+    C_KEY=14,
+    V_KEY=15
+};
+
 enum KEYS{
     NOTHING       = 0,
     ONE_PRESENT   = 0b1000000000000000,

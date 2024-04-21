@@ -382,7 +382,16 @@ TEST(CPUTest,SKNP_KEY){}
 
 TEST(CPUTest, LD_Delay){}
 
-TEST(CPUTest,LD_Key_Block){}
+TEST(CPUTest,LD_Key_Block){
+    CHIP8 interpreter(false,false);
+    interpreter.queue_key(V_KEY);
+    auto instr = Instruction(0xF,0,0,0xA);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    EXPECT_EQ(interpreter.cpu->get_Vx(0),V_KEY);
+}
 
 TEST(CPUTest, SET_DELAY){
     CHIP8 interpreter(false,true);

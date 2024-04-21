@@ -108,6 +108,63 @@ Instruction CHIP8::bundle(uint16_t machine_code) const{
     return Instruction(machine_code);
 }
 
+void CHIP8::queue_key(const KEYS_MAPS& ky){
+    SDL_Event sdlevent = {};
+    sdlevent.type = SDL_KEYDOWN;
+    switch(ky){
+        case ONE_KEY:
+            sdlevent.key.keysym.sym = SDLK_1;
+            break;
+        case TWO_KEY:
+            sdlevent.key.keysym.sym = SDLK_2;
+            break;
+        case THREE_KEY:
+            sdlevent.key.keysym.sym = SDLK_3;
+            break;
+        case FOUR_KEY:
+            sdlevent.key.keysym.sym = SDLK_4;
+            break;
+        case Q_KEY:
+            sdlevent.key.keysym.sym = SDLK_q;
+            break;
+        case W_KEY:
+            sdlevent.key.keysym.sym = SDLK_w;
+            break;
+        case E_KEY:
+            sdlevent.key.keysym.sym = SDLK_e;
+            break;
+        case R_KEY:
+            sdlevent.key.keysym.sym = SDLK_r;
+        case A_KEY:
+            sdlevent.key.keysym.sym = SDLK_a;
+            break;
+        case S_KEY:
+            sdlevent.key.keysym.sym = SDLK_s;
+            break;
+        case D_KEY:
+            sdlevent.key.keysym.sym = SDLK_d;
+            break;
+        case F_KEY:
+            sdlevent.key.keysym.sym = SDLK_f;
+            break;
+        case Z_KEY:
+            sdlevent.key.keysym.sym = SDLK_z;
+            break;
+        case X_KEY:
+            sdlevent.key.keysym.sym = SDLK_x;
+            break;
+        case C_KEY:
+            sdlevent.key.keysym.sym = SDLK_c;
+            break;
+        case V_KEY:
+            sdlevent.key.keysym.sym = SDLK_v;
+            break;
+        default:
+            throw std::invalid_argument("INVALID KEYCODE");
+    }
+    SDL_PushEvent(&sdlevent);
+}
+
 CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_msg, bool debug){
 // COWGOD!!!!!!!!!!!!!!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
@@ -525,7 +582,31 @@ void CHIP8::DRW(const Instruction& instr){}
 void CHIP8::SKP(const Instruction& instr){}
 void CHIP8::SKNP(const Instruction& instr){}
 void CHIP8::LD_DELAY(const Instruction& instr){}
-void CHIP8::LD_KEY(const Instruction& instr){}
+
+void CHIP8::LD_KEY(const Instruction& instr){
+    auto reg = instr.get_lhb();
+    while(1){
+        auto pressed_keys = this->keys->which_keys_is_pressed();
+        if(pressed_keys != 0){
+            if(pressed_keys & ONE_PRESENT){this->cpu->set_Vx(reg,ONE_KEY); break;}
+            if(pressed_keys & TWO_PRESENT){this->cpu->set_Vx(reg,TWO_KEY); break;}
+            if(pressed_keys & THREE_PRESENT){this->cpu->set_Vx(reg,THREE_KEY); break;}
+            if(pressed_keys & C_PRESENT){this->cpu->set_Vx(reg,FOUR_KEY); break;}
+            if(pressed_keys & FOUR_PRESENT){this->cpu->set_Vx(reg,Q_KEY); break;}
+            if(pressed_keys & FIVE_PRESENT){this->cpu->set_Vx(reg,W_KEY); break;}
+            if(pressed_keys & SIX_PRESENT){this->cpu->set_Vx(reg,E_KEY); break;}
+            if(pressed_keys & D_PRESENT){this->cpu->set_Vx(reg,R_KEY); break;}
+            if(pressed_keys & SEVEN_PRESENT){this->cpu->set_Vx(reg,A_KEY); break;}
+            if(pressed_keys & EIGHT_PRESENT){this->cpu->set_Vx(reg,S_KEY); break;}
+            if(pressed_keys & NINE_PRESENT){this->cpu->set_Vx(reg,D_KEY); break;}
+            if(pressed_keys & E_PRESENT){this->cpu->set_Vx(reg,F_KEY); break;}
+            if(pressed_keys & A_PRESENT){this->cpu->set_Vx(reg,Z_KEY); break;}
+            if(pressed_keys & ZERO_PRESENT){this->cpu->set_Vx(reg,X_KEY); break;}
+            if(pressed_keys & B_PRESENT){this->cpu->set_Vx(reg,C_KEY); break;}
+            if(pressed_keys & F_PRESENT){this->cpu->set_Vx(reg,V_KEY); break;}
+        }
+    }
+}
 
 void CHIP8::SET_DELAY(const Instruction& instr){
     this->cpu->set_delay(this->cpu->get_Vx(instr.get_lhb()));

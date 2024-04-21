@@ -11,6 +11,7 @@ int main(int argc, char *argv[]){
   uint16_t  a = 0;
   while (!quit) {
     interpreter.disp->to_screen();
+//    interpreter.queue_key(V_KEY);
     a = interpreter.keys->which_keys_is_pressed();
     if(a){
         std::cout << a << std::endl;
