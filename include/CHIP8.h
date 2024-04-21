@@ -97,6 +97,8 @@ public:
     std::string decompile(const Instruction& instr); // convert instruction to associated assembly instruction
 
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
+
+    void run_eternal();
 };
 
 #endif

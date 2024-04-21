@@ -421,6 +421,20 @@ void CHIP8::reset(){
     mem->reset();
 }
 
+void CHIP8::run_eternal(){
+    if(!this->loaded){
+        throw std::invalid_argument("No ROM loaded!");
+    }
+    std::string out_msg;
+    while(1){
+        auto binary = fetch();
+        Instruction instr = bundle(binary);
+        auto cur_func = decode(instr,out_msg,false);
+        execute(cur_func,instr);
+    }
+}
+
+
 void CHIP8::SYS(const Instruction& instr){
 // do nothing but increment PC
 }
