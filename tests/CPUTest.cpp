@@ -376,9 +376,25 @@ TEST(CPUTest, RND){
 
 TEST(CPUTest, DRW){}
 
-TEST(CPUTest, SKP_Key){}
+TEST(CPUTest, SKP_Key){
+    CHIP8 interpreter(false,false);
+    interpreter.queue_key(F_KEY);
+    auto instr = Instruction(0xE,0xF,9,0xE);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size*2, interpreter.cpu->get_pc());
+}
 
-TEST(CPUTest,SKNP_KEY){}
+TEST(CPUTest,SKNP_Key){
+    CHIP8 interpreter(false,false);
+    interpreter.queue_key(F_KEY);
+    auto instr = Instruction(0xE,0xE,0xA,1);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size*2, interpreter.cpu->get_pc());
+}
 
 TEST(CPUTest, LD_Delay){
     CHIP8 interpreter(false,true);
@@ -394,13 +410,13 @@ TEST(CPUTest, LD_Delay){
 
 TEST(CPUTest,LD_Key_Block){
     CHIP8 interpreter(false,false);
-    interpreter.queue_key(V_KEY);
+    interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xF,0,0,0xA);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    EXPECT_EQ(interpreter.cpu->get_Vx(0),V_KEY);
+    EXPECT_EQ(interpreter.cpu->get_Vx(0),F_KEY);
 }
 
 TEST(CPUTest, SET_DELAY){

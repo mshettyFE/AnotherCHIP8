@@ -62,3 +62,23 @@ std::string decode_keys(uint16_t encrypted_keys){
     if(encrypted_keys & F_PRESENT){output += "F";}
     return output;
 }
+
+KEYS_MAPS parse_key(uint16_t encrypted_keys){
+    if(encrypted_keys & ONE_PRESENT){return ONE_KEY;}
+    if(encrypted_keys & TWO_PRESENT){return TWO_KEY;}
+    if(encrypted_keys & THREE_PRESENT){return THREE_KEY;}
+    if(encrypted_keys & C_PRESENT){return C_KEY;}
+    if(encrypted_keys & FOUR_PRESENT){return FOUR_KEY;}
+    if(encrypted_keys & FIVE_PRESENT){return FIVE_KEY;}
+    if(encrypted_keys & SIX_PRESENT){return SIX_KEY;}
+    if(encrypted_keys & D_PRESENT){return D_KEY;}
+    if(encrypted_keys & SEVEN_PRESENT){return SEVEN_KEY;}
+    if(encrypted_keys & EIGHT_PRESENT){return EIGHT_KEY;}
+    if(encrypted_keys & NINE_PRESENT){return NINE_KEY;}
+    if(encrypted_keys & E_PRESENT){return E_KEY;}
+    if(encrypted_keys & A_PRESENT){return A_KEY;}
+    if(encrypted_keys & ZERO_PRESENT){return ZERO_KEY;}
+    if(encrypted_keys & B_PRESENT){return B_KEY;}
+    if(encrypted_keys & F_PRESENT){return F_KEY;}
+    return NO_KEY;
+}

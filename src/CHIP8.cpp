@@ -121,42 +121,42 @@ void CHIP8::queue_key(const KEYS_MAPS& ky){
         case THREE_KEY:
             sdlevent.key.keysym.sym = SDLK_3;
             break;
-        case FOUR_KEY:
+        case C_KEY:
             sdlevent.key.keysym.sym = SDLK_4;
             break;
-        case Q_KEY:
+        case FOUR_KEY:
             sdlevent.key.keysym.sym = SDLK_q;
             break;
-        case W_KEY:
+        case FIVE_KEY:
             sdlevent.key.keysym.sym = SDLK_w;
             break;
-        case E_KEY:
+        case SIX_KEY:
             sdlevent.key.keysym.sym = SDLK_e;
             break;
-        case R_KEY:
+        case D_KEY:
             sdlevent.key.keysym.sym = SDLK_r;
-        case A_KEY:
+        case SEVEN_KEY:
             sdlevent.key.keysym.sym = SDLK_a;
             break;
-        case S_KEY:
+        case EIGHT_KEY:
             sdlevent.key.keysym.sym = SDLK_s;
             break;
-        case D_KEY:
+        case NINE_KEY:
             sdlevent.key.keysym.sym = SDLK_d;
             break;
-        case F_KEY:
+        case E_KEY:
             sdlevent.key.keysym.sym = SDLK_f;
             break;
-        case Z_KEY:
+        case A_KEY:
             sdlevent.key.keysym.sym = SDLK_z;
             break;
-        case X_KEY:
+        case ZERO_KEY:
             sdlevent.key.keysym.sym = SDLK_x;
             break;
-        case C_KEY:
+        case B_KEY:
             sdlevent.key.keysym.sym = SDLK_c;
             break;
-        case V_KEY:
+        case F_KEY:
             sdlevent.key.keysym.sym = SDLK_v;
             break;
         default:
@@ -579,8 +579,22 @@ void CHIP8::RND(const Instruction& instr){
 }
 
 void CHIP8::DRW(const Instruction& instr){}
-void CHIP8::SKP(const Instruction& instr){}
-void CHIP8::SKNP(const Instruction& instr){}
+
+void CHIP8::SKP(const Instruction& instr){
+    auto expected_key = instr.get_lhb();
+    auto parsed_key = parse_key(this->keys->which_keys_is_pressed());
+    if(parsed_key== expected_key){
+        this->cpu->increment_pc();
+    }
+}
+
+void CHIP8::SKNP(const Instruction& instr){
+    auto expected_key = instr.get_lhb();
+    auto parsed_key = parse_key(this->keys->which_keys_is_pressed());
+    if(parsed_key!= expected_key){
+        this->cpu->increment_pc();
+    }
+}
 
 void CHIP8::LD_DELAY(const Instruction& instr){
     this->cpu->set_Vx(instr.get_lhb(),this->cpu->get_delay()) ;
@@ -591,22 +605,12 @@ void CHIP8::LD_KEY(const Instruction& instr){
     while(1){
         auto pressed_keys = this->keys->which_keys_is_pressed();
         if(pressed_keys != 0){
-            if(pressed_keys & ONE_PRESENT){this->cpu->set_Vx(reg,ONE_KEY); break;}
-            if(pressed_keys & TWO_PRESENT){this->cpu->set_Vx(reg,TWO_KEY); break;}
-            if(pressed_keys & THREE_PRESENT){this->cpu->set_Vx(reg,THREE_KEY); break;}
-            if(pressed_keys & C_PRESENT){this->cpu->set_Vx(reg,FOUR_KEY); break;}
-            if(pressed_keys & FOUR_PRESENT){this->cpu->set_Vx(reg,Q_KEY); break;}
-            if(pressed_keys & FIVE_PRESENT){this->cpu->set_Vx(reg,W_KEY); break;}
-            if(pressed_keys & SIX_PRESENT){this->cpu->set_Vx(reg,E_KEY); break;}
-            if(pressed_keys & D_PRESENT){this->cpu->set_Vx(reg,R_KEY); break;}
-            if(pressed_keys & SEVEN_PRESENT){this->cpu->set_Vx(reg,A_KEY); break;}
-            if(pressed_keys & EIGHT_PRESENT){this->cpu->set_Vx(reg,S_KEY); break;}
-            if(pressed_keys & NINE_PRESENT){this->cpu->set_Vx(reg,D_KEY); break;}
-            if(pressed_keys & E_PRESENT){this->cpu->set_Vx(reg,F_KEY); break;}
-            if(pressed_keys & A_PRESENT){this->cpu->set_Vx(reg,Z_KEY); break;}
-            if(pressed_keys & ZERO_PRESENT){this->cpu->set_Vx(reg,X_KEY); break;}
-            if(pressed_keys & B_PRESENT){this->cpu->set_Vx(reg,C_KEY); break;}
-            if(pressed_keys & F_PRESENT){this->cpu->set_Vx(reg,V_KEY); break;}
+            auto val = parse_key(pressed_keys);
+            if(val==NO_KEY){
+                throw std::invalid_argument("LD_Key shouldn't return no keys");
+            }
+            this->cpu->set_Vx(reg,val);
+            break;
         }
     }
 }
