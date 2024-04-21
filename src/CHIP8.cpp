@@ -581,7 +581,10 @@ void CHIP8::RND(const Instruction& instr){
 void CHIP8::DRW(const Instruction& instr){}
 void CHIP8::SKP(const Instruction& instr){}
 void CHIP8::SKNP(const Instruction& instr){}
-void CHIP8::LD_DELAY(const Instruction& instr){}
+
+void CHIP8::LD_DELAY(const Instruction& instr){
+    this->cpu->set_Vx(instr.get_lhb(),this->cpu->get_delay()) ;
+}
 
 void CHIP8::LD_KEY(const Instruction& instr){
     auto reg = instr.get_lhb();

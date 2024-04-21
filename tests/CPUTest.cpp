@@ -380,7 +380,17 @@ TEST(CPUTest, SKP_Key){}
 
 TEST(CPUTest,SKNP_KEY){}
 
-TEST(CPUTest, LD_Delay){}
+TEST(CPUTest, LD_Delay){
+    CHIP8 interpreter(false,true);
+    auto instr = Instruction(0xF,1,0,7);
+    auto current_pc = interpreter.cpu->get_pc();
+    interpreter.cpu->set_Vx(1,0);
+    interpreter.cpu->set_delay(0xFF);
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_NE(interpreter.cpu->get_Vx(1) ,0);
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+}
 
 TEST(CPUTest,LD_Key_Block){
     CHIP8 interpreter(false,false);
