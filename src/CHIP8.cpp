@@ -429,8 +429,12 @@ void CHIP8::run_eternal(){
     while(1){
         auto binary = fetch();
         Instruction instr = bundle(binary);
-        auto cur_func = decode(instr,out_msg,false);
+        auto cur_func = decode(instr,out_msg,true);
         execute(cur_func,instr);
+        std::cout << std::hex <<this->cpu->get_pc() << std::dec << " " << out_msg<<std::endl;
+        if(this->keys->poll_exit()){ // Handle SDL_EXIT
+            break;
+        }
     }
 }
 

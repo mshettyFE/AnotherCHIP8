@@ -53,7 +53,7 @@ private:
 public:
     KeyPad();
     uint16_t which_keys_is_pressed(bool debug=false);
-    bool exit();
+    bool poll_exit();
 };
 
 std::string decode_keys(uint16_t encrypted_keys);
