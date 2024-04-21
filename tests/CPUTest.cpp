@@ -385,7 +385,6 @@ TEST(CPUTest, LD_Delay){}
 TEST(CPUTest,LD_Key_Block){}
 
 TEST(CPUTest, SET_DELAY){
-    EXPECT_EQ(1,0); // ENSURE that this test fails until I work out threading issue
     CHIP8 interpreter(false,true);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0xF,1,1,5);
@@ -397,7 +396,6 @@ TEST(CPUTest, SET_DELAY){
 }
 
 TEST(CPUTest, SET_SOUND){
-    EXPECT_EQ(1,0); // ENSURE that this test fails until I work out threading issue
     CHIP8 interpreter(false,true);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0xF,1,1,8);

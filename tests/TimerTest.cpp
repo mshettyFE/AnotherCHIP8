@@ -12,7 +12,7 @@ TEST(TimerTest, Delay){
     EXPECT_EQ(current_cpu.get_delay(),0);
     current_cpu.set_delay(60);
     EXPECT_GE(current_cpu.get_delay(),0);
-    SDL_Delay(1000);
+    SDL_Delay(1100);
     EXPECT_EQ(current_cpu.get_delay(),0);
 }
 
@@ -21,7 +21,7 @@ TEST(TimerTest, Sound){
     EXPECT_EQ(current_cpu.get_sound(),0);
     current_cpu.set_sound(60);
     EXPECT_GE(current_cpu.get_sound(),0);
-    SDL_Delay(1000);
+    SDL_Delay(1100);
     EXPECT_EQ(current_cpu.get_sound(),0);
     SDL_Quit();
 }

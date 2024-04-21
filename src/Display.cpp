@@ -60,6 +60,7 @@ Display::~Display(){
     SDL_FreeSurface(surface);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 int Display::get_index(unsigned int  x, unsigned int  y) const{

@@ -6,45 +6,57 @@
 #include <chrono>
 
 CPU::CPU(bool threading_on){
+  this->threading_on = threading_on;
   pc=START;
   sound = 0;
   delay=0;
+  sound_is_running=0;
+  delay_is_running=0;
   for(int i=0; i< 16; ++i){
     Vx[i] = 0;
   }
   I=0;
-  SDL_AudioSpec desired_spec = {
-      .freq = SAMPLE_RATE,
-      .format = AUDIO_F32,
-      .channels = 1,
-      .samples = BUFFER_SIZE,
-      .callback = oscillator_callback,
-      .userdata = this,
-  };
-  SDL_AudioSpec obtained_spec;
-  if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
-      std::cout <<  SDL_GetError() << std::endl;
-      throw std::invalid_argument("SDL_Init failed");
-  }
-  audio_device = SDL_OpenAudioDevice(NULL, 0, &desired_spec, &obtained_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
-  if(audio_device==0){
-      std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
-      throw std::invalid_argument(message);
-  }
-  SDL_PauseAudioDevice(audio_device,0);     
   if(threading_on){
+    SDL_AudioSpec desired_spec = {
+        .freq = SAMPLE_RATE,
+        .format = AUDIO_F32,
+        .channels = 1,
+        .samples = BUFFER_SIZE,
+        .callback = oscillator_callback,
+        .userdata = this,
+    };
+    SDL_AudioSpec obtained_spec;
+    if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
+        std::cout <<  SDL_GetError() << std::endl;
+        throw std::invalid_argument("SDL_Init failed");
+    }
+    audio_device = SDL_OpenAudioDevice(NULL, 0, &desired_spec, &obtained_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    if(audio_device==0){
+        std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
+        throw std::invalid_argument(message);
+    }
+    SDL_PauseAudioDevice(audio_device,0);
+    SDL_PauseAudioDevice(audio_device,1);
+    sound_is_running=1;
+    delay_is_running=1;
     std::cout << "Threading On" << std::endl;
-  // Create and detach deamon thread that auto-decrements delay counter if non-zero
-    std::thread delay_dec( [this] { this->decrement_delay(); } );
-    delay_dec.detach();
-  // same for sound
-    std::thread sound_dec( [this] { this->decrement_sound(); } );
-    sound_dec.detach();
+    sound_finished = std::async(std::launch::async,&CPU::decrement_delay,this);
+    delay_finished = std::async(std::launch::async,&CPU::decrement_sound,this);
   }
 }
 
 CPU::~CPU(){
+    if(this->threading_on){
+      this->sound_is_running = 0;
+      this->delay_is_running = 0;
+      std::cout << "Waiting for Threads to End" << std::endl;
+      this->sound_finished.wait();
+      std::cout << "Sound finished" << std::endl;
+      this->delay_finished.wait();
+      std::cout << "Delay finished" << std::endl;
+    }
     SDL_CloseAudioDevice(audio_device);
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 uint16_t CPU::get_pc() const{return this->pc;}
@@ -78,10 +90,17 @@ void CPU::set_delay(uint8_t value){
   this->delay.store(value);
 }
 
-void CPU::decrement_delay(){
+bool CPU::get_sound_running(){return this->sound_is_running.load();}
+
+bool CPU::get_delay_running(){return this->delay_is_running.load();}
+
+bool CPU::decrement_delay(){
   thread_local auto last_update = std::chrono::steady_clock::now();
   auto period = get_clock_period();
   while(1){
+    if(!delay_is_running){
+      break;
+    }
 // If you are already at 0, don't do anything
     if(this->get_delay()==0){
       last_update = std::chrono::steady_clock::now();
@@ -95,11 +114,15 @@ void CPU::decrement_delay(){
       last_update = std::chrono::steady_clock::now();
     }
   }
+  return true;
 }
 
-void CPU::decrement_sound(){ // identical to decrement delay
+bool CPU::decrement_sound(){ // identical to decrement delay
   thread_local auto last_update = std::chrono::steady_clock::now();
   while(1){
+    if(!sound_is_running){
+      break;
+    }
 // If you are already at 0, check if you should be playing sound
     if(this->get_sound()==0){
       SDL_PauseAudioDevice(audio_device,1);
@@ -117,6 +140,7 @@ void CPU::decrement_sound(){ // identical to decrement delay
       last_update = std::chrono::steady_clock::now();
     }
   }
+  return true;
 }
 
 void CPU::print() const{

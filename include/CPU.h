@@ -3,6 +3,9 @@
 
 #include <stack>
 #include <cinttypes>
+#include <mutex>
+#include <condition_variable>
+#include <future>
 #include <iostream>
 #include <atomic>
 #include <memory>
@@ -36,12 +39,20 @@ private:
 // timers. Both decrement at a rate of 60 Hz.
   std::atomic<uint8_t>  sound;
   std::atomic<uint8_t>  delay;
+
+  bool threading_on;
+// atomic variables to state wheather threads should continue to run
+  std::atomic<int> sound_is_running;
+  std::atomic<int> delay_is_running;
+// futures to state whether threads have properly finished
+  std::future<bool> sound_finished;
+  std::future<bool> delay_finished;
 // Public registers directly accessible by program
   std::array<uint8_t,16> Vx; // public 16-bit registers. Don't use register F
   uint16_t I; // Stores memory addresses. Only bottom 12 bits used
 // decrement register atomically
-  void decrement_delay();
-  void decrement_sound();
+  bool decrement_delay();
+  bool decrement_sound();
   SDL_AudioDeviceID audio_device;
 public:
   std::unique_ptr<Oscillator> osc = std::make_unique<Oscillator>(Oscillator(SAMPLE_RATE, INIT_VOLUME)); // sampler to play audio
@@ -61,6 +72,9 @@ public:
   void set_Vx(uint8_t i,uint8_t value);
   void set_VF(bool is_set);
   void set_I(uint16_t value);
+
+  bool get_sound_running();
+  bool get_delay_running();
 
   void increment_pc();
   void decrement_pc();

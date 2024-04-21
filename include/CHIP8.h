@@ -83,6 +83,8 @@ public:
     RNG random_gen;
 
     CHIP8(bool visible=true, bool threading=true);
+    ~CHIP8(){SDL_Quit();}
+
     void print() const;
     void load(std::string file); // assumes file is big_endian
     std::string disassemble(bool raw=false);

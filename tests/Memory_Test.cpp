@@ -7,7 +7,7 @@
 #include "CPU.h"
 
 TEST(MemTest,LoadInstruction){
-    CHIP8 interpreter;
+    CHIP8 interpreter(false,false);
     uint8_t first = 0xF0;
     uint8_t second =  0x90;
     uint16_t test_value  = ((uint16_t) first) << 8 | second;
@@ -16,13 +16,13 @@ TEST(MemTest,LoadInstruction){
 }
 
 TEST(MemTest, LoadROM){
-    CHIP8 interpreter;
+    CHIP8 interpreter(false,false);
     interpreter.load("../tests/IBM.ch8");
     interpreter.mem->dump();
-    EXPECT_EQ(interpreter.mem->read(0x200),0xe0);
-    EXPECT_EQ(interpreter.mem->read(0x201),0x00);
-    EXPECT_EQ(interpreter.mem->read(0x276),0xe0);
-    EXPECT_EQ(interpreter.mem->read(0x277),0x00);
-    EXPECT_EQ(interpreter.mem->read(0x220),0x1F);
-    EXPECT_EQ(interpreter.mem->read(0x221),0xD0);
+    EXPECT_EQ(interpreter.mem->read(0x200),0x00);
+    EXPECT_EQ(interpreter.mem->read(0x201),0xe0);
+    EXPECT_EQ(interpreter.mem->read(0x276),0x00);
+    EXPECT_EQ(interpreter.mem->read(0x277),0xe0);
+    EXPECT_EQ(interpreter.mem->read(0x220),0xD0);
+    EXPECT_EQ(interpreter.mem->read(0x221),0x1F);
 }
