@@ -8,17 +8,6 @@ KeyPad::KeyPad(){
     event = std::make_unique<SDL_Event>(SDL_Event());
 }
 
-bool KeyPad::poll_exit(){
-    while(SDL_PollEvent(this->event.get()) != 0){
-        switch(this->event->type){
-            case SDL_QUIT:
-                return true;
-                break;
-        }
-    }
-    return false;
-}
-
 uint16_t KeyPad::which_keys_is_pressed(bool debug){
     uint16_t output = 0;
     while(SDL_PollEvent(this->event.get()) != 0){

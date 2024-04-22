@@ -60,6 +60,7 @@ void Memory::dump() const{
 
 uint8_t Memory::read(uint16_t address) const{
     if(address> MAX_RAM_SIZE){
+        std::cout << "Trying to read address " << std::hex << address << std::dec << " Max RAM Size: " << std::hex << MAX_RAM_SIZE << std::dec << std::endl;
         throw std::invalid_argument("Address out of bounds. Can't read");
     }
     return ram[address];

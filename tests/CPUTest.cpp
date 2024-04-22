@@ -374,7 +374,52 @@ TEST(CPUTest, RND){
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
 }
 
-TEST(CPUTest, DRW){}
+TEST(CPUTest, DRW_SINGLE_LINE){
+    CHIP8 interpreter(true,false);
+    interpreter.cpu->set_Vx(0,1);
+    interpreter.cpu->set_Vx(1,0);
+    interpreter.cpu->set_I(CHAR_OFFSET+1); // get second line of 0 character
+    auto instr = Instruction(0xD,0,1,1);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    EXPECT_EQ(interpreter.disp->read(1,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(2,0),BLACK);
+    EXPECT_EQ(interpreter.disp->read(3,0),BLACK);
+    EXPECT_EQ(interpreter.disp->read(4,0),WHITE);
+//    SDL_Delay(1000);
+}
+
+TEST(CPUTest, DRW_SINGLE_LINE_WRAP){
+    CHIP8 interpreter(true,false);
+    interpreter.cpu->set_Vx(0,63);
+    interpreter.cpu->set_Vx(1,0);
+    interpreter.cpu->set_I(CHAR_OFFSET); // get second line of 0 character
+    auto instr = Instruction(0xD,0,1,1);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+    EXPECT_EQ(interpreter.disp->read(63,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(0,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(1,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(2,0),WHITE);
+//    SDL_Delay(1000);
+}
+
+TEST(CPUTest, DRW_Char){
+    CHIP8 interpreter(true,false);
+    interpreter.cpu->set_Vx(0,0);
+    interpreter.cpu->set_Vx(1,0);
+    interpreter.cpu->set_I(CHAR_OFFSET); // get 0 character
+    auto instr = Instruction(0xD,0,1,5);
+    auto current_pc = interpreter.cpu->get_pc();
+    auto msg = interpreter.test_instruction(instr);
+    std::cout << msg << std::endl;
+    EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
+//    SDL_Delay(1000);
+}
 
 TEST(CPUTest, SKP_Key){
     CHIP8 interpreter(false,false);

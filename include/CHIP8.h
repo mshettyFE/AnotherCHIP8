@@ -18,6 +18,8 @@
 class CHIP8{
 private:
     bool loaded=true;
+    bool update_draw = false;
+    bool running = true;
 // assembly instructions
     void SYS(const Instruction& instr);
     void CLS(const Instruction& instr);
@@ -99,6 +101,9 @@ public:
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 
     void run_eternal();
+
+    void update_window();
+
 };
 
 #endif

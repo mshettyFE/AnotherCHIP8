@@ -37,12 +37,14 @@ void CHIP8::load(std::string filename){
         throw std::runtime_error(err_msg);
     }
 // CHIP-8 Programs must align with even addresses
+/*
     if(length%2!=0){
         program.close();
         std::cout << "File " << __FILE__ << " Line " << __LINE__ << " " << std::endl;
         std::string err_msg = filename+" is misaligned!";
         throw std::runtime_error(err_msg);
     }
+*/
 // Assuming you got here, the program fits in the RAM of the CHIP-8. Copy the data into the temp buffer, then copy over to system
     std::vector<uint8_t> buffer;
     buffer.reserve(length);
@@ -397,6 +399,7 @@ std::string CHIP8::decoding_error(const Instruction& instr){
 }
 
 void CHIP8::execute(assembly_func fnc, const Instruction& instr){
+    this->update_draw =false;
     this->cpu->increment_pc();
     (this->*fnc)(instr);
     return;
@@ -426,18 +429,32 @@ void CHIP8::run_eternal(){
         throw std::invalid_argument("No ROM loaded!");
     }
     std::string out_msg;
-    while(1){
+    while(this->running){
         auto binary = fetch();
         Instruction instr = bundle(binary);
         auto cur_func = decode(instr,out_msg,true);
+//        std::cout << std::hex <<this->cpu->get_pc() << std::dec << " " << out_msg<<std::endl;
         execute(cur_func,instr);
-        std::cout << std::hex <<this->cpu->get_pc() << std::dec << " " << out_msg<<std::endl;
-        if(this->keys->poll_exit()){ // Handle SDL_EXIT
-            break;
-        }
+        this->update_window();
     }
 }
 
+void CHIP8::update_window(){
+    SDL_Event e;
+    while(SDL_PollEvent(&e) != 0){
+        switch(e.type){
+            case SDL_QUIT:
+                this->running = false;
+                break;
+            case SDL_WINDOWEVENT:
+                this->update_draw=true;
+                break;
+        }
+    }
+    if(this->update_draw){
+        this->disp->to_screen();
+    }
+}
 
 void CHIP8::SYS(const Instruction& instr){
 // do nothing but increment PC
@@ -596,7 +613,47 @@ void CHIP8::RND(const Instruction& instr){
     this->cpu->set_Vx(instr.get_lhb(),instr.get_lower_byte()& random_val);
 }
 
-void CHIP8::DRW(const Instruction& instr){}
+void CHIP8::DRW(const Instruction& instr){
+    update_draw=true;
+    auto starting_addr = this->cpu->get_I();
+    int8_t starting_x_pos = (this->cpu->get_Vx(instr.get_lhb()));
+    int8_t starting_y_pos = this->cpu->get_Vx(instr.get_hlb());
+    int8_t current_x_pos = starting_x_pos;
+    int8_t current_y_pos = starting_y_pos;
+    int8_t n_bytes = instr.get_llb();
+    if((starting_addr+n_bytes) >= MAX_RAM_SIZE){
+        throw std::invalid_argument("Trying to read sprite that's out of program memory");
+    }
+    bool overwritten = false;
+    for(auto addr=starting_addr; addr<starting_addr+n_bytes; ++addr){
+        auto cur_byte = this->mem->read(addr);
+        while(cur_byte != 0){
+            std::cout << (int) current_x_pos <<" " << (int) current_y_pos << std::endl;
+            if(cur_byte & 0b1000'0000){ // If the top bit is set, then write to screen
+                if(this->disp->write(current_x_pos, current_y_pos)){
+                    overwritten = true; // check if you overwrote a pixel. If so, take note
+                }
+            }
+            cur_byte = cur_byte << 1; // left shift to get next potential pixel
+            current_x_pos += 1; // shift to the right for the next byte
+            if(current_x_pos >= dis_width){
+                current_x_pos -= dis_width;
+            }
+        }
+        current_x_pos = starting_x_pos;
+        current_y_pos += 1; // move onto next scanline
+        if(current_y_pos >= dis_height){
+            current_y_pos -= dis_height;
+        }
+    }
+    if(overwritten){
+        this->cpu->set_VF(1);
+    }
+    else{
+        this->cpu->set_VF(0);
+    }
+//    this->disp->to_screen();
+}
 
 void CHIP8::SKP(const Instruction& instr){
     auto expected_key = instr.get_lhb();
