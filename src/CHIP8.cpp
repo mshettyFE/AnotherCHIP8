@@ -36,15 +36,6 @@ void CHIP8::load(std::string filename){
         std::string err_msg = filename+" is too big!";
         throw std::runtime_error(err_msg);
     }
-// CHIP-8 Programs must align with even addresses
-/*
-    if(length%2!=0){
-        program.close();
-        std::cout << "File " << __FILE__ << " Line " << __LINE__ << " " << std::endl;
-        std::string err_msg = filename+" is misaligned!";
-        throw std::runtime_error(err_msg);
-    }
-*/
 // Assuming you got here, the program fits in the RAM of the CHIP-8. Copy the data into the temp buffer, then copy over to system
     std::vector<uint8_t> buffer;
     buffer.reserve(length);
@@ -424,7 +415,7 @@ void CHIP8::reset(){
     mem->reset();
 }
 
-void CHIP8::run_eternal(){
+void CHIP8::run_eternal(bool verbose){
     if(!this->loaded){
         throw std::invalid_argument("No ROM loaded!");
     }
@@ -432,8 +423,10 @@ void CHIP8::run_eternal(){
     while(this->running){
         auto binary = fetch();
         Instruction instr = bundle(binary);
-        auto cur_func = decode(instr,out_msg,true);
-//        std::cout << std::hex <<this->cpu->get_pc() << std::dec << " " << out_msg<<std::endl;
+        auto cur_func = decode(instr,out_msg,verbose);
+        if(verbose){
+            std::cout << std::hex <<this->cpu->get_pc() << " " << hex_to_string<uint16_t>(binary) << std::dec  << " : " << out_msg<<std::endl;
+        }
         execute(cur_func,instr);
         this->update_window();
     }
@@ -471,9 +464,6 @@ void CHIP8::RET(const Instruction& instr){
 
 void CHIP8::JP_DIRECT(const Instruction& instr){
     auto mem_addr = instr.get_mem_addr();
-    if(mem_addr%2==1){
-        throw std::invalid_argument("Jumping to odd address");
-    }
     this->cpu->set_pc(mem_addr);
 }
 
@@ -628,7 +618,6 @@ void CHIP8::DRW(const Instruction& instr){
     for(auto addr=starting_addr; addr<starting_addr+n_bytes; ++addr){
         auto cur_byte = this->mem->read(addr);
         while(cur_byte != 0){
-            std::cout << (int) current_x_pos <<" " << (int) current_y_pos << std::endl;
             if(cur_byte & 0b1000'0000){ // If the top bit is set, then write to screen
                 if(this->disp->write(current_x_pos, current_y_pos)){
                     overwritten = true; // check if you overwrote a pixel. If so, take note

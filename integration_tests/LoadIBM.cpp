@@ -4,8 +4,8 @@
 
 int main(int argc, char *argv[]){
   CHIP8 interpreter(true,false);
-  interpreter.load("../tests/IBM.ch8");
-  std::cout << interpreter.disassemble() << std::endl;
+  interpreter.load("../roms/IBM.ch8");
+  interpreter.disassemble();
   SDL_Quit();
   return 0;
 }

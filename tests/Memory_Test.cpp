@@ -17,7 +17,7 @@ TEST(MemTest,LoadInstruction){
 
 TEST(MemTest, LoadROM){
     CHIP8 interpreter(false,false);
-    interpreter.load("../tests/IBM.ch8");
+    interpreter.load("../roms/IBM.ch8");
     interpreter.mem->dump();
     EXPECT_EQ(interpreter.mem->read(0x200),0x00);
     EXPECT_EQ(interpreter.mem->read(0x201),0xe0);

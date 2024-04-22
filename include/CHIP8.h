@@ -100,7 +100,7 @@ public:
 
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 
-    void run_eternal();
+    void run_eternal(bool verbose=false);
 
     void update_window();
 
