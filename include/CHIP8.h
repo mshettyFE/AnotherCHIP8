@@ -84,7 +84,7 @@ public:
 
     RNG random_gen;
 
-    CHIP8(bool visible=true, bool threading=true);
+    CHIP8(bool visible=true);
     ~CHIP8(){SDL_Quit();}
 
     void print() const;
@@ -103,7 +103,7 @@ public:
     void run_eternal(bool verbose=false);
 
     void update_window();
-
+    void tick_clock();
 };
 
 #endif

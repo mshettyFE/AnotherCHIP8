@@ -15,7 +15,7 @@ TEST(CPUTest,EncodeDecodeMachine){
 }
 
 TEST(CPUTest, SYS){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto instr = Instruction(0,0,0,5);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);
@@ -24,7 +24,7 @@ TEST(CPUTest, SYS){
 }
 
 TEST(CPUTest, CLS){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.disp->write(dis_width-1,dis_height-1); // Set last pixel to white
     EXPECT_EQ(interpreter.disp->read(dis_width-1,dis_height-1), WHITE);
     auto instr = Instruction(0,0,0xE,0);
@@ -36,7 +36,7 @@ TEST(CPUTest, CLS){
 }
 
 TEST(CPUTest, CALL){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto instr = Instruction(2,0xF,0xF,0xF);
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
@@ -45,7 +45,7 @@ TEST(CPUTest, CALL){
 }
 
 TEST(CPUTest, RET){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto instr = Instruction(2,0xF,0xF,0xF);
     auto return_pc = interpreter.cpu->get_pc()+instruction_size; // once function returns, next instruction should be the one after CALL
     auto msg = interpreter.test_instruction(instr);
@@ -58,7 +58,7 @@ TEST(CPUTest, RET){
 }
 
 TEST(CPUTest, Jp_Direct){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     // Write 0xFFFF to last valid memory slot
     interpreter.mem->write(0x0FFE,0xFF);
     interpreter.mem->write(0x0FFF,0xFF);
@@ -74,7 +74,7 @@ TEST(CPUTest, Jp_Direct){
 
 
 TEST(CPUTest, SE_Direct_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0x3,0x1,0xF,0xF);
     auto current_pc = interpreter.cpu->get_pc();
@@ -84,7 +84,7 @@ TEST(CPUTest, SE_Direct_SKIP){
 }
 
 TEST(CPUTest, SE_Direct_NO_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(0,0xFF);
     auto instr = Instruction(0x3,0x0,0x0,0x0);
     auto current_pc = interpreter.cpu->get_pc();
@@ -94,7 +94,7 @@ TEST(CPUTest, SE_Direct_NO_SKIP){
 }
 
 TEST(CPUTest, SNE_Direct_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0x4,0x1,0xF,0xF);
     auto current_pc = interpreter.cpu->get_pc();
@@ -104,7 +104,7 @@ TEST(CPUTest, SNE_Direct_SKIP){
 }
 
 TEST(CPUTest, SNE_Direct_NO_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0x4,0x1,0x0,0x0);
     auto current_pc = interpreter.cpu->get_pc();
@@ -114,7 +114,7 @@ TEST(CPUTest, SNE_Direct_NO_SKIP){
 }
 
 TEST(CPUTest, SEReg_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     interpreter.cpu->set_Vx(2,0xFF);
     auto instr = Instruction(0x5,0x1,0x2,0x0);
@@ -125,7 +125,7 @@ TEST(CPUTest, SEReg_SKIP){
 }
 
 TEST(CPUTest, SEReg_NO_SKIP){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     interpreter.cpu->set_Vx(2,0xFE);
     auto instr = Instruction(0x5,0x2,0x1,0x0);
@@ -136,7 +136,7 @@ TEST(CPUTest, SEReg_NO_SKIP){
 }
 
 TEST(CPUTest, LD_DIRECT){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     auto instr = Instruction(0x6,0x2,0xF,0xA);
     auto msg = interpreter.test_instruction(instr);
@@ -146,7 +146,7 @@ TEST(CPUTest, LD_DIRECT){
 }
 
 TEST(CPUTest, ADD_Direct){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0xA0);
     auto instr = Instruction(0x7,0x2,0x0,0xF);
@@ -157,7 +157,7 @@ TEST(CPUTest, ADD_Direct){
 }
 
 TEST(CPUTest, LD_REG){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0xA0);
     interpreter.cpu->set_Vx(3,0x0B);
@@ -170,7 +170,7 @@ TEST(CPUTest, LD_REG){
 }
 
 TEST(CPUTest, OR){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x10);
     interpreter.cpu->set_Vx(3,0x02);
@@ -182,7 +182,7 @@ TEST(CPUTest, OR){
 }
 
 TEST(CPUTest, AND){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x10);
     interpreter.cpu->set_Vx(3,0x02);
@@ -194,7 +194,7 @@ TEST(CPUTest, AND){
 }
 
 TEST(CPUTest, XOR){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x11);
     interpreter.cpu->set_Vx(3,0x03);
@@ -206,7 +206,7 @@ TEST(CPUTest, XOR){
 }
 
 TEST(CPUTest, ADD){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x11);
     interpreter.cpu->set_Vx(3,0x03);
@@ -230,7 +230,7 @@ TEST(CPUTest, ADD){
 }
 
 TEST(CPUTest, SUB){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x05);
     interpreter.cpu->set_Vx(3,0x03);
@@ -254,7 +254,7 @@ TEST(CPUTest, SUB){
 }
 
 TEST(CPUTest,SHR){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x04);
     interpreter.cpu->set_VF(1);
@@ -276,7 +276,7 @@ TEST(CPUTest,SHR){
 }
 
 TEST(CPUTest, SUBN){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x05);
     interpreter.cpu->set_Vx(3,0x03);
@@ -300,7 +300,7 @@ TEST(CPUTest, SUBN){
 }
 
 TEST(CPUTest, SHL){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(2,0x04);
     interpreter.cpu->set_VF(1);
@@ -322,7 +322,7 @@ TEST(CPUTest, SHL){
 }
 
 TEST(CPUTest, SNE){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(2,0x04);
     interpreter.cpu->set_Vx(3,0x05);
     auto cur_pc = interpreter.cpu->get_pc();
@@ -340,7 +340,7 @@ TEST(CPUTest, SNE){
 }
 
 TEST(CPUTest, LD_Direct_I){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     auto instr = Instruction(0xA,0xF,0xF,0xF);
     auto msg = interpreter.test_instruction(instr);
@@ -350,7 +350,7 @@ TEST(CPUTest, LD_Direct_I){
 }
 
 TEST(CPUTest, JP_OFFSET){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto instr = Instruction(0xB,0x0,0x0,0x1);
     interpreter.cpu->set_Vx(0,2);
     auto msg = interpreter.test_instruction(instr);
@@ -359,7 +359,7 @@ TEST(CPUTest, JP_OFFSET){
 }
 
 TEST(CPUTest, RND){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.random_gen.seed_statically();
     interpreter.random_gen.roll();
@@ -375,7 +375,7 @@ TEST(CPUTest, RND){
 }
 
 TEST(CPUTest, DRW_SINGLE_LINE){
-    CHIP8 interpreter(true,false);
+    CHIP8 interpreter(true);
     interpreter.cpu->set_Vx(0,1);
     interpreter.cpu->set_Vx(1,0);
     interpreter.cpu->set_I(CHAR_OFFSET+1); // get second line of 0 character
@@ -392,7 +392,7 @@ TEST(CPUTest, DRW_SINGLE_LINE){
 }
 
 TEST(CPUTest, DRW_SINGLE_LINE_WRAP){
-    CHIP8 interpreter(true,false);
+    CHIP8 interpreter(true);
     interpreter.cpu->set_Vx(0,63);
     interpreter.cpu->set_Vx(1,0);
     interpreter.cpu->set_I(CHAR_OFFSET); // get second line of 0 character
@@ -409,7 +409,7 @@ TEST(CPUTest, DRW_SINGLE_LINE_WRAP){
 }
 
 TEST(CPUTest, DRW_Char){
-    CHIP8 interpreter(true,false);
+    CHIP8 interpreter(true);
     interpreter.cpu->set_Vx(0,0);
     interpreter.cpu->set_Vx(1,0);
     interpreter.cpu->set_I(CHAR_OFFSET); // get 0 character
@@ -422,7 +422,7 @@ TEST(CPUTest, DRW_Char){
 }
 
 TEST(CPUTest, SKP_Key){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xE,0xF,9,0xE);
     auto current_pc = interpreter.cpu->get_pc();
@@ -432,7 +432,7 @@ TEST(CPUTest, SKP_Key){
 }
 
 TEST(CPUTest,SKNP_Key){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xE,0xE,0xA,1);
     auto current_pc = interpreter.cpu->get_pc();
@@ -442,7 +442,7 @@ TEST(CPUTest,SKNP_Key){
 }
 
 TEST(CPUTest, LD_Delay){
-    CHIP8 interpreter(false,true);
+    CHIP8 interpreter(false);
     auto instr = Instruction(0xF,1,0,7);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(1,0);
@@ -454,7 +454,7 @@ TEST(CPUTest, LD_Delay){
 }
 
 TEST(CPUTest,LD_Key_Block){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xF,0,0,0xA);
     auto current_pc = interpreter.cpu->get_pc();
@@ -465,7 +465,7 @@ TEST(CPUTest,LD_Key_Block){
 }
 
 TEST(CPUTest, SET_DELAY){
-    CHIP8 interpreter(false,true);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0xF,1,1,5);
     auto current_pc = interpreter.cpu->get_pc();
@@ -476,7 +476,7 @@ TEST(CPUTest, SET_DELAY){
 }
 
 TEST(CPUTest, SET_SOUND){
-    CHIP8 interpreter(false,true);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFF);
     auto instr = Instruction(0xF,1,1,8);
     auto current_pc = interpreter.cpu->get_pc();
@@ -487,7 +487,7 @@ TEST(CPUTest, SET_SOUND){
 }
 
 TEST(CPUTest, ADD_I){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_I(0x0A00);
     interpreter.cpu->set_Vx(1,0x05);
     auto instr = Instruction(0xF,1,1,0xE);
@@ -499,7 +499,7 @@ TEST(CPUTest, ADD_I){
 }
 
 TEST(CPUTest, LoadSprite){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
 // 0
     auto instr = Instruction(0xF,0x0,0x2,0x9);
@@ -615,7 +615,7 @@ TEST(CPUTest, LoadSprite){
 }
 
 TEST(CPUTest, Store_BCD_OOB){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFE);
     uint16_t starting_addr = 0x0FFF;
     interpreter.cpu->set_I(starting_addr);
@@ -631,7 +631,7 @@ TEST(CPUTest, Store_BCD_OOB){
 }
 
 TEST(CPUTest, Store_BCD_VF){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_Vx(1,0xFE);
     uint16_t starting_addr = 0x0FFF;
     interpreter.cpu->set_I(starting_addr);
@@ -647,7 +647,7 @@ TEST(CPUTest, Store_BCD_VF){
 }
 
 TEST(CPUTest, Store_BCD_All_Good){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     interpreter.cpu->set_Vx(1,0xFE);
     uint16_t starting_addr = 0x0A00;
@@ -668,7 +668,7 @@ TEST(CPUTest, Store_BCD_All_Good){
 }
 
 TEST(CPUTest, Load_Regs_All_VF){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_I(0xA00);
     auto instr = Instruction(0xF,0xF,0x6,0x5);
     std::string msg;
@@ -684,7 +684,7 @@ TEST(CPUTest, Load_Regs_All_VF){
 }
 
 TEST(CPUTest, Read_Regs_OOB){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_I(0x0FFA);
     auto instr = Instruction(0xF,0xE,0x6,0x5);
     std::string msg;
@@ -701,7 +701,7 @@ TEST(CPUTest, Read_Regs_OOB){
 
 TEST(CPUTest, Read_Regs_Good){
 // First, load values into memory
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     uint16_t starting_addr = 0x0A00;
     interpreter.cpu->set_I(starting_addr);
@@ -743,7 +743,7 @@ TEST(CPUTest, Read_Regs_Good){
 }
 
 TEST(CPUTest, Store_Regs_All_VF){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_I(0xA00);
     auto instr = Instruction(0xF,0xF,0x5,0x5);
     std::string msg;
@@ -759,7 +759,7 @@ TEST(CPUTest, Store_Regs_All_VF){
 }
 
 TEST(CPUTest, Store_Regs_All_Ok){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     auto current_pc = interpreter.cpu->get_pc();
     uint16_t starting_addr = 0x0A00 ;
     interpreter.cpu->set_I(starting_addr);
@@ -784,7 +784,7 @@ TEST(CPUTest, Store_Regs_All_Ok){
 }
 
 TEST(CPUTest, Store_Regs_OOB){
-    CHIP8 interpreter(false,false);
+    CHIP8 interpreter(false);
     interpreter.cpu->set_I(0x0FFA);
     auto instr = Instruction(0xF,0xE,0x5,0x5);
     std::string msg;

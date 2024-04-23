@@ -9,10 +9,9 @@
 
 #define VERBOSE_CPU
 
-CHIP8::CHIP8(bool visible, bool threading){
-    // problem here. cpu not gettin initialized with threading
-    cpu = std::make_unique<CPU>(threading);
+CHIP8::CHIP8(bool visible){
     disp = std::make_unique<Display>(visible);
+    cpu = std::make_unique<CPU>();
     mem = std::make_unique<Memory>();
     keys = std::make_unique<KeyPad>();
 }
@@ -393,6 +392,7 @@ void CHIP8::execute(assembly_func fnc, const Instruction& instr){
     this->update_draw =false;
     this->cpu->increment_pc();
     (this->*fnc)(instr);
+    this->tick_clock();
     return;
 }
 
@@ -429,6 +429,25 @@ void CHIP8::run_eternal(bool verbose){
         }
         execute(cur_func,instr);
         this->update_window();
+    }
+}
+
+void CHIP8::tick_clock(){
+    this->cpu->increment_clock();
+    if(this->cpu->get_clock_ticks() > this->cpu->clock_ticks_per_dec){
+        this->cpu->zero_clock();
+        auto sound  = this->cpu->get_sound();
+        auto delay  = this->cpu->get_delay();
+        if(sound > 0){
+            SDL_PauseAudioDevice(this->cpu->get_audio_device(),0);
+            this->cpu->set_sound(sound-1);
+        }
+        if(sound==0){
+            SDL_PauseAudioDevice(this->cpu->get_audio_device(),1);
+        }
+        if(delay >0){
+            this->cpu->set_delay(delay-1);
+        }
     }
 }
 

@@ -1,68 +1,55 @@
 #include "CPU.h"
 #include <iostream>
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <chrono>
 
-CPU::CPU(bool threading_on){
-  this->threading_on = threading_on;
+CPU::CPU(){
   pc=START;
   sound = 0;
   delay=0;
-  sound_is_running=0;
-  delay_is_running=0;
+  clock_ticks = 0;
   for(int i=0; i< 16; ++i){
     Vx[i] = 0;
   }
   I=0;
-  if(threading_on){
-    SDL_AudioSpec desired_spec = {
-        .freq = SAMPLE_RATE,
-        .format = AUDIO_F32,
-        .channels = 1,
-        .samples = BUFFER_SIZE,
-        .callback = oscillator_callback,
-        .userdata = this,
-    };
-    SDL_AudioSpec obtained_spec;
-    if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
-        std::cout <<  SDL_GetError() << std::endl;
-        throw std::invalid_argument("SDL_Init failed");
-    }
-    audio_device = SDL_OpenAudioDevice(NULL, 0, &desired_spec, &obtained_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
-    if(audio_device==0){
-        std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
-        throw std::invalid_argument(message);
-    }
-    SDL_PauseAudioDevice(audio_device,0);
-    SDL_PauseAudioDevice(audio_device,1);
-    sound_is_running=1;
-    delay_is_running=1;
-    std::cout << "Threading On" << std::endl;
-    sound_finished = std::async(std::launch::async,&CPU::decrement_delay,this);
-    delay_finished = std::async(std::launch::async,&CPU::decrement_sound,this);
+  SDL_AudioSpec desired_spec = {
+      .freq = SAMPLE_RATE,
+      .format = AUDIO_F32,
+      .channels = 1,
+      .samples = BUFFER_SIZE,
+      .callback = oscillator_callback,
+      .userdata = this,
+  };
+  SDL_AudioSpec obtained_spec;
+  if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
+      std::cout <<  SDL_GetError() << std::endl;
+      throw std::invalid_argument("SDL_Init failed");
   }
+  audio_device = SDL_OpenAudioDevice(NULL, 0, &desired_spec, &obtained_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
+  if(audio_device==0){
+      std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
+      throw std::invalid_argument(message);
+  }
+  SDL_PauseAudioDevice(audio_device,0);
+  SDL_PauseAudioDevice(audio_device,1);
 }
 
 CPU::~CPU(){
-    if(this->threading_on){
-      this->sound_is_running = 0;
-      this->delay_is_running = 0;
-      std::cout << "Waiting for Threads to End" << std::endl;
-      this->sound_finished.wait();
-      std::cout << "Sound finished" << std::endl;
-      this->delay_finished.wait();
-      std::cout << "Delay finished" << std::endl;
-    }
-    SDL_CloseAudioDevice(audio_device);
-    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+  SDL_CloseAudioDevice(audio_device);
+  SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
+
+uint16_t CPU::get_clock_ticks() const{
+  return this->clock_ticks;
+}
+
+SDL_AudioDeviceID CPU::get_audio_device() const{
+  return audio_device;
+}
+
 
 uint16_t CPU::get_pc() const{return this->pc;}
 
 uint8_t CPU::get_sound() const{
-  return this->sound.load();
+  return this->sound;
 }
 
 uint8_t CPU::get_delay() const{
@@ -83,64 +70,11 @@ uint8_t CPU::get_VF() const{
 uint16_t CPU::get_I() const{return this->I&I_MASK;}
 
 void CPU::set_sound(uint8_t value){
-  this->sound.store(value);
+  this->sound = value;
 }
 
 void CPU::set_delay(uint8_t value){
-  this->delay.store(value);
-}
-
-bool CPU::get_sound_running(){return this->sound_is_running.load();}
-
-bool CPU::get_delay_running(){return this->delay_is_running.load();}
-
-bool CPU::decrement_delay(){
-  thread_local auto last_update = std::chrono::steady_clock::now();
-  auto period = get_clock_period();
-  while(1){
-    if(!delay_is_running){
-      break;
-    }
-// If you are already at 0, don't do anything
-    if(this->get_delay()==0){
-      last_update = std::chrono::steady_clock::now();
-      continue;
-    }
-// Counter is non-zero. Check if elapsed time is greater than 
-    auto now = std::chrono::steady_clock::now();
-    auto delta = std::chrono::duration_cast<std::chrono::microseconds> (now-last_update);
-    if(delta.count()>period){
-      delay -= 1;
-      last_update = std::chrono::steady_clock::now();
-    }
-  }
-  return true;
-}
-
-bool CPU::decrement_sound(){ // identical to decrement delay
-  thread_local auto last_update = std::chrono::steady_clock::now();
-  while(1){
-    if(!sound_is_running){
-      break;
-    }
-// If you are already at 0, check if you should be playing sound
-    if(this->get_sound()==0){
-      SDL_PauseAudioDevice(audio_device,1);
-      last_update = std::chrono::steady_clock::now();
-      continue;
-    }
-    else{
-      SDL_PauseAudioDevice(audio_device,0);
-    }
-// Counter is non-zero. Check if elapsed time is greater than 
-    auto now = std::chrono::steady_clock::now();
-    auto delta = std::chrono::duration_cast<std::chrono::microseconds> (now-last_update);
-    if(delta.count()>get_clock_period()){
-      sound -= 1;
-      last_update = std::chrono::steady_clock::now();
-    }
-  }
-  return true;
+  this->delay = value;
 }
 
 void CPU::print() const{
