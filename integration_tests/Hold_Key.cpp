@@ -9,10 +9,9 @@ int main(int argc, char *argv[]){
 
   bool quit = false;
   uint16_t  a = 0;
-  while (!quit) {
-    interpreter.disp->to_screen();
-//    interpreter.queue_key(V_KEY);
-    a = interpreter.keys->which_keys_is_pressed();
+  while (interpreter.get_running()) {
+    interpreter.update_window();
+    a = interpreter.get_last_keys();
     if(a){
         std::cout << a << std::endl;
     }

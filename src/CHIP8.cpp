@@ -13,7 +13,6 @@ CHIP8::CHIP8(bool visible){
     disp = std::make_unique<Display>(visible);
     cpu = std::make_unique<CPU>();
     mem = std::make_unique<Memory>();
-    keys = std::make_unique<KeyPad>();
     last_instruction_time =std::chrono::steady_clock::now();
 }
 
@@ -411,6 +410,13 @@ std::string CHIP8::test_instruction(const Instruction& instr){
 }
 
 void CHIP8::reset(){
+    loaded=true;
+    update_draw = false;
+    running = true;
+    
+    last_instruction_time = std::chrono::steady_clock::now();
+
+    event = SDL_Event();
     cpu->reset();
     disp->reset();
     mem->reset();
@@ -422,6 +428,7 @@ void CHIP8::run_eternal(bool verbose){
     }
     std::string out_msg;
     while(this->running){
+        this->update_window();
         auto binary = fetch();
         Instruction instr = bundle(binary);
         auto cur_func = decode(instr,out_msg,verbose);
@@ -429,7 +436,6 @@ void CHIP8::run_eternal(bool verbose){
             std::cout << std::hex <<this->cpu->get_pc() << " " << hex_to_string<uint16_t>(binary) << std::dec  << " : " << out_msg<<std::endl;
         }
         execute(cur_func,instr);
-        this->update_window();
     }
 }
 
@@ -472,10 +478,33 @@ void CHIP8::tick_clock(){
     this->last_instruction_time = std::chrono::steady_clock::now();
 }
 
-void CHIP8::update_window(){
-    SDL_Event e;
-    while(SDL_PollEvent(&e) != 0){
-        switch(e.type){
+uint16_t CHIP8::grab_keys(bool debug){
+    uint16_t keys_pressed = 0;
+    const Uint8* keyStates = SDL_GetKeyboardState( NULL );
+    SDL_PumpEvents();
+    if(keyStates[SDL_SCANCODE_1]){keys_pressed  |= ONE_PRESENT; if(debug){std::cout << "ONE" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_2]){keys_pressed  |= TWO_PRESENT; if(debug){std::cout << "TWO" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_3]){keys_pressed  |= THREE_PRESENT; if(debug){std::cout << "THREE" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_4]){keys_pressed  |= C_PRESENT; if(debug){std::cout << "C" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_Q]){keys_pressed  |= FOUR_PRESENT; if(debug){std::cout << "FOUR" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_W]){keys_pressed  |= FIVE_PRESENT; if(debug){std::cout << "FIVE" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_E]){keys_pressed  |= SIX_PRESENT; if(debug){std::cout << "SIX" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_R]){keys_pressed  |= D_PRESENT; if(debug){std::cout << "D" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_A]){keys_pressed  |= SEVEN_PRESENT; if(debug){std::cout << "SEVEN" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_S]){keys_pressed  |= EIGHT_PRESENT; if(debug){std::cout << "EIGHT" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_D]){keys_pressed  |= NINE_PRESENT; if(debug){std::cout << "NINE" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_F]){keys_pressed  |= E_PRESENT; if(debug){std::cout << "E" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_Z]){keys_pressed  |= A_PRESENT; if(debug){std::cout << "A" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_X]){keys_pressed  |= ZERO_PRESENT; if(debug){std::cout << "ZERO" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_C]){keys_pressed  |= B_PRESENT; if(debug){std::cout << "B" << std::endl;}}
+    if(keyStates[SDL_SCANCODE_V]){keys_pressed  |= F_PRESENT; if(debug){std::cout << "F" << std::endl;}}
+    return keys_pressed;
+}
+
+
+void CHIP8::update_window(bool debug){
+    while(SDL_PollEvent(&event) != 0){
+        switch(event.type){
             case SDL_QUIT:
                 this->running = false;
                 break;
@@ -684,16 +713,18 @@ void CHIP8::DRW(const Instruction& instr){
 }
 
 void CHIP8::SKP(const Instruction& instr){
+    bool debug = true;
     auto expected_key = instr.get_lhb();
-    auto parsed_key = parse_key(this->keys->which_keys_is_pressed());
+    auto parsed_key = parse_key(this->grab_keys());
     if(parsed_key== expected_key){
         this->cpu->increment_pc();
     }
 }
 
 void CHIP8::SKNP(const Instruction& instr){
+    bool debug = true;
     auto expected_key = instr.get_lhb();
-    auto parsed_key = parse_key(this->keys->which_keys_is_pressed());
+    auto parsed_key = parse_key(this->grab_keys());
     if(parsed_key!= expected_key){
         this->cpu->increment_pc();
     }
@@ -704,9 +735,11 @@ void CHIP8::LD_DELAY(const Instruction& instr){
 }
 
 void CHIP8::LD_KEY(const Instruction& instr){
+    bool debug = true;
     auto reg = instr.get_lhb();
-    while(1){
-        auto pressed_keys = this->keys->which_keys_is_pressed();
+    while(this->running){
+        this->update_window(true);
+        auto pressed_keys = this->grab_keys();
         if(pressed_keys != 0){
             auto val = parse_key(pressed_keys);
             if(val==NO_KEY){
@@ -788,4 +821,45 @@ void CHIP8::LD_ARR(const Instruction& instr){
         }
         this->cpu->set_Vx(i, mem_val);
     }
+}
+
+std::string CHIP8::decode_keys(uint16_t encrypted_keys){
+    std::string output="";
+    if(encrypted_keys & ONE_PRESENT){output += "1";}
+    if(encrypted_keys & TWO_PRESENT){output += "2";}
+    if(encrypted_keys & THREE_PRESENT){output += "3";}
+    if(encrypted_keys & C_PRESENT){output += "C";}
+    if(encrypted_keys & FOUR_PRESENT){output += "4";}
+    if(encrypted_keys & FIVE_PRESENT){output += "5";}
+    if(encrypted_keys & SIX_PRESENT){output += "6";}
+    if(encrypted_keys & D_PRESENT){output += "D";}
+    if(encrypted_keys & SEVEN_PRESENT){output += "7";}
+    if(encrypted_keys & EIGHT_PRESENT){output += "8";}
+    if(encrypted_keys & NINE_PRESENT){output += "9";}
+    if(encrypted_keys & E_PRESENT){output += "E";}
+    if(encrypted_keys & A_PRESENT){output += "A";}
+    if(encrypted_keys & ZERO_PRESENT){output += "0";}
+    if(encrypted_keys & B_PRESENT){output += "B";}
+    if(encrypted_keys & F_PRESENT){output += "F";}
+    return output;
+}
+
+KEYS_MAPS CHIP8::parse_key(uint16_t encrypted_keys){
+    if(encrypted_keys & ONE_PRESENT){return ONE_KEY;}
+    if(encrypted_keys & TWO_PRESENT){return TWO_KEY;}
+    if(encrypted_keys & THREE_PRESENT){return THREE_KEY;}
+    if(encrypted_keys & C_PRESENT){return C_KEY;}
+    if(encrypted_keys & FOUR_PRESENT){return FOUR_KEY;}
+    if(encrypted_keys & FIVE_PRESENT){return FIVE_KEY;}
+    if(encrypted_keys & SIX_PRESENT){return SIX_KEY;}
+    if(encrypted_keys & D_PRESENT){return D_KEY;}
+    if(encrypted_keys & SEVEN_PRESENT){return SEVEN_KEY;}
+    if(encrypted_keys & EIGHT_PRESENT){return EIGHT_KEY;}
+    if(encrypted_keys & NINE_PRESENT){return NINE_KEY;}
+    if(encrypted_keys & E_PRESENT){return E_KEY;}
+    if(encrypted_keys & A_PRESENT){return A_KEY;}
+    if(encrypted_keys & ZERO_PRESENT){return ZERO_KEY;}
+    if(encrypted_keys & B_PRESENT){return B_KEY;}
+    if(encrypted_keys & F_PRESENT){return F_KEY;}
+    return NO_KEY;
 }

@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <sstream>
 #include <memory>
+#include <chrono>
 
 // Good references
 // [1] https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
@@ -21,6 +22,8 @@ private:
     bool update_draw = false;
     bool running = true;
     std::chrono::_V2::steady_clock::time_point last_instruction_time;
+
+    SDL_Event event;
 // assembly instructions
     void SYS(const Instruction& instr);
     void CLS(const Instruction& instr);
@@ -81,7 +84,6 @@ public:
     std::unique_ptr<CPU> cpu;
     std::unique_ptr<Display> disp;
     std::unique_ptr<Memory> mem;
-    std::unique_ptr<KeyPad> keys;
 
     RNG random_gen;
 
@@ -102,9 +104,16 @@ public:
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 
     void run_eternal(bool verbose=false);
+    bool get_running() const{return this->running;}
 
-    void update_window();
+    uint16_t grab_keys(bool debug=false);
+    void update_window(bool debug =false);
     void tick_clock();
+
+    std::string decode_keys(uint16_t encrypted_keys);
+    KEYS_MAPS parse_key(uint16_t encrypted_keys);
 };
+
+
 
 #endif
