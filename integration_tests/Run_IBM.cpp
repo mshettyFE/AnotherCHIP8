@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(int argc, char *argv[]){
-  CHIP8 interpreter(true,true);
+  CHIP8 interpreter(true);
   interpreter.load("../roms/IBM.ch8");
   interpreter.run_eternal();
   return 0;

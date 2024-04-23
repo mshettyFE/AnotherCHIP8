@@ -3,8 +3,8 @@
 #include <iostream>
 
 int main(int argc, char *argv[]){
-  CHIP8 interpreter(true,true);
-  interpreter.load("../roms/tetris.rom");
-  interpreter.run_eternal(true);
+  CHIP8 interpreter(true);
+  interpreter.load("../roms/SpaceInvaders.ch8");
+  interpreter.run_eternal();
   return 0;
 }

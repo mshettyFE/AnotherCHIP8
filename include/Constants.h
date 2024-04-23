@@ -33,6 +33,6 @@ static constexpr uint16_t BUFFER_SIZE  = 4096; // Number of samples read in when
 static constexpr float INIT_VOLUME = 0.8f; // Constant initial volume.
 
 // Speed
-static constexpr int instructions_per_second = 600; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing, so 600 is so that games are playable
+static constexpr int instructions_per_second = 600; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing
 
 #endif
