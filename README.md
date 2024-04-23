@@ -6,10 +6,10 @@
 * ./setup.sh
 * cd build
 * cmake .. -DTESTING=False
-* make && ./CHIP8
+* make && ./CHIP8 ../roms/tetris.ch8
 
 If for some reason, you want to run unit tests, run the following in the created build directory:
 * cmake .. -DTESTING=True
-* make && ./CHIP8
+* make && ./CHIP8 ../roms/tetris.ch8
 
 NOTE: If you are on WSL, you will need to have some XServer program running to display the program.
