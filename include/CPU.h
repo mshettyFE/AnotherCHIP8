@@ -19,12 +19,6 @@
 
 void oscillator_callback(void *userdata, Uint8 *stream, int len);
 
-constexpr inline int64_t get_clock_period(){
-  // returns number of computer system clock cycles that correspond to 1/60 seconds passing
-  std::chrono::duration<double, std::ratio<1,60>> delta(1);
-  return delta.count();
-}
-
 class CPU{
 private:
 // pseudo-registers

@@ -3,6 +3,7 @@
 
 #include <cinttypes>
 #include <string>
+#include <chrono>
 
 // CPU
 static constexpr  uint8_t max_stack_size=16; // The stack can't be bigger than this number. 16 is standard.
@@ -33,6 +34,10 @@ static constexpr uint16_t BUFFER_SIZE  = 4096; // Number of samples read in when
 static constexpr float INIT_VOLUME = 0.8f; // Constant initial volume.
 
 // Speed
-static constexpr int instructions_per_second = 600; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing
+static constexpr int fps = 60;
+static constexpr int instructions_per_second = 1800; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing
+
+static constexpr std::chrono::duration<double, std::nano> instr_time((1.0/static_cast<double>(instructions_per_second))*1E9);
+static constexpr std::chrono::duration<double, std::nano> spf(1.0/fps*1E9);
 
 #endif

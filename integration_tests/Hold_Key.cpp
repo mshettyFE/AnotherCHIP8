@@ -19,9 +19,6 @@ int main(int argc, char *argv[]){
     else{
         a=0;
     }
-    if(interpreter.keys->poll_exit()){
-        break;
-    }
   }
   return 0;
 }

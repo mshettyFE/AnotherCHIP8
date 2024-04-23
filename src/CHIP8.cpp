@@ -14,6 +14,7 @@ CHIP8::CHIP8(bool visible){
     cpu = std::make_unique<CPU>();
     mem = std::make_unique<Memory>();
     keys = std::make_unique<KeyPad>();
+    last_instruction_time =std::chrono::steady_clock::now();
 }
 
 void CHIP8::load(std::string filename){
@@ -435,9 +436,10 @@ void CHIP8::run_eternal(bool verbose){
 void CHIP8::tick_clock(){
     auto sound  = this->cpu->get_sound();
     auto delay  = this->cpu->get_delay();
-    auto elaped_time = std::chrono::steady_clock::now()-this->cpu->get_last_update();
-    uint8_t decrement = elaped_time.count()/get_clock_period();
+    auto elaped_real_time = std::chrono::steady_clock::now()-this->cpu->get_last_update();
+    uint8_t decrement = elaped_real_time.count()/spf.count();
     if(decrement){ // if decrement is non-zero, enough time has passed that we need to update registers
+//        std::cout << elaped_real_time.count()/1E9*60.0 <<" " << (int) decrement << std::endl;
         if(sound > 0){
             SDL_PauseAudioDevice(this->cpu->get_audio_device(),0);
             if(decrement > sound){
@@ -460,6 +462,14 @@ void CHIP8::tick_clock(){
         }
         this->cpu->set_last_update(); // don't forget to update last recorded time stamp!
     }
+    auto elapsed_instruction_time = std::chrono::steady_clock::now()-this->last_instruction_time;
+//    std::cout << elapsed_instruction_time.count() <<" " <<  instr_time.count() <<  std::endl;
+    if(elapsed_instruction_time < instr_time){
+        auto wait_time = std::chrono::duration_cast<std::chrono::milliseconds>(instr_time-elapsed_instruction_time).count();
+//        std::cout << "WAIT: " <<  wait_time << std::endl;
+        SDL_Delay(wait_time  ); // sleep if the instruction finished too early
+    }
+    this->last_instruction_time = std::chrono::steady_clock::now();
 }
 
 void CHIP8::update_window(){
@@ -671,7 +681,6 @@ void CHIP8::DRW(const Instruction& instr){
     else{
         this->cpu->set_VF(0);
     }
-//    this->disp->to_screen();
 }
 
 void CHIP8::SKP(const Instruction& instr){

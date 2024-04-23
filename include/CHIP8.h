@@ -20,6 +20,7 @@ private:
     bool loaded=true;
     bool update_draw = false;
     bool running = true;
+    std::chrono::_V2::steady_clock::time_point last_instruction_time;
 // assembly instructions
     void SYS(const Instruction& instr);
     void CLS(const Instruction& instr);
