@@ -326,7 +326,7 @@ CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_ms
                 case 0x07:
                     // LD Vx, DT
                     if(debug){out_msg  = "LD "+ hex_to_string<uint8_t>(instr.get_lhb())+" DT";}
-                    return &CHIP8::LD_DIRECT;
+                    return &CHIP8::LD_DELAY;
                     break;
                 case 0x0A:
                     // LD Vx, K
@@ -433,21 +433,32 @@ void CHIP8::run_eternal(bool verbose){
 }
 
 void CHIP8::tick_clock(){
-    this->cpu->increment_clock();
-    if(this->cpu->get_clock_ticks() > this->cpu->clock_ticks_per_dec){
-        this->cpu->zero_clock();
-        auto sound  = this->cpu->get_sound();
-        auto delay  = this->cpu->get_delay();
+    auto sound  = this->cpu->get_sound();
+    auto delay  = this->cpu->get_delay();
+    auto elaped_time = std::chrono::steady_clock::now()-this->cpu->get_last_update();
+    uint8_t decrement = elaped_time.count()/get_clock_period();
+    if(decrement){ // if decrement is non-zero, enough time has passed that we need to update registers
         if(sound > 0){
             SDL_PauseAudioDevice(this->cpu->get_audio_device(),0);
-            this->cpu->set_sound(sound-1);
+            if(decrement > sound){
+                this->cpu->set_sound(0);
+            }
+            else{
+                this->cpu->set_sound(sound-decrement);
+            }
         }
         if(sound==0){
             SDL_PauseAudioDevice(this->cpu->get_audio_device(),1);
         }
         if(delay >0){
-            this->cpu->set_delay(delay-1);
+            if(decrement > delay){
+                this->cpu->set_delay(0);
+            }
+            else{
+                this->cpu->set_delay(delay-decrement);
+            }
         }
+        this->cpu->set_last_update(); // don't forget to update last recorded time stamp!
     }
 }
 

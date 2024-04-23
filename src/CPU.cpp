@@ -5,7 +5,7 @@ CPU::CPU(){
   pc=START;
   sound = 0;
   delay=0;
-  clock_ticks = 0;
+  last_update = std::chrono::steady_clock::now();
   for(int i=0; i< 16; ++i){
     Vx[i] = 0;
   }
@@ -35,10 +35,6 @@ CPU::CPU(){
 CPU::~CPU(){
   SDL_CloseAudioDevice(audio_device);
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
-}
-
-uint16_t CPU::get_clock_ticks() const{
-  return this->clock_ticks;
 }
 
 SDL_AudioDeviceID CPU::get_audio_device() const{

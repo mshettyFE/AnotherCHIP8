@@ -3,11 +3,7 @@
 
 #include <stack>
 #include <cinttypes>
-#include <mutex>
-#include <condition_variable>
-#include <future>
 #include <iostream>
-#include <atomic>
 #include <memory>
 #include <chrono>
 #include <array>
@@ -24,11 +20,9 @@
 void oscillator_callback(void *userdata, Uint8 *stream, int len);
 
 constexpr inline int64_t get_clock_period(){
-// To set the clock frequency at which the delay and sound timers get updated at
-  double frequency = 60; // cycles/sec
-  double period = 1.0/frequency; // sec/cycle
-  auto out =static_cast<uint64_t>(std::ceil((instructions_per_second)/period)); // how many instructions correspond to a single update
-  return out;
+  // returns number of computer system clock cycles that correspond to 1/60 seconds passing
+  std::chrono::duration<double, std::ratio<1,60>> delta(1);
+  return delta.count();
 }
 
 class CPU{
@@ -40,14 +34,13 @@ private:
 // timers. Both decrement at a rate of 60 Hz.
   uint8_t  sound;
   uint8_t  delay;
-  uint64_t clock_ticks;
-// Public registers directly accessible by program
+  std::chrono::_V2::steady_clock::time_point last_update;
+  // Public registers directly accessible by program
   std::array<uint8_t,16> Vx; // public 16-bit registers. Don't use register F
   uint16_t I; // Stores memory addresses. Only bottom 12 bits used
   SDL_AudioDeviceID audio_device;
 public:
   std::unique_ptr<Oscillator> osc = std::make_unique<Oscillator>(Oscillator(SAMPLE_RATE, INIT_VOLUME)); // sampler to play audio
-  const uint16_t clock_ticks_per_dec = get_clock_period();
 
   CPU();
   ~CPU();
@@ -58,7 +51,8 @@ public:
   uint8_t get_Vx(uint8_t i) const;
   uint8_t get_VF() const;
   uint16_t get_I() const;
-  uint16_t get_clock_ticks() const;
+  std::chrono::_V2::steady_clock::time_point get_last_update(){return last_update;}
+
   SDL_AudioDeviceID get_audio_device() const;
 
   void set_sound(uint8_t value);
@@ -66,8 +60,7 @@ public:
   void set_Vx(uint8_t i,uint8_t value);
   void set_VF(bool is_set);
   void set_I(uint16_t value);
-  void increment_clock(){this->clock_ticks += 1;}
-  void zero_clock(){this->clock_ticks = 0;}
+  void set_last_update(){this->last_update = std::chrono::steady_clock::now();}
 
   void increment_pc();
   void decrement_pc();
