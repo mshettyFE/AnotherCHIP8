@@ -28,7 +28,7 @@ private:
 // timers. Both decrement at a rate of 60 Hz.
   uint8_t  sound;
   uint8_t  delay;
-  std::chrono::_V2::steady_clock::time_point last_update;
+  std::chrono::steady_clock::time_point last_update;
   // Public registers directly accessible by program
   std::array<uint8_t,16> Vx; // public 16-bit registers. Don't use register F
   uint16_t I; // Stores memory addresses. Only bottom 12 bits used
@@ -45,7 +45,7 @@ public:
   uint8_t get_Vx(uint8_t i) const;
   uint8_t get_VF() const;
   uint16_t get_I() const;
-  std::chrono::_V2::steady_clock::time_point get_last_update(){return last_update;}
+  std::chrono::steady_clock::time_point get_last_update(){return last_update;}
 
   SDL_AudioDeviceID get_audio_device() const;
 

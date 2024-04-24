@@ -21,7 +21,7 @@ private:
     bool loaded=true;
     bool update_draw = false;
     bool running = true;
-    std::chrono::_V2::steady_clock::time_point last_instruction_time;
+    std::chrono::steady_clock::time_point last_instruction_time;
 
     SDL_Event event;
 // assembly instructions
