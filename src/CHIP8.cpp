@@ -100,63 +100,6 @@ Instruction CHIP8::bundle(uint16_t machine_code) const{
     return Instruction(machine_code);
 }
 
-void CHIP8::queue_key(const KEYS_MAPS& ky){
-    SDL_Event sdlevent = {};
-    sdlevent.type = SDL_KEYDOWN;
-    switch(ky){
-        case ONE_KEY:
-            sdlevent.key.keysym.sym = SDLK_1;
-            break;
-        case TWO_KEY:
-            sdlevent.key.keysym.sym = SDLK_2;
-            break;
-        case THREE_KEY:
-            sdlevent.key.keysym.sym = SDLK_3;
-            break;
-        case C_KEY:
-            sdlevent.key.keysym.sym = SDLK_4;
-            break;
-        case FOUR_KEY:
-            sdlevent.key.keysym.sym = SDLK_q;
-            break;
-        case FIVE_KEY:
-            sdlevent.key.keysym.sym = SDLK_w;
-            break;
-        case SIX_KEY:
-            sdlevent.key.keysym.sym = SDLK_e;
-            break;
-        case D_KEY:
-            sdlevent.key.keysym.sym = SDLK_r;
-        case SEVEN_KEY:
-            sdlevent.key.keysym.sym = SDLK_a;
-            break;
-        case EIGHT_KEY:
-            sdlevent.key.keysym.sym = SDLK_s;
-            break;
-        case NINE_KEY:
-            sdlevent.key.keysym.sym = SDLK_d;
-            break;
-        case E_KEY:
-            sdlevent.key.keysym.sym = SDLK_f;
-            break;
-        case A_KEY:
-            sdlevent.key.keysym.sym = SDLK_z;
-            break;
-        case ZERO_KEY:
-            sdlevent.key.keysym.sym = SDLK_x;
-            break;
-        case B_KEY:
-            sdlevent.key.keysym.sym = SDLK_c;
-            break;
-        case F_KEY:
-            sdlevent.key.keysym.sym = SDLK_v;
-            break;
-        default:
-            throw std::invalid_argument("INVALID KEYCODE");
-    }
-    SDL_PushEvent(&sdlevent);
-}
-
 CHIP8::assembly_func CHIP8::decode(const Instruction& instr, std::string& out_msg, bool debug){
 // COWGOD!!!!!!!!!!!!!!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
@@ -604,25 +547,25 @@ void CHIP8::SUB(const Instruction& instr){
     auto vy = instr.get_hlb();
     auto vx_val = this->cpu->get_Vx(vx);
     auto vy_val = this->cpu->get_Vx(vy);
-    if(vx_val > vy_val){
+    this->cpu->set_Vx(vx, vx_val - vy_val);
+    if(vx_val > this->cpu->get_Vx(vx)){
         this->cpu->set_VF(1);
     }
     else{
         this->cpu->set_VF(0);
     }
-    this->cpu->set_Vx(vx, vx_val - vy_val);
 }
 
 void CHIP8::SHR(const Instruction& instr){
     auto vx  =instr.get_lhb();
     auto vx_val = this->cpu->get_Vx(vx);
+    this->cpu->set_Vx(vx,vx_val >>1);
     if(vx_val & 0x01){
         this->cpu->set_VF(1);
     }
     else{
         this->cpu->set_VF(0);
     }
-    this->cpu->set_Vx(vx,vx_val >>1);
 }
 
 void CHIP8::SUBN(const Instruction& instr){
@@ -630,25 +573,25 @@ void CHIP8::SUBN(const Instruction& instr){
     auto vy = instr.get_hlb();
     auto vx_val = this->cpu->get_Vx(vx);
     auto vy_val = this->cpu->get_Vx(vy);
-    if(vy_val > vx_val){
+    this->cpu->set_Vx(vx, vy_val - vx_val);
+    if(vy_val > this->cpu->get_Vx(vx)){
         this->cpu->set_VF(1);
     }
     else{
         this->cpu->set_VF(0);
     }
-    this->cpu->set_Vx(vx, vy_val - vx_val);
 }
 
 void CHIP8::SHL(const Instruction& instr){
     auto vx  =instr.get_lhb();
     auto vx_val = this->cpu->get_Vx(vx);
+    this->cpu->set_Vx(vx,vx_val <<1);
     if(vx_val & 0b1000'0000){
         this->cpu->set_VF(1);
     }
     else{
         this->cpu->set_VF(0);
     }
-    this->cpu->set_Vx(vx,vx_val <<1);
 }
 
 void CHIP8::SNE(const Instruction& instr){

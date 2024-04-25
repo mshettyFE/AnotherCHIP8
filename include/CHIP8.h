@@ -94,8 +94,6 @@ public:
     void load(std::string file); // assumes file is big_endian
     std::string disassemble(bool raw=false);
 
-    void queue_key(const KEYS_MAPS& ky);
-
     void reset();
 
     Instruction bundle(uint16_t instruction) const; // wrap machine code instruction into a class for easier handling

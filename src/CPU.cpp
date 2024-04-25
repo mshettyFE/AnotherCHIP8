@@ -97,8 +97,8 @@ void CPU::set_VF(bool is_set){
 }
 
 void CPU::set_Vx(uint8_t i,uint8_t value) {  
-  if(i>=15){
-    throw std::invalid_argument("invalid register (Also, cant write to F register)");
+  if(i>15){
+    throw std::invalid_argument("invalid register");
   }
   this->Vx[i] = value;
 }

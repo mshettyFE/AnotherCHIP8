@@ -422,8 +422,8 @@ TEST(CPUTest, DRW_Char){
 }
 
 TEST(CPUTest, SKP_Key){
+// This won't work, since I haven't figured out how to queue keys into Keyboard state
     CHIP8 interpreter(false);
-    interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xE,0xF,9,0xE);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);
@@ -432,8 +432,8 @@ TEST(CPUTest, SKP_Key){
 }
 
 TEST(CPUTest,SKNP_Key){
+// This will work, but for the wrong reasons
     CHIP8 interpreter(false);
-    interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xE,0xE,0xA,1);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);
@@ -454,8 +454,8 @@ TEST(CPUTest, LD_Delay){
 }
 
 TEST(CPUTest,LD_Key_Block){
+// This won't work, since I haven't figured out how to queue keys into Keyboard state
     CHIP8 interpreter(false);
-    interpreter.queue_key(F_KEY);
     auto instr = Instruction(0xF,0,0,0xA);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);

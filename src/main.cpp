@@ -4,16 +4,8 @@
 
 int main(int argc, char *argv[]){
 
-  if(argc != 2){
-    CHIP8 interpreter(true);
-    interpreter.load("../roms/tetris.ch8");
-    interpreter.run_eternal();
-  }
-  else{
     CHIP8 interpreter(true);
     interpreter.load(argv[1]);
-    interpreter.run_eternal();
-  }
-
+    interpreter.run_eternal(true);
   return 0;
 }
