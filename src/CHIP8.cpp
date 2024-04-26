@@ -423,8 +423,8 @@ void CHIP8::tick_clock(){
     }
     this->last_instruction_time = std::chrono::steady_clock::now();
     auto elapsed_key_time = std::chrono::steady_clock::now()-this->last_keyboard_time;
-    if(elapsed_key_time < spf){
-        this->keys->update_state(true);
+    if(elapsed_key_time > spf){
+        this->keys->update_state();
         this->last_keyboard_time = std::chrono::steady_clock::now();
     }
 }
@@ -690,6 +690,14 @@ void CHIP8::LD_KEY(const Instruction& instr){
                 throw std::invalid_argument("Something went horrible wrong with key parsing...");
             }
             this->cpu->set_Vx(reg,val);
+            while(1){
+                this->update_window();
+                this->tick_clock();
+                parsed_key = this->keys->get_state();
+                if(parsed_key==0){
+                    break;
+                }   
+            }
             break;
         }
     }

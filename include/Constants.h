@@ -67,8 +67,8 @@ static constexpr uint16_t BUFFER_SIZE  = 4096; // Number of samples read in when
 static constexpr float INIT_VOLUME = 0.8f; // Constant initial volume.
 
 // Speed
-static constexpr int fps = 60;
-static constexpr int instructions_per_second = 500; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing
+static constexpr uint64_t fps = 60;
+static constexpr uint64_t instructions_per_second = 600; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing
 
 static constexpr std::chrono::duration<double, std::nano> instr_time((1.0/static_cast<double>(instructions_per_second))*1E9);
 static constexpr std::chrono::duration<double, std::nano> spf(1.0/fps*1E9);

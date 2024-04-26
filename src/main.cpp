@@ -3,10 +3,9 @@
 #include <iostream>
 
 int main(int argc, char *argv[]){
-
     CHIP8 interpreter(true);
     interpreter.load(argv[1]);
     interpreter.disassemble(true);
-    interpreter.run_eternal();
+//    interpreter.run_eternal();
   return 0;
 }
