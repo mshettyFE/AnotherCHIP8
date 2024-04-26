@@ -6,6 +6,7 @@
 #include "Memory.h"
 #include "Input.h"
 #include "RNG.h"
+#include "Keyboard.h"
 #include <iomanip>
 #include <type_traits>
 #include <sstream>
@@ -22,6 +23,7 @@ private:
     bool update_draw = false;
     bool running = true;
     std::chrono::steady_clock::time_point last_instruction_time;
+    std::chrono::steady_clock::time_point last_keyboard_time;
 
     SDL_Event event;
 // assembly instructions
@@ -84,6 +86,7 @@ public:
     std::unique_ptr<CPU> cpu;
     std::unique_ptr<Display> disp;
     std::unique_ptr<Memory> mem;
+    std::unique_ptr<Keyboard> keys;
 
     RNG random_gen;
 
@@ -104,12 +107,10 @@ public:
     void run_eternal(bool verbose=false);
     bool get_running() const{return this->running;}
 
-    uint16_t grab_keys(bool debug=false);
     void update_window(bool debug =false);
     void tick_clock();
 
     std::string decode_keys(uint16_t encrypted_keys);
-    KEYS_MAPS parse_key(uint16_t encrypted_keys);
 };
 
 

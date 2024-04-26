@@ -667,22 +667,6 @@ TEST(CPUTest, Store_BCD_All_Good){
     EXPECT_EQ(interpreter.mem->read(starting_addr+2), 4);
 }
 
-TEST(CPUTest, Load_Regs_All_VF){
-    CHIP8 interpreter(false);
-    interpreter.cpu->set_I(0xA00);
-    auto instr = Instruction(0xF,0xF,0x6,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Can't Load VF to Memory",e.what());
-    }
-    EXPECT_EQ(thrown,true);
-}
-
 TEST(CPUTest, Read_Regs_OOB){
     CHIP8 interpreter(false);
     interpreter.cpu->set_I(0x0FFA);
@@ -740,22 +724,6 @@ TEST(CPUTest, Read_Regs_Good){
         EXPECT_EQ(interpreter.cpu->get_Vx(i),i);
     }
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-}
-
-TEST(CPUTest, Store_Regs_All_VF){
-    CHIP8 interpreter(false);
-    interpreter.cpu->set_I(0xA00);
-    auto instr = Instruction(0xF,0xF,0x5,0x5);
-    std::string msg;
-    bool thrown = false;
-    try{
-        msg = interpreter.test_instruction(instr);
-    }
-    catch(const std::exception& e){
-        thrown = true;
-        EXPECT_STREQ("Can't Save VF to Memory",e.what());
-    }
-    EXPECT_EQ(thrown,true);
 }
 
 TEST(CPUTest, Store_Regs_All_Ok){

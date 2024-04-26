@@ -13,7 +13,9 @@ CHIP8::CHIP8(bool visible){
     disp = std::make_unique<Display>(visible);
     cpu = std::make_unique<CPU>();
     mem = std::make_unique<Memory>();
+    keys = std::make_unique<Keyboard>();
     last_instruction_time =std::chrono::steady_clock::now();
+    last_keyboard_time = last_instruction_time;
 }
 
 void CHIP8::load(std::string filename){
@@ -358,6 +360,7 @@ void CHIP8::reset(){
     running = true;
     
     last_instruction_time = std::chrono::steady_clock::now();
+    last_keyboard_time = last_instruction_time;
 
     event = SDL_Event();
     cpu->reset();
@@ -419,31 +422,12 @@ void CHIP8::tick_clock(){
         SDL_Delay(wait_time  ); // sleep if the instruction finished too early
     }
     this->last_instruction_time = std::chrono::steady_clock::now();
+    auto elapsed_key_time = std::chrono::steady_clock::now()-this->last_keyboard_time;
+    if(elapsed_key_time < spf){
+        this->keys->update_state(true);
+        this->last_keyboard_time = std::chrono::steady_clock::now();
+    }
 }
-
-uint16_t CHIP8::grab_keys(bool debug){
-    uint16_t keys_pressed = 0;
-    const Uint8* keyStates = SDL_GetKeyboardState( NULL );
-    SDL_PumpEvents();
-    if(keyStates[SDL_SCANCODE_1]){keys_pressed  |= ONE_PRESENT; if(debug){std::cout << "ONE" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_2]){keys_pressed  |= TWO_PRESENT; if(debug){std::cout << "TWO" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_3]){keys_pressed  |= THREE_PRESENT; if(debug){std::cout << "THREE" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_4]){keys_pressed  |= C_PRESENT; if(debug){std::cout << "C" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_Q]){keys_pressed  |= FOUR_PRESENT; if(debug){std::cout << "FOUR" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_W]){keys_pressed  |= FIVE_PRESENT; if(debug){std::cout << "FIVE" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_E]){keys_pressed  |= SIX_PRESENT; if(debug){std::cout << "SIX" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_R]){keys_pressed  |= D_PRESENT; if(debug){std::cout << "D" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_A]){keys_pressed  |= SEVEN_PRESENT; if(debug){std::cout << "SEVEN" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_S]){keys_pressed  |= EIGHT_PRESENT; if(debug){std::cout << "EIGHT" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_D]){keys_pressed  |= NINE_PRESENT; if(debug){std::cout << "NINE" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_F]){keys_pressed  |= E_PRESENT; if(debug){std::cout << "E" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_Z]){keys_pressed  |= A_PRESENT; if(debug){std::cout << "A" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_X]){keys_pressed  |= ZERO_PRESENT; if(debug){std::cout << "ZERO" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_C]){keys_pressed  |= B_PRESENT; if(debug){std::cout << "B" << std::endl;}}
-    if(keyStates[SDL_SCANCODE_V]){keys_pressed  |= F_PRESENT; if(debug){std::cout << "F" << std::endl;}}
-    return keys_pressed;
-}
-
 
 void CHIP8::update_window(bool debug){
     while(SDL_PollEvent(&event) != 0){
@@ -657,18 +641,18 @@ void CHIP8::DRW(const Instruction& instr){
 
 void CHIP8::SKP(const Instruction& instr){
     bool debug = true;
-    auto expected_key = instr.get_lhb();
-    auto parsed_key = parse_key(this->grab_keys());
-    if(parsed_key== expected_key){
+    auto expected_key = this->cpu->get_Vx(instr.get_lhb());
+    auto parsed_key = this->keys->get_state();
+    if(parsed_key ==  (1<< expected_key) ){
         this->cpu->increment_pc();
     }
 }
 
 void CHIP8::SKNP(const Instruction& instr){
     bool debug = true;
-    auto expected_key = instr.get_lhb();
-    auto parsed_key = parse_key(this->grab_keys());
-    if(parsed_key!= expected_key){
+    auto expected_key = this->cpu->get_Vx(instr.get_lhb());
+    auto parsed_key = this->keys->get_state();
+    if(parsed_key !=  (1<< expected_key) ){
         this->cpu->increment_pc();
     }
 }
@@ -681,12 +665,29 @@ void CHIP8::LD_KEY(const Instruction& instr){
     bool debug = true;
     auto reg = instr.get_lhb();
     while(this->running){
-        this->update_window(true);
-        auto pressed_keys = this->grab_keys();
-        if(pressed_keys != 0){
-            auto val = parse_key(pressed_keys);
-            if(val==NO_KEY){
-                throw std::invalid_argument("LD_Key shouldn't return no keys");
+        this->update_window();
+        this->tick_clock();
+        auto parsed_key = this->keys->get_state();
+        if(parsed_key != 0){
+            auto val = 0;
+            if(parsed_key & ZERO_PRESENT){ val = ZERO_KEY;}
+            else if(parsed_key & ONE_PRESENT){val = ONE_KEY;}
+            else if(parsed_key & TWO_PRESENT){val = TWO_KEY;}
+            else if(parsed_key & THREE_PRESENT){val = THREE_KEY;}
+            else if(parsed_key & FOUR_PRESENT){val = FOUR_KEY;}
+            else if(parsed_key & FIVE_PRESENT){val = FIVE_KEY;}
+            else if(parsed_key & SIX_PRESENT){val = SIX_KEY;}
+            else if(parsed_key & SEVEN_PRESENT){val = SEVEN_KEY;}
+            else if(parsed_key & EIGHT_PRESENT){val = EIGHT_KEY;}
+            else if(parsed_key & NINE_PRESENT){val = NINE_KEY;}
+            else if(parsed_key & A_PRESENT){val = A_KEY;}
+            else if(parsed_key & B_PRESENT){val = B_KEY;}
+            else if(parsed_key & C_PRESENT){val = C_KEY;}
+            else if(parsed_key & D_PRESENT){val = D_KEY;}
+            else if(parsed_key & E_PRESENT){val = E_KEY;}
+            else if(parsed_key & F_PRESENT){val = F_KEY;}
+            else{
+                throw std::invalid_argument("Something went horrible wrong with key parsing...");
             }
             this->cpu->set_Vx(reg,val);
             break;
@@ -734,9 +735,6 @@ void CHIP8::STORE_BCD(const Instruction& instr){
 
 void CHIP8::STR_ARR(const Instruction& instr){
     uint8_t largest_reg = instr.get_lhb();
-    if(largest_reg==0xF){
-        throw std::invalid_argument("Can't Save VF to Memory");
-    }
     uint16_t starting_addr = this->cpu->get_I();
     for(int i=0; i<=largest_reg; ++i){
         try{
@@ -750,9 +748,6 @@ void CHIP8::STR_ARR(const Instruction& instr){
 
 void CHIP8::LD_ARR(const Instruction& instr){
     uint8_t largest_reg = instr.get_lhb();
-    if(largest_reg==0xF){
-        throw std::invalid_argument("Can't Load VF to Memory");
-    }
     uint16_t starting_addr = this->cpu->get_I();
     for(int i=0; i<=largest_reg; ++i){
         uint8_t mem_val;
@@ -785,24 +780,4 @@ std::string CHIP8::decode_keys(uint16_t encrypted_keys){
     if(encrypted_keys & B_PRESENT){output += "B";}
     if(encrypted_keys & F_PRESENT){output += "F";}
     return output;
-}
-
-KEYS_MAPS CHIP8::parse_key(uint16_t encrypted_keys){
-    if(encrypted_keys & ONE_PRESENT){return ONE_KEY;}
-    if(encrypted_keys & TWO_PRESENT){return TWO_KEY;}
-    if(encrypted_keys & THREE_PRESENT){return THREE_KEY;}
-    if(encrypted_keys & C_PRESENT){return C_KEY;}
-    if(encrypted_keys & FOUR_PRESENT){return FOUR_KEY;}
-    if(encrypted_keys & FIVE_PRESENT){return FIVE_KEY;}
-    if(encrypted_keys & SIX_PRESENT){return SIX_KEY;}
-    if(encrypted_keys & D_PRESENT){return D_KEY;}
-    if(encrypted_keys & SEVEN_PRESENT){return SEVEN_KEY;}
-    if(encrypted_keys & EIGHT_PRESENT){return EIGHT_KEY;}
-    if(encrypted_keys & NINE_PRESENT){return NINE_KEY;}
-    if(encrypted_keys & E_PRESENT){return E_KEY;}
-    if(encrypted_keys & A_PRESENT){return A_KEY;}
-    if(encrypted_keys & ZERO_PRESENT){return ZERO_KEY;}
-    if(encrypted_keys & B_PRESENT){return B_KEY;}
-    if(encrypted_keys & F_PRESENT){return F_KEY;}
-    return NO_KEY;
 }
