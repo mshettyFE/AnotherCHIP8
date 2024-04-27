@@ -1,4 +1,5 @@
 #include "CPU.h"
+#include "Audio.h"
 #include <iostream>
 
 CPU::CPU(){
@@ -87,7 +88,7 @@ void CPU::print() const{
 void oscillator_callback(void *userdata, Uint8 *stream, int len) {
   float *fstream = (float *)stream;
   for (int i = 0; i < BUFFER_SIZE; i++) {
-    float v = (static_cast<CPU*>(userdata))->osc->next();
+    float v = a4.next();
     fstream[i] = v;
   }
 }
