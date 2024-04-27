@@ -12,6 +12,7 @@ private:
   float step_size;
   float volume;
 public:
+    bool debug;
     SoundCard(float rate, float vol);
     float next();
 };

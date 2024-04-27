@@ -67,7 +67,6 @@ static constexpr uint16_t BUFFER_SIZE  = 4096; // Number of samples read in when
 static constexpr float INIT_VOLUME = 0.8f; // Constant initial volume.
 static constexpr float A4_OSC = (float)SAMPLE_RATE / 440.00f;
 
-
 // Speed
 static constexpr uint64_t fps = 60;
 static constexpr uint64_t instructions_per_second = 600; // "Clock Speed" of processor. In quotes b/c CHIP8 was never a hardware thing

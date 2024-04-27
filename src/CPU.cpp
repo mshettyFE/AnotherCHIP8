@@ -91,6 +91,7 @@ void oscillator_callback(void *userdata, Uint8 *stream, int len) {
     float v = a4.next();
     fstream[i] = v;
   }
+  a4.debug = false;
 }
 
 void CPU::set_VF(bool is_set){
