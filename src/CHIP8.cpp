@@ -368,13 +368,34 @@ void CHIP8::reset(){
     mem->reset();
 }
 
-void CHIP8::run_eternal(bool verbose){
+void CHIP8::run_eternal(bool verbose, bool display){
     if(!this->loaded){
         throw std::invalid_argument("No ROM loaded!");
     }
     std::string out_msg;
     while(this->running){
-        this->update_window();
+        if(display){
+            this->update_window();
+        }
+        auto binary = fetch();
+        Instruction instr = bundle(binary);
+        auto cur_func = decode(instr,out_msg,verbose);
+        if(verbose){
+            std::cout << std::hex <<this->cpu->get_pc() << " " << hex_to_string<uint16_t>(binary) << std::dec  << " : " << out_msg<<std::endl;
+        }
+        execute(cur_func,instr);
+    }
+}
+
+void CHIP8::run_iterations(unsigned int count, bool verbose, bool display){
+    if(count >0){
+        if(!this->loaded){
+            throw std::invalid_argument("No ROM loaded!");
+        }
+        std::string out_msg;
+        if(display){
+            this->update_window();
+        }
         auto binary = fetch();
         Instruction instr = bundle(binary);
         auto cur_func = decode(instr,out_msg,verbose);

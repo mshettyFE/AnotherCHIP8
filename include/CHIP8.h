@@ -104,7 +104,8 @@ public:
 
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 
-    void run_eternal(bool verbose=false);
+    void run_eternal(bool verbose=false, bool display=true);
+    void run_iterations(unsigned int count=1000, bool verbose=true, bool display=true);
     bool get_running() const{return this->running;}
 
     void update_window(bool debug =false);
