@@ -17,8 +17,6 @@
 // COWGOD!!!!
 // http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
 
-void oscillator_callback(void *userdata, Uint8 *stream, int len);
-
 class CPU{
 private:
   uint16_t pc; // program counter

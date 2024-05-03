@@ -42,7 +42,6 @@ SDL_AudioDeviceID CPU::get_audio_device() const{
   return audio_device;
 }
 
-
 uint16_t CPU::get_pc() const{return this->pc;}
 
 uint8_t CPU::get_sound() const{
@@ -87,15 +86,6 @@ void CPU::print() const{
     std::cout << "V" << std::hex << std::uppercase << i << " :" << std::dec<<  static_cast<unsigned int>(get_Vx(i)) << std::endl;
   }
   std::cout << audio_device << std::endl;
-}
-
-void oscillator_callback(void *userdata, Uint8 *stream, int len) {
-  float *fstream = (float *)stream;
-  for (int i = 0; i < BUFFER_SIZE; i++) {
-    float v = a4.next();
-    fstream[i] = v;
-  }
-  a4.debug = false;
 }
 
 void CPU::set_VF(bool is_set){
@@ -151,7 +141,7 @@ uint16_t CPU::poke_stack(uint8_t value){
   return output;
 }
 
-void CPU::reset(){
+void CPU::reset(){ // hard reset CPU to known state
   pc=START;
   sound = 0;
   delay=0;
@@ -162,4 +152,5 @@ void CPU::reset(){
   SDL_PauseAudioDevice(audio_device,1);
   this->set_delay(0);
   this->set_sound(0);
+  last_update = std::chrono::steady_clock::now();
 }
