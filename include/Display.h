@@ -13,7 +13,7 @@ private:
   std::array<uint32_t,dis_height*dis_width> display;
   SDL_Window* window=nullptr;
   SDL_Renderer* renderer=nullptr;
-  SDL_Surface* surface = nullptr;
+  SDL_Texture* texture = nullptr;
   int get_index(unsigned int x, unsigned int y) const;
 public: 
   Display(bool visible);

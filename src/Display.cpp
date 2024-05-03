@@ -21,7 +21,7 @@ Display::Display(bool visible){
             SDL_WINDOWPOS_UNDEFINED,
             dis_width*screen_scaling,
             dis_height*screen_scaling,
-            SDL_WINDOW_SHOWN
+            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE 
         );
     }
     else{
@@ -42,22 +42,16 @@ Display::Display(bool visible){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Renderer failed");
     }
-    uint32_t rmask,bmask,gmask,amask;
-    rmask = 0;
-    gmask = 0;
-    bmask = 0;
-    amask = SDL_ALPHA_OPAQUE;
-    surface = SDL_CreateRGBSurfaceFrom(display.data(), dis_width,dis_height,32,dis_width*4,rmask, bmask,gmask,amask);
-//    surface = SDL_LoadBMP("../test/TestImage.bmp");
-    if(surface ==nullptr){
+    texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGB888,SDL_TEXTUREACCESS_STREAMING,dis_width,dis_height);
+    if(texture ==nullptr){
         std::cout << SDL_GetError() << std::endl;
-        throw std::invalid_argument("SDL_CreateRGBSurfaceFrom failed");
-    }
-    to_screen();
+        std::invalid_argument("SDL_Texture failed");
+   }
+   to_screen();
 }
 
 Display::~Display(){
-    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -101,18 +95,6 @@ void Display::reset(){
     }
 }
 
-void Display::to_screen(){
-    auto texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if(texture==nullptr){
-        std::cout << SDL_GetError() << std::endl;
-        std::invalid_argument("SDL_Texture failed");
-    }
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer,texture, NULL, NULL);
-    SDL_RenderPresent(renderer);
-    SDL_DestroyTexture(texture);
-}
-
 void Display::test_checkers(){
     for(int i=0; i< dis_height; ++i){
         for(int j =0; j< dis_width; ++j){
@@ -121,4 +103,27 @@ void Display::test_checkers(){
             }
         }
     }
+}
+
+void Display::to_screen(){
+    SDL_Rect src, dest;
+    src.x = 0;
+    src.y = 0;
+    src.w = dis_width;
+    src.h = dis_height;
+    int new_w, new_h;
+    SDL_GetWindowSize(window,&new_w,&new_h);
+    dest.w = (new_w< new_h) ? new_w : new_h;
+    dest.h = dest.w;
+    dest.x = (new_w-dest.w)/2;
+    dest.y = (new_h-dest.h)/2;
+    std::cout << src.x << " " << src.y << " " << src.w << " " << src.h << std::endl;
+    std::cout << dest.x << " " << dest.y << " " << dest.w << " " << dest.h << std::endl << std::endl;
+    if(SDL_UpdateTexture(texture, NULL, this->display.data(),dis_width*4)){
+        std::cout << SDL_GetError() << std::endl;
+        std::invalid_argument("SDL_Texture failed");
+    }
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer,texture, &src, &dest);
+    SDL_RenderPresent(renderer);
 }

@@ -6,8 +6,7 @@
 #include <iterator>
 #include <sstream>
 #include <random>
-
-#define VERBOSE_CPU
+#include <iostream>
 
 CHIP8::CHIP8(bool visible){
     // unique pointers so that I don't have to manage the memory of these
@@ -451,9 +450,10 @@ void CHIP8::update_window(bool debug){
             case SDL_QUIT:
                 this->running = false;
                 break;
-            case SDL_WINDOWEVENT:
-                this->update_draw=true;
-                break;
+        case SDL_WINDOWEVENT:
+            if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
+                this->update_draw  = true;
+            }
         }
     }
     if(this->update_draw){
