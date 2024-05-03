@@ -51,10 +51,6 @@ float SoundCard::next() {
     return ret * this->volume; // return scaled sine value
 }
 
-void SoundCard::set_pause(int x){
+void SoundCard::set_pause(int x){ // pause/unpause audio. if x=0. play. otherwise, pause
   SDL_PauseAudioDevice(audio_device_id,x);
-}
-
-SDL_AudioDeviceID SoundCard::get_device_id() const{
-  return this->audio_device_id;
 }

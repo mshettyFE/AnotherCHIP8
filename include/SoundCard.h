@@ -20,7 +20,6 @@ public:
   SoundCard(float rate=A4_OSC, float vol=INIT_VOLUME, bool debug=false);
   ~SoundCard();
 
-  SDL_AudioDeviceID get_device_id() const;
   float next(); // get the next sample in the sequence
   void set_pause(int pause);
 };

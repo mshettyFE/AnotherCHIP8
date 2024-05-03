@@ -410,8 +410,7 @@ void CHIP8::tick_clock(){
     uint8_t decrement = elaped_real_time.count()/spf.count();
     if(decrement){ // if decrement is non-zero, enough time has passed that we need to update registers
        if(sound > 0){
-            this->sound->set_pause(0);
-            SDL_PauseAudioDevice(this->sound->get_device_id(),0); // make sure that audio is playing of sound register is non-zero
+            this->sound->set_pause(0);// make sure that audio is playing of sound register is non-zero
             if(decrement > sound){
                 this->cpu->set_sound(0);
             }
