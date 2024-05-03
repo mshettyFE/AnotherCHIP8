@@ -9,8 +9,6 @@
 #include <array>
 #include <cmath>
 
-#include "Audio.h"
-
 #include "Constants.h"
 #include "Instruction.h"
 
@@ -28,11 +26,9 @@ private:
   // Public registers directly accessible by program
   std::array<uint8_t,16> Vx; // public 16-bit registers
   uint16_t I; // Stores memory addresses. Only bottom 12 bits used
-  SDL_AudioDeviceID audio_device; // ID of audio device to play/pause
 public:
 
   CPU();
-  ~CPU();
 
   uint16_t get_pc() const;
   uint8_t get_sound() const;
@@ -41,7 +37,6 @@ public:
   uint8_t get_VF() const;
   uint16_t get_I() const;
   std::chrono::steady_clock::time_point get_last_update();
-  SDL_AudioDeviceID get_audio_device() const;
 
   void set_sound(uint8_t value);
   void set_delay(uint8_t value);

@@ -64,7 +64,7 @@ static constexpr uint16_t CHAR_OFFSET = 0x050;
 // Sound
 static constexpr uint16_t SAMPLE_RATE = 44100; // Number of samples SDL plays per second
 static constexpr uint16_t BUFFER_SIZE  = 4096; // Number of samples read in when SDL runs out of samples
-static constexpr float INIT_VOLUME = 0.8f; // Constant initial volume.
+static constexpr float INIT_VOLUME = 0.4f; // Constant initial volume.
 static constexpr float A4_OSC = (float)SAMPLE_RATE / 440.00f;
 
 // Speed

@@ -1,5 +1,4 @@
 #include "CPU.h"
-#include "Audio.h"
 #include <iostream>
 
 CPU::CPU(){
@@ -11,35 +10,6 @@ CPU::CPU(){
     Vx[i] = 0;
   }
   I=0;
-  SDL_AudioSpec desired_spec = {
-      .freq = SAMPLE_RATE,
-      .format = AUDIO_F32,
-      .channels = 1,
-      .samples = BUFFER_SIZE,
-      .callback = oscillator_callback,
-      .userdata = this,
-  };
-  SDL_AudioSpec obtained_spec;
-  if(SDL_InitSubSystem(SDL_INIT_AUDIO) != 0){
-      std::cout <<  SDL_GetError() << std::endl;
-      throw std::invalid_argument("SDL_Init failed");
-  }
-  audio_device = SDL_OpenAudioDevice(NULL, 0, &desired_spec, &obtained_spec, SDL_AUDIO_ALLOW_ANY_CHANGE);
-  if(audio_device==0){
-      std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
-      throw std::invalid_argument(message);
-  }
-  SDL_PauseAudioDevice(audio_device,0);
-  SDL_PauseAudioDevice(audio_device,1);
-}
-
-CPU::~CPU(){
-  SDL_CloseAudioDevice(audio_device);
-  SDL_QuitSubSystem(SDL_INIT_AUDIO);
-}
-
-SDL_AudioDeviceID CPU::get_audio_device() const{
-  return audio_device;
 }
 
 uint16_t CPU::get_pc() const{return this->pc;}
@@ -85,7 +55,6 @@ void CPU::print() const{
   for(int i=0; i< 16; ++i){
     std::cout << "V" << std::hex << std::uppercase << i << " :" << std::dec<<  static_cast<unsigned int>(get_Vx(i)) << std::endl;
   }
-  std::cout << audio_device << std::endl;
 }
 
 void CPU::set_VF(bool is_set){
@@ -149,7 +118,6 @@ void CPU::reset(){ // hard reset CPU to known state
     Vx[i] = 0;
   }
   I=0;
-  SDL_PauseAudioDevice(audio_device,1);
   this->set_delay(0);
   this->set_sound(0);
   last_update = std::chrono::steady_clock::now();

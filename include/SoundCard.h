@@ -14,12 +14,15 @@ private:
   float current_step;
   float step_size;
   float volume;
+  SDL_AudioDeviceID audio_device_id; // ID of audio device to play/pause
 public:
-    bool debug;
-    SoundCard(float rate, float vol, bool debug=false);
-    float next(); // get the next sample in the sequence
-};
+  bool debug;
+  SoundCard(float rate=A4_OSC, float vol=INIT_VOLUME, bool debug=false);
+  ~SoundCard();
 
-static SoundCard a4 = SoundCard(A4_OSC, 0.8f);
+  SDL_AudioDeviceID get_device_id() const;
+  float next(); // get the next sample in the sequence
+  void set_pause(int pause);
+};
 
 #endif

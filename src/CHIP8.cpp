@@ -15,6 +15,7 @@ CHIP8::CHIP8(bool visible){
     cpu = std::make_unique<CPU>();
     mem = std::make_unique<Memory>();
     keys = std::make_unique<Keyboard>();
+    sound = std::make_unique<SoundCard>();
     last_instruction_time =std::chrono::steady_clock::now();
     last_keyboard_time = last_instruction_time;
 }
@@ -409,7 +410,8 @@ void CHIP8::tick_clock(){
     uint8_t decrement = elaped_real_time.count()/spf.count();
     if(decrement){ // if decrement is non-zero, enough time has passed that we need to update registers
        if(sound > 0){
-            SDL_PauseAudioDevice(this->cpu->get_audio_device(),0); // make sure that audio is playing of sound register is non-zero
+            this->sound->set_pause(0);
+            SDL_PauseAudioDevice(this->sound->get_device_id(),0); // make sure that audio is playing of sound register is non-zero
             if(decrement > sound){
                 this->cpu->set_sound(0);
             }
@@ -418,7 +420,7 @@ void CHIP8::tick_clock(){
             }
         }
         if(sound==0){
-            SDL_PauseAudioDevice(this->cpu->get_audio_device(),1); // pause audio if sound is 0
+            this->sound->set_pause(1); // pause audio if sound is 0
         }
         if(delay >0){
             if(decrement > delay){

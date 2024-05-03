@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 
+#include "SoundCard.h"
 #include "CPU.h"
 #include "Display.h"
 #include "Memory.h"
@@ -90,6 +91,7 @@ public:
     std::unique_ptr<Display> disp;
     std::unique_ptr<Memory> mem;
     std::unique_ptr<Keyboard> keys;
+    std::unique_ptr<SoundCard> sound;
 
     // global RNG
     RNG random_gen;
