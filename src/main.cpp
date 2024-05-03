@@ -11,7 +11,7 @@
 CHIP8 interpreter(true);
 
 void callback(){
-  interpreter.run_iterations(3 , false, false);
+  interpreter.run_iterations(static_cast<int>(instructions_per_second/60.0) , false, false);
   interpreter.update_window();
 }
 
@@ -22,8 +22,7 @@ int main(int argc, char *argv[]){
   emscripten_cancel_main_loop();
 #else
     interpreter.load(argv[1]);
-//    interpreter.run_eternal(false,true);
-    interpreter.run_iterations(1000,false,false);
+    interpreter.run_eternal(false,true);
 #endif
   return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <SDL2/SDL.h>
 
 #include "Constants.h"
 

@@ -66,6 +66,10 @@ uint8_t CPU::get_VF() const{
 
 uint16_t CPU::get_I() const{return this->I&I_MASK;}
 
+std::chrono::steady_clock::time_point CPU::get_last_update(){return last_update;}
+
+void CPU::set_last_update(){this->last_update = std::chrono::steady_clock::now();}
+
 void CPU::set_sound(uint8_t value){
   this->sound = value;
 }

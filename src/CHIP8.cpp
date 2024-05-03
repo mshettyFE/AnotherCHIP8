@@ -330,7 +330,6 @@ std::string CHIP8::decoding_error(const Instruction& instr){
 }
 
 void CHIP8::execute(assembly_func fnc, const Instruction& instr){
-    this->update_draw =false; // set draw to false. If the DRW instruction gets called, this is set to true
     this->cpu->increment_pc();
     (this->*fnc)(instr);
     this->tick_clock(); // Sync frame rate, and do other time-sensitive events
@@ -409,9 +408,8 @@ void CHIP8::tick_clock(){
     auto elaped_real_time = std::chrono::steady_clock::now()-this->cpu->get_last_update();
     uint8_t decrement = elaped_real_time.count()/spf.count();
     if(decrement){ // if decrement is non-zero, enough time has passed that we need to update registers
-//        std::cout << elaped_real_time.count()/1E9*60.0 <<" " << (int) decrement << std::endl;
-        if(sound > 0){
-            SDL_PauseAudioDevice(this->cpu->get_audio_device(),0);
+       if(sound > 0){
+            SDL_PauseAudioDevice(this->cpu->get_audio_device(),0); // make sure that audio is playing of sound register is non-zero
             if(decrement > sound){
                 this->cpu->set_sound(0);
             }
@@ -420,7 +418,7 @@ void CHIP8::tick_clock(){
             }
         }
         if(sound==0){
-            SDL_PauseAudioDevice(this->cpu->get_audio_device(),1);
+            SDL_PauseAudioDevice(this->cpu->get_audio_device(),1); // pause audio if sound is 0
         }
         if(delay >0){
             if(decrement > delay){
@@ -433,14 +431,13 @@ void CHIP8::tick_clock(){
         this->cpu->set_last_update(); // don't forget to update last recorded time stamp!
     }
     auto elapsed_instruction_time = std::chrono::steady_clock::now()-this->last_instruction_time;
-//    std::cout << elapsed_instruction_time.count() <<" " <<  instr_time.count() <<  std::endl;
     if(elapsed_instruction_time < instr_time){
         auto wait_time = std::chrono::duration_cast<std::chrono::milliseconds>(instr_time-elapsed_instruction_time).count();
-//        std::cout << "WAIT: " <<  wait_time << std::endl;
         SDL_Delay(wait_time  ); // sleep if the instruction finished too early
     }
     this->last_instruction_time = std::chrono::steady_clock::now();
     auto elapsed_key_time = std::chrono::steady_clock::now()-this->last_keyboard_time;
+    // get latest keyboard inputs if enough time has passed
     if(elapsed_key_time > spf){
         this->keys->update_state();
         this->last_keyboard_time = std::chrono::steady_clock::now();
@@ -460,6 +457,7 @@ void CHIP8::update_window(bool debug){
     }
     if(this->update_draw){
         this->disp->to_screen();
+        this->update_draw =false; // Don't want to keep updating screen if no additional draw calls were made
     }
 }
 
@@ -468,74 +466,89 @@ void CHIP8::SYS(const Instruction& instr){
 }
 
 void CHIP8::CLS(const Instruction& instr){
+// Clear screen
     disp->reset();
 }
 
 void CHIP8::RET(const Instruction& instr){
+// return from function call, and set pc appropriately
     auto new_pc = this->cpu->pop_stack();
     this->cpu->set_pc(new_pc);
 }
 
 void CHIP8::JP_DIRECT(const Instruction& instr){
+// jump directly to instruction in memory
     auto mem_addr = instr.get_mem_addr();
     this->cpu->set_pc(mem_addr);
 }
 
 void CHIP8::CALL(const Instruction& instr){
+// jump to a function, saving current pc to return to
     this->cpu->push_stack(this->cpu->get_pc());
     this->cpu->set_pc(instr.get_mem_addr());
 }
 
 void CHIP8::SE_DIRECT(const Instruction& instr){
+// If register value is equal to some value, skip next instruction
     if(this->cpu->get_Vx(instr.get_lhn()) == instr.get_lower_byte()){
         this->cpu->increment_pc();
     }
 }
 
 void CHIP8::SNE_DIRECT(const Instruction& instr){
+// If register value is not equal to some value, skip next instruction
     if(this->cpu->get_Vx(instr.get_lhn()) != instr.get_lower_byte()){
         this->cpu->increment_pc();
     }
 }
 
 void CHIP8::SE_REG(const Instruction& instr){
+// If two register values are equal to each other, skip next instruction
     if(this->cpu->get_Vx(instr.get_hln()) == this->cpu->get_Vx(instr.get_lhn())){
         this->cpu->increment_pc();
     }
 }
 
 void CHIP8::LD_DIRECT(const Instruction& instr){
+// Load some value from memory into a register
     this->cpu->set_Vx(instr.get_lhn(),instr.get_lower_byte());
 }
 
 void CHIP8::ADD_DIRECT(const Instruction& instr){
+// add value to register
     auto reg= instr.get_lhn();
     auto result = this->cpu->get_Vx(reg)+instr.get_lower_byte();
     this->cpu->set_Vx(reg,result);
 }
 
 void CHIP8::LD_REG(const Instruction& instr){
+// set value of one register to another
     this->cpu->set_Vx(instr.get_lhn(),this->cpu->get_Vx(instr.get_hln()));
 }
 
 void CHIP8::OR(const Instruction& instr){
+// OR the value of two registers, and store in the first
     auto result = this->cpu->get_Vx(instr.get_lhn()) | this->cpu->get_Vx(instr.get_hln());
     this->cpu->set_Vx(instr.get_lhn(),result);
 }
 
 void CHIP8::AND(const Instruction& instr){
+// AND the value of two registers, and store in the first
     auto result = this->cpu->get_Vx(instr.get_lhn()) & this->cpu->get_Vx(instr.get_hln());
     this->cpu->set_Vx(instr.get_lhn(),result);
 }
 
 void CHIP8::XOR(const Instruction& instr){
+// XOR the value of two registers, and store in the first
     auto result = this->cpu->get_Vx(instr.get_lhn()) ^ this->cpu->get_Vx(instr.get_hln());
     this->cpu->set_Vx(instr.get_lhn(),result);
 }
 
 void CHIP8::ADD(const Instruction& instr){
+// add the value of two registers, and store in the first
     uint16_t result = static_cast<uint16_t>(this->cpu->get_Vx(instr.get_lhn())) + static_cast<uint16_t>(this->cpu->get_Vx(instr.get_hln()));
     this->cpu->set_Vx(instr.get_lhn(),result & 0x00FF);
+// check for overflow, and set VF accordingly
     if(result & 0xFF00){
         this->cpu->set_VF(1);
     }
@@ -545,11 +558,13 @@ void CHIP8::ADD(const Instruction& instr){
 }
 
 void CHIP8::SUB(const Instruction& instr){
+// subtract the value of two registers, and store in the first
     auto vx = instr.get_lhn();
     auto vy = instr.get_hln();
     auto vx_val = this->cpu->get_Vx(vx);
     auto vy_val = this->cpu->get_Vx(vy);
     this->cpu->set_Vx(vx, vx_val - vy_val);
+// set flags if underflow occurs
     if(vx_val > this->cpu->get_Vx(vx)){
         this->cpu->set_VF(1);
     }
@@ -559,9 +574,11 @@ void CHIP8::SUB(const Instruction& instr){
 }
 
 void CHIP8::SHR(const Instruction& instr){
+// shift right
     auto vx  =instr.get_lhn();
     auto vx_val = this->cpu->get_Vx(vx);
     this->cpu->set_Vx(vx,vx_val >>1);
+// if LSB is 1, set flag
     if(vx_val & 0x01){
         this->cpu->set_VF(1);
     }
@@ -571,11 +588,13 @@ void CHIP8::SHR(const Instruction& instr){
 }
 
 void CHIP8::SUBN(const Instruction& instr){
+// subtract the first from the second, and store in the first
     auto vx = instr.get_lhn();
     auto vy = instr.get_hln();
     auto vx_val = this->cpu->get_Vx(vx);
     auto vy_val = this->cpu->get_Vx(vy);
     this->cpu->set_Vx(vx, vy_val - vx_val);
+// set flag for overflow
     if(vy_val > this->cpu->get_Vx(vx)){
         this->cpu->set_VF(1);
     }
@@ -585,9 +604,11 @@ void CHIP8::SUBN(const Instruction& instr){
 }
 
 void CHIP8::SHL(const Instruction& instr){
+// shift left, and store in register
     auto vx  =instr.get_lhn();
     auto vx_val = this->cpu->get_Vx(vx);
     this->cpu->set_Vx(vx,vx_val <<1);
+// if most significant bit is 1, set flag
     if(vx_val & 0b1000'0000){
         this->cpu->set_VF(1);
     }
@@ -597,6 +618,7 @@ void CHIP8::SHL(const Instruction& instr){
 }
 
 void CHIP8::SNE(const Instruction& instr){
+// if two register values aren't equal, increment pc
     auto vx_val = this->cpu->get_Vx(instr.get_lhn());
     auto vy_val = this->cpu->get_Vx(instr.get_hln());
     if(vx_val != vy_val){
@@ -605,19 +627,23 @@ void CHIP8::SNE(const Instruction& instr){
 }
 
 void CHIP8::LD_DIRECT_I(const Instruction& instr){
+// set I register to value
     this->cpu->set_I(instr.get_machine_code());
 }
 
 void CHIP8::JP_OFFSET(const Instruction& instr){
+// JP to address in register 0 with some offset
     this->cpu->set_pc(this->cpu->get_Vx(0)+instr.get_mem_addr());
 }
 
 void CHIP8::RND(const Instruction& instr){
+// store random number in register
     auto random_val = random_gen.roll();
     this->cpu->set_Vx(instr.get_lhn(),instr.get_lower_byte()& random_val);
 }
 
 void CHIP8::DRW(const Instruction& instr){
+// draw to screen by XORing updated screen with old screen
     update_draw=true;
     auto starting_addr = this->cpu->get_I();
     int8_t starting_x_pos = (this->cpu->get_Vx(instr.get_lhn()));
@@ -649,6 +675,7 @@ void CHIP8::DRW(const Instruction& instr){
             current_y_pos -= dis_height;
         }
     }
+    // if a pixel is overwritten, set flag
     if(overwritten){
         this->cpu->set_VF(1);
     }
@@ -658,6 +685,7 @@ void CHIP8::DRW(const Instruction& instr){
 }
 
 void CHIP8::SKP(const Instruction& instr){
+    // skip instruction if key is pressed
     bool debug = true;
     auto expected_key = this->cpu->get_Vx(instr.get_lhn());
     auto parsed_key = this->keys->get_state();
@@ -667,6 +695,7 @@ void CHIP8::SKP(const Instruction& instr){
 }
 
 void CHIP8::SKNP(const Instruction& instr){
+    // skip instruction if key is not pressed
     bool debug = true;
     auto expected_key = this->cpu->get_Vx(instr.get_lhn());
     auto parsed_key = this->keys->get_state();
@@ -676,10 +705,12 @@ void CHIP8::SKNP(const Instruction& instr){
 }
 
 void CHIP8::LD_DELAY(const Instruction& instr){
+    // load value in delay into register
     this->cpu->set_Vx(instr.get_lhn(),this->cpu->get_delay()) ;
 }
 
 void CHIP8::LD_KEY(const Instruction& instr){
+    // block execution until key is pressed
     bool debug = true;
     auto reg = instr.get_lhn();
     while(this->running){
@@ -722,25 +753,30 @@ void CHIP8::LD_KEY(const Instruction& instr){
 }
 
 void CHIP8::SET_DELAY(const Instruction& instr){
+    // set delay timer with value in register
     this->cpu->set_delay(this->cpu->get_Vx(instr.get_lhn()));
 }
 
 void CHIP8::SET_SOUND(const Instruction& instr){
+    // set sound timer with value in register
     this->cpu->set_sound(this->cpu->get_Vx(instr.get_lhn()));
 }
 
 void CHIP8::ADD_I(const Instruction& instr){
+    // Add value in register to I
     auto I = this->cpu->get_I();
     auto VX = this->cpu->get_Vx(instr.get_lhn());
     this->cpu->set_I(I+VX);
 }
 
 void CHIP8::LD_SPRITE(const Instruction& instr){
+// load first value of sprite data into I register
     auto val = instr.get_lhn();
     this->cpu->set_I(CHAR_OFFSET+val*5);
 }
 
 void CHIP8::STORE_BCD(const Instruction& instr){
+    // store hundreds, tens, and ones of value in register into I, I+1, and I+2
     uint16_t cur_I = this->cpu->get_I();
     if(cur_I+2 > MAX_RAM_SIZE){
         throw std::invalid_argument("Can't Store BCD");
@@ -760,6 +796,7 @@ void CHIP8::STORE_BCD(const Instruction& instr){
 }
 
 void CHIP8::STR_ARR(const Instruction& instr){
+    // Store registers 0 trough largest_reg into memory starting from I
     uint8_t largest_reg = instr.get_lhn();
     uint16_t starting_addr = this->cpu->get_I();
     for(int i=0; i<=largest_reg; ++i){
@@ -773,6 +810,7 @@ void CHIP8::STR_ARR(const Instruction& instr){
 }
 
 void CHIP8::LD_ARR(const Instruction& instr){
+    // load values from memory into registers
     uint8_t largest_reg = instr.get_lhn();
     uint16_t starting_addr = this->cpu->get_I();
     for(int i=0; i<=largest_reg; ++i){
