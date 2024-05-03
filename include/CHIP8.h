@@ -13,20 +13,17 @@
 #include <memory>
 #include <chrono>
 
-// Good references
-// [1] https://tobiasvl.github.io/blog/write-a-chip-8-emulator/
-// [2] http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
-
 class CHIP8{
 private:
-    bool loaded=true;
-    bool update_draw = false;
-    bool running = true;
-    std::chrono::steady_clock::time_point last_instruction_time;
-    std::chrono::steady_clock::time_point last_keyboard_time;
+    bool loaded=true; // wheather a ROM has been loaded or not
+    bool update_draw = false; // flag to see if we need to update the screen
+    bool running = true; // flag to check if we should keep reading instructions
+    std::chrono::steady_clock::time_point last_instruction_time; // time last instruction finished executing. Used to sync the frame rate
+    std::chrono::steady_clock::time_point last_keyboard_time; // time since the keyboard queue was emptied. Used to poll client input at 60 Hz
 
     SDL_Event event;
 // assembly instructions
+// see http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
     void SYS(const Instruction& instr);
     void CLS(const Instruction& instr);
     void RET(const Instruction& instr);
@@ -63,57 +60,65 @@ private:
     void STR_ARR(const Instruction& instr);
     void LD_ARR(const Instruction& instr);
 
-    template<
-        typename T,
-        typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
-    >
+    // Restrict T to be a numerical object, so that hex_to_string makes sense
+    template<typename T,typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
+    // convenience function to print number as hex string of fixed width 4
     std::string hex_to_string(T variable){
         std::stringstream ss;
         ss << "0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << static_cast<unsigned int>(variable);
         return ss.str();
     }
+
+    // Error handler for a particular instruction
     std::string decoding_error(const Instruction& instr);
-// Grab binary of current instruction
+    
+    // Grab binary of current instruction
     uint16_t fetch() const;
-// function pointer to arbitrary assembly instruction
+    
+    // function pointer to arbitrary assembly instruction
     typedef void(CHIP8::*assembly_func)(const Instruction&);
-// Take a bundled instruction and map it to the appropriate assembly instruction
+    
+    // Take an Instruction and map it to the appropriate assembly instruction
     assembly_func decode(const Instruction& instr, std::string& out_msg, bool debug=false);
-// take an assembly instruction, and do it (debug is is to print out debug info)
+    
+    // take an assembly instruction and it's corresponding function and just do it
     void execute(assembly_func fnc, const Instruction& instr);
 public:
 
+    // hardware
     std::unique_ptr<CPU> cpu;
     std::unique_ptr<Display> disp;
     std::unique_ptr<Memory> mem;
     std::unique_ptr<Keyboard> keys;
 
+    // global RNG
     RNG random_gen;
 
+    // can toggle visibility on/off on construction. Useful for unit tests, since the screen constantly popping in and out is annoying
     CHIP8(bool visible=true);
+    // Need Destructor to call appropriate SDL calls
     ~CHIP8(){SDL_Quit();}
 
-    void print() const;
+    void print() const; // calls print functions of underlying hardware
     void load(std::string file); // assumes file is big_endian
-    std::string disassemble(bool raw=false);
+    std::string disassemble(bool raw=false); // Does a hex dump of program memory, and prints out associated instructions if it can be interpreted
+    // not all instructions are parsable, and that's OK. It could be data
 
-    void reset();
+    void reset(); // Hard reset system to known starting state
 
-    Instruction bundle(uint16_t instruction) const; // wrap machine code instruction into a class for easier handling
     std::string decompile(const Instruction& instr); // convert instruction to associated assembly instruction
 
     std::string test_instruction(const Instruction& instr); // access private members decode and execute for a given instruction
 
-    void run_eternal(bool verbose=false, bool display=true);
-    void run_iterations(unsigned int count=1000, bool verbose=true, bool display=true);
+    void run_eternal(bool verbose=false, bool display=true); // run forever until the heat death of the universe
+    void run_iterations(unsigned int count=1000, bool verbose=true, bool display=true); // run for a given number of iterations
+
+    void update_window(bool debug =false); // Given current system state, update screen. Also handle SDL mouse events (ie. Close window)
+    void tick_clock(); // deal with all the timing stuff, like advancing sound and delay registers, playing sound, updating keyboard state, maintaining frame rate
+
+    std::string decode_keys(uint16_t encrypted_keys); // given the keyboard state encoded as 16bit number, print all the keys that were pressed
+
     bool get_running() const{return this->running;}
-
-    void update_window(bool debug =false);
-    void tick_clock();
-
-    std::string decode_keys(uint16_t encrypted_keys);
 };
-
-
 
 #endif
