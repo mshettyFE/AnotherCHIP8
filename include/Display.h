@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 #include "Constants.h"
 
-enum{BLACK=0, WHITE=0xFFFFFFFF};
+enum{PIXEL_OFF=0x0056B9, PIXEL_ON=0xFFD800};
 
 class Display{
 private:

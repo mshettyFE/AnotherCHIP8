@@ -27,7 +27,7 @@ void CHIP8::load(std::string filename){
         std::string err_msg = filename+" couldn't be opened!";
         throw std::runtime_error(err_msg);
     }
-    program.unsetf(std::ios::skipws); // don't ignore whitespace, since that might be valuable data
+    program.unsetf(std::ios::skipws); // don't ignore PIXEL_ONspace, since that might be valuable data
     program.seekg (0, std::ios::end); // grab length of file, in units of unsigned chars (ie. 1 byte)
     int length = program.tellg();
     program.seekg (0, std::ios::beg); // go back to the start of the file

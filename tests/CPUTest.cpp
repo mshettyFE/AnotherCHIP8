@@ -25,14 +25,14 @@ TEST(CPUTest, SYS){
 
 TEST(CPUTest, CLS){
     CHIP8 interpreter(false);
-    interpreter.disp->write(dis_width-1,dis_height-1); // Set last pixel to white
-    EXPECT_EQ(interpreter.disp->read(dis_width-1,dis_height-1), WHITE);
+    interpreter.disp->write(dis_width-1,dis_height-1); // Set last pixel to PIXEL_ON
+    EXPECT_EQ(interpreter.disp->read(dis_width-1,dis_height-1), PIXEL_ON);
     auto instr = Instruction(0,0,0xE,0);
     auto current_pc = interpreter.cpu->get_pc();
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    EXPECT_EQ(interpreter.disp->read(dis_width-1,dis_height-1), BLACK);
+    EXPECT_EQ(interpreter.disp->read(dis_width-1,dis_height-1), PIXEL_OFF);
 }
 
 TEST(CPUTest, CALL){
@@ -384,10 +384,10 @@ TEST(CPUTest, DRW_SINGLE_LINE){
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    EXPECT_EQ(interpreter.disp->read(1,0),WHITE);
-    EXPECT_EQ(interpreter.disp->read(2,0),BLACK);
-    EXPECT_EQ(interpreter.disp->read(3,0),BLACK);
-    EXPECT_EQ(interpreter.disp->read(4,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(1,0),PIXEL_ON);
+    EXPECT_EQ(interpreter.disp->read(2,0),PIXEL_OFF);
+    EXPECT_EQ(interpreter.disp->read(3,0),PIXEL_OFF);
+    EXPECT_EQ(interpreter.disp->read(4,0),PIXEL_ON);
 //    SDL_Delay(1000);
 }
 
@@ -401,10 +401,10 @@ TEST(CPUTest, DRW_SINGLE_LINE_WRAP){
     auto msg = interpreter.test_instruction(instr);
     std::cout << msg << std::endl;
     EXPECT_EQ(current_pc+instruction_size, interpreter.cpu->get_pc());
-    EXPECT_EQ(interpreter.disp->read(63,0),WHITE);
-    EXPECT_EQ(interpreter.disp->read(0,0),WHITE);
-    EXPECT_EQ(interpreter.disp->read(1,0),WHITE);
-    EXPECT_EQ(interpreter.disp->read(2,0),WHITE);
+    EXPECT_EQ(interpreter.disp->read(63,0),PIXEL_ON);
+    EXPECT_EQ(interpreter.disp->read(0,0),PIXEL_ON);
+    EXPECT_EQ(interpreter.disp->read(1,0),PIXEL_ON);
+    EXPECT_EQ(interpreter.disp->read(2,0),PIXEL_ON);
 //    SDL_Delay(1000);
 }
 

@@ -7,7 +7,7 @@
 
 Display::Display(bool visible){
     for(long unsigned int i=0; i< display.size(); i++){
-        display[i] = 0;
+        display[i] = PIXEL_OFF;
     }
     if(SDL_InitSubSystem(SDL_INIT_VIDEO) != 0){
         std::cout << SDL_GetError() << std::endl;
@@ -78,13 +78,16 @@ void Display::print() const{
 }
 
 bool Display::write(unsigned int x, unsigned int y){
-// spec demands that you XOR the selected pixel with WHITE
+// spec demands that you XOR the selected pixel with PIXEL_ON
     auto index = get_index(x,y);
     bool set_VF = false;
-    if(display[index]==WHITE){
+    if(display[index]==PIXEL_ON){
         set_VF = true;
+        display[index] = PIXEL_OFF;
     }
-    display[index] = display[index] ^ WHITE;
+    else{
+        display[index] = PIXEL_ON;
+    }
     return set_VF;
 }
 
@@ -117,8 +120,8 @@ void Display::to_screen(){
     dest.h = dest.w;
     dest.x = (new_w-dest.w)/2;
     dest.y = (new_h-dest.h)/2;
-    std::cout << src.x << " " << src.y << " " << src.w << " " << src.h << std::endl;
-    std::cout << dest.x << " " << dest.y << " " << dest.w << " " << dest.h << std::endl << std::endl;
+//    std::cout << src.x << " " << src.y << " " << src.w << " " << src.h << std::endl;
+//    std::cout << dest.x << " " << dest.y << " " << dest.w << " " << dest.h << std::endl << std::endl;
     if(SDL_UpdateTexture(texture, NULL, this->display.data(),dis_width*4)){
         std::cout << SDL_GetError() << std::endl;
         std::invalid_argument("SDL_Texture failed");
