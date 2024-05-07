@@ -23,7 +23,7 @@ Display::Display(bool visible){
             SDL_WINDOWPOS_UNDEFINED,
             dis_width*screen_scaling,
             dis_height*screen_scaling,
-            SDL_WINDOW_SHOWN
+            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
         );
     }
     else{
