@@ -30,30 +30,31 @@ void Memory::write_character_set(unsigned char offset){
     for(int i=0; i< 80; ++i){
         ram[i+offset] = vals[i];
     }
-
 }
 
 void Memory::dump() const{
-    for(int i=0; i<MAX_RAM_SIZE; i+=16){
+    for(int i=0; i<MAX_RAM_SIZE; i+=16){ // increment by 16 since we print 8 instructions per row, and each instruction consists of 2 bytes (8*2=16, and we are counting by bytes)
 // Print the beginning address value
         std::cout << std::showbase<<  std::setw(5) << std::hex << std::uppercase << i << " ";
 // Print the Hex values from the beginning offset
         for(int offset=0; offset<8; offset+=2){
+            // construct instruction by bitshifting next two instructions
             uint16_t instruction = (static_cast<uint16_t>(ram[i+offset]) << 8) | static_cast<uint16_t>(ram[i+offset+1]);
+            // formatting stuff to make it look pretty
             std::cout << std::hex << std::uppercase << std::noshowbase << std::setw(4) << std::setfill ( '0' ) << instruction << " ";
         }
-// Print the ASCII version.. if you can
+        // Print the ASCII version
         std::cout <<std::setfill ( ' ' )<< "|" << std::dec;
         for(int offset=0; offset<16; offset++){
             auto val = ram[i+offset];
-            if(std::isprint(val)){
+            if(std::isprint(val)){ // If you can print it as ASCII, do it, otherwise, just print .
                 std::cout << val;
             }
             else{
                 std::cout << ".";
             }
         }
-        std::cout <<"|";
+        std::cout <<"|"; // terminate with pipe to make formatting look consistent
         std::cout << std::endl;
     }
 }
@@ -67,6 +68,7 @@ uint8_t Memory::read(uint16_t address) const{
 }
 
 uint16_t Memory::read_machine_code(uint16_t address) const{
+// You can only read the lower 3 nibbles according to the spec. so use 0x0FFF mask to force address to comply
     address &= 0x0FFF;
     uint16_t first = ram[address];
     uint16_t second = ram[address+1];

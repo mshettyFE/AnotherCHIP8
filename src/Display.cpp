@@ -6,14 +6,16 @@
 #include <cstring>
 
 Display::Display(bool visible){
+    // initialize array with off color
     for(long unsigned int i=0; i< display.size(); i++){
         display[i] = PIXEL_OFF;
     }
+    // Start SDL video
     if(SDL_InitSubSystem(SDL_INIT_VIDEO) != 0){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Init failed");
     }
-
+    // Options to display window or not. Useful for unit tests when you don't want the window to phase in and out of existence
     if(visible){
         window = SDL_CreateWindow(
             "CHIP8",
@@ -21,7 +23,7 @@ Display::Display(bool visible){
             SDL_WINDOWPOS_UNDEFINED,
             dis_width*screen_scaling,
             dis_height*screen_scaling,
-            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE 
+            SDL_WINDOW_SHOWN
         );
     }
     else{
@@ -33,6 +35,7 @@ Display::Display(bool visible){
             dis_height*screen_scaling, SDL_WINDOW_HIDDEN
         );
     }
+    // Initialize the SDL constructs
     if(window==nullptr){
         std::cout << SDL_GetError() << std::endl;
         throw std::invalid_argument("SDL_Window failed");
@@ -46,11 +49,13 @@ Display::Display(bool visible){
     if(texture ==nullptr){
         std::cout << SDL_GetError() << std::endl;
         std::invalid_argument("SDL_Texture failed");
-   }
-   to_screen();
+    }
+    // draw blank screen to SDL display
+    to_screen();
 }
 
 Display::~Display(){
+// clean up SDL constructs
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -79,6 +84,7 @@ void Display::print() const{
 
 bool Display::write(unsigned int x, unsigned int y){
 // spec demands that you XOR the selected pixel with PIXEL_ON
+// Doing it with if-else statements since I couldn't figure out a nice way to do colors other than BLACK and WHITE with XOR
     auto index = get_index(x,y);
     bool set_VF = false;
     if(display[index]==PIXEL_ON){
@@ -99,16 +105,18 @@ void Display::reset(){
 }
 
 void Display::test_checkers(){
+// Write checker board pattern to display
     for(int i=0; i< dis_height; ++i){
         for(int j =0; j< dis_width; ++j){
             if((i+j)%2){
-                write(j,i);
+                write(i,j);
             }
         }
     }
 }
 
 void Display::to_screen(){
+// Copy texture and expand to current window size
     SDL_Rect src, dest;
     src.x = 0;
     src.y = 0;

@@ -1,4 +1,5 @@
 #include "SoundCard.h"
+#include <cmath>
 
 void oscillator_callback(void *userdata, Uint8 *stream, int len) {
   float *fstream = (float *)stream;
@@ -10,10 +11,11 @@ void oscillator_callback(void *userdata, Uint8 *stream, int len) {
 
 SoundCard::SoundCard(float rate, float vol, bool debug) {
     current_step = 0;
-    step_size = static_cast<float>((2.0 * 3.14159265358979) / rate); // calculate the time step needed to correctly produce monoenergetic sound
+    step_size = static_cast<float>((2.0 * std::acos(-1)) / rate); // calculate the time step needed to correctly produce monoenergetic sound. This is 1/T = 2Pi/w = 1/f
     volume = vol;
     this->debug = debug;
 
+    // SDL stuff to define the audio spec and open an appropariate audio device
     SDL_AudioSpec desired_spec = {
         .freq = SAMPLE_RATE,
         .format = AUDIO_F32,
@@ -32,9 +34,10 @@ SoundCard::SoundCard(float rate, float vol, bool debug) {
         std::string message = "AHHHHH! Failed to open Audio Device: "+ std::string(SDL_GetError());
         throw std::invalid_argument(message);
     }
+    // Need to unpause the device so that it can play in the future
     SDL_PauseAudioDevice(audio_device_id,0);
+    // Immediately repause though
     SDL_PauseAudioDevice(audio_device_id,1);
-
 }
 
 SoundCard::~SoundCard(){

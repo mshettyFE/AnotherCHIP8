@@ -430,17 +430,17 @@ void CHIP8::tick_clock(){
         }
         this->cpu->set_last_update(); // don't forget to update last recorded time stamp!
     }
-    auto elapsed_instruction_time = std::chrono::steady_clock::now()-this->last_instruction_time;
-    if(elapsed_instruction_time < instr_time){
-        auto wait_time = std::chrono::duration_cast<std::chrono::milliseconds>(instr_time-elapsed_instruction_time).count();
-        SDL_Delay(wait_time  ); // sleep if the instruction finished too early
-    }
     this->last_instruction_time = std::chrono::steady_clock::now();
     auto elapsed_key_time = std::chrono::steady_clock::now()-this->last_keyboard_time;
     // get latest keyboard inputs if enough time has passed
     if(elapsed_key_time > spf){
         this->keys->update_state();
         this->last_keyboard_time = std::chrono::steady_clock::now();
+    }
+    auto elapsed_instruction_time = std::chrono::steady_clock::now()-this->last_instruction_time;
+    if(elapsed_instruction_time < instr_time){
+        auto wait_time = std::chrono::duration_cast<std::chrono::milliseconds>(instr_time-elapsed_instruction_time).count();
+        SDL_Delay(wait_time  ); // sleep if the instruction finished too early
     }
 }
 

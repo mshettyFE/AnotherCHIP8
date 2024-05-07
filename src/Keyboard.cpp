@@ -8,6 +8,7 @@ Keyboard::Keyboard(){
 }
 
 void Keyboard::update_state(bool debug){
+    // in order to extract  keys, we OR the associated bit in present key if that key was pressed within the last 1/60th of a second
     present_keys = 0;
     SDL_PumpEvents();
     auto keyStates = SDL_GetKeyboardState(NULL);
