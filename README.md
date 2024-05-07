@@ -28,7 +28,7 @@ NOTE: If you are on WSL, you will need to have some XServer program running to d
 If for some reason, you want to do this.
 
 - Follow https://emscripten.org/docs/getting_started/downloads.html and install emsdk somewhere on your computer (could even be in this repo?)
-- If you previously build the desktop version, you need to purge the ```build``` folder of every file before running these commands
+- If you previously build the desktop version, you need to purge the ```build``` folder of every file before running these commands (ie ```rm -rf build```)
 - Run the following commands in the CHIP8 ```build``` folder
 
 ```bash

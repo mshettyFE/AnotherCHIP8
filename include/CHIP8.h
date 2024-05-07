@@ -106,6 +106,8 @@ public:
     std::string disassemble(bool raw=false); // Does a hex dump of program memory, and prints out associated instructions if it can be interpreted
     // not all instructions are parsable, and that's OK. It could be data
 
+    void set_run(bool val){this->running = val;}
+
     void reset(); // Hard reset system to known starting state
 
     std::string decompile(const Instruction& instr); // convert instruction to associated assembly instruction
