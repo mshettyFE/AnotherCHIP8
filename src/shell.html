@@ -131,22 +131,22 @@
     ></canvas>
 
     <div id="keys">
-      <button>1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>4</button>
-      <button>q</button>
-      <button>w</button>
-      <button>e</button>
-      <button>r</button>
-      <button>a</button>
-      <button>s</button>
-      <button>d</button>
-      <button>f</button>
-      <button>z</button>
-      <button>x</button>
-      <button>c</button>
-      <button>v</button>
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+      <button data-key="4">C</button>
+      <button data-key="q">4</button>
+      <button data-key="w">5</button>
+      <button data-key="e">6</button>
+      <button data-key="r">D</button>
+      <button data-key="a">7</button>
+      <button data-key="s">8</button>
+      <button data-key="d">9</button>
+      <button data-key="f">E</button>
+      <button data-key="z">A</button>
+      <button data-key="x">0</button>
+      <button data-key="c">B</button>
+      <button data-key="v">F</button>
     </div>
 
     <script type="text/javascript">
@@ -174,7 +174,7 @@
         const keys = document.querySelectorAll("#keys > button");
 
         for (const key of keys) {
-          const char = key.innerHTML;
+          const char = key.dataset.key;
 
           key.addEventListener("pointerdown", (ev) => downHandler(ev, char));
           key.addEventListener("pointerenter", (ev) => downHandler(ev, char));
