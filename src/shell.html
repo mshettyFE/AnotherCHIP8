@@ -20,14 +20,6 @@
       div.emscripten {
         text-align: center;
       }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas {
-        border: 0px none;
-        background-color: black;
-        aspect-ratio: 1 / 1;
-        display: block;
-      }
-
       .spinner {
         height: 50px;
         width: 50px;
@@ -42,13 +34,6 @@
         border-top: 10px solid rgb(100, 0, 200);
         border-radius: 100%;
         background-color: rgb(200, 100, 250);
-      }
-
-      #keys {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        width: min-content;
-        gap: 0.5rem;
       }
 
       @-webkit-keyframes rotation {
@@ -84,26 +69,62 @@
         }
       }
 
-      @media screen and (max-width: 639px) {
+      body {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas {
+        border: 0px none;
+        background-color: black;
+        aspect-ratio: 1 / 1;
+        margin: 0;
+      }
+
+      #keys {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: min-content;
+      }
+
+      @media screen and (min-width: 640px) {
         body {
-          display: flex;
-          flex-direction: column;
-          margin: 0;
-          overflow: hidden;
-          touch-action: none;
+          gap: 1rem;
+          max-height: 100vh;
+          justify-content: center;
+          align-items: center;
         }
 
         canvas {
+          width: 320px;
+        }
+
+        #keys {
+          gap: 0.25rem;
+
+          > button {
+            width: 2em;
+            height: 2em;
+          }
+        }
+      }
+
+      @media screen and (max-width: 639px) {
+        canvas {
           width: 100vw;
-          margin: 0;
         }
 
         #keys {
           width: 100vw;
-          grid-template-rows: repeat(4, 2em);
           gap: 0;
 
           > button {
+            height: 2em;
+
             user-select: none;
             -webkit-user-select: none;
           }
