@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Another CHIP8 Emulator</title>
+
     <style>
       .emscripten {
         padding-right: 0;
@@ -18,13 +20,12 @@
       div.emscripten {
         text-align: center;
       }
-      div.emscripten_border {
-        border: 1px solid black;
-      }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten {
+      canvas {
         border: 0px none;
         background-color: black;
+        aspect-ratio: 1 / 1;
+        display: block;
       }
 
       .spinner {
@@ -42,6 +43,14 @@
         border-radius: 100%;
         background-color: rgb(200, 100, 250);
       }
+
+      #keys {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: min-content;
+        gap: 0.5rem;
+      }
+
       @-webkit-keyframes rotation {
         from {
           -webkit-transform: rotate(0deg);
@@ -74,12 +83,37 @@
           transform: rotate(360deg);
         }
       }
+
+      @media screen and (max-width: 639px) {
+        body {
+          display: flex;
+          flex-direction: column;
+          margin: 0;
+          overflow: hidden;
+          touch-action: none;
+        }
+
+        canvas {
+          width: 100vw;
+          margin: 0;
+        }
+
+        #keys {
+          width: 100vw;
+          grid-template-rows: repeat(4, 2em);
+          gap: 0;
+
+          > button {
+            user-select: none;
+            -webkit-user-select: none;
+          }
+        }
+      }
     </style>
   </head>
   <body>
-    <figure style="overflow: visible" id="spinner">
+    <figure style="overflow: hidden" id="spinner">
       <div class="spinner"></div>
-      <center style="margin-top: 0.5em"><strong>emscripten</strong></center>
     </figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -91,18 +125,67 @@
     </select>
 
     <canvas
-      class="emscripten"
       id="canvas"
       oncontextmenu="event.preventDefault()"
       tabindex="-1"
     ></canvas>
 
+    <div id="keys">
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>4</button>
+      <button>q</button>
+      <button>w</button>
+      <button>e</button>
+      <button>r</button>
+      <button>a</button>
+      <button>s</button>
+      <button>d</button>
+      <button>f</button>
+      <button>z</button>
+      <button>x</button>
+      <button>c</button>
+      <button>v</button>
+    </div>
+
     <script type="text/javascript">
+      function downHandler(ev, char) {
+        if (!ev.buttons & 1) return;
+        const keyboardEvent = new KeyboardEvent("keydown", {
+          key: char,
+          keyCode: char.charCodeAt(0),
+          code: `Key${char.toUpperCase()}`,
+        });
+        window.dispatchEvent(keyboardEvent);
+      }
+
+      function upHandler(ev, char) {
+        const keyboardEvent = new KeyboardEvent("keyup", {
+          key: char,
+          keyCode: char.charCodeAt(0),
+          code: `Key${char.toUpperCase()}`,
+        });
+        window.dispatchEvent(keyboardEvent);
+      }
+
       function init() {
+        // Initialize the fake keyboard
+        const keys = document.querySelectorAll("#keys > button");
+
+        for (const key of keys) {
+          const char = key.innerHTML;
+
+          key.addEventListener("pointerdown", (ev) => downHandler(ev, char));
+          key.addEventListener("pointerenter", (ev) => downHandler(ev, char));
+          key.addEventListener("pointerup", (ev) => upHandler(ev, char));
+          key.addEventListener("pointerleave", (ev) => upHandler(ev, char));
+        }
+
+        // Initialize the rom select
         const roms = Object.keys(FS.analyzePath("/roms").object.contents).map(
           (p) => "/roms/" + p,
         );
-        console.log(roms);
 
         const romSelect = document.getElementById("rom-select");
 
