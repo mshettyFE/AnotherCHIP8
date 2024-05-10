@@ -1,0 +1,1 @@
+Test rom to check if CPU flags are set properly after each instruction. Non-interactive.

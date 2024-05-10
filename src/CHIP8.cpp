@@ -379,11 +379,21 @@ void CHIP8::run_eternal(bool verbose, bool display){
             std::cout << std::hex <<this->cpu->get_pc() << " " << hex_to_string<uint16_t>(binary) << std::dec  << " : " << out_msg<<std::endl;
         }
         execute(cur_func,instr);
+        while(paused){
+            this->tick_clock_paused();
+            this->update_window();
+            SDL_Delay(10);
+        }
     }
 }
 
 void CHIP8::run_iterations(unsigned int count, bool verbose, bool display){
     while(count >0){
+        if(paused){
+            this->tick_clock_paused();
+            this->update_window();
+            count--;
+        }
         if(!this->loaded){
             throw std::invalid_argument("No ROM loaded!");
         }
@@ -444,6 +454,12 @@ void CHIP8::tick_clock(){
     }
 }
 
+void CHIP8::tick_clock_paused(){
+    this->cpu->set_last_update(); // don't forget to update last recorded time stamp! While game is paused, the world goes on
+    this->last_keyboard_time = this->cpu->get_last_update();
+    this->last_instruction_time = this->cpu->get_last_update();
+}
+
 void CHIP8::update_window(bool debug){
     while(SDL_PollEvent(&event) != 0){
         switch(event.type){
@@ -454,8 +470,13 @@ void CHIP8::update_window(bool debug){
             if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED){
                 this->update_draw  = true;
             }
+        case SDL_KEYDOWN:
+            if(event.key.keysym.sym== SDLK_p){
+                this->paused ^= 1;
+            }
         }
     }
+// updated display
     if(this->update_draw){
         this->disp->to_screen();
         this->update_draw =false; // Don't want to keep updating screen if no additional draw calls were made
@@ -687,7 +708,6 @@ void CHIP8::DRW(const Instruction& instr){
 
 void CHIP8::SKP(const Instruction& instr){
     // skip instruction if key is pressed
-    bool debug = true;
     auto expected_key = this->cpu->get_Vx(instr.get_lhn());
     auto parsed_key = this->keys->get_state();
     if(parsed_key ==  (1<< expected_key) ){
@@ -697,7 +717,6 @@ void CHIP8::SKP(const Instruction& instr){
 
 void CHIP8::SKNP(const Instruction& instr){
     // skip instruction if key is not pressed
-    bool debug = true;
     auto expected_key = this->cpu->get_Vx(instr.get_lhn());
     auto parsed_key = this->keys->get_state();
     if(parsed_key !=  (1<< expected_key) ){
@@ -712,7 +731,6 @@ void CHIP8::LD_DELAY(const Instruction& instr){
 
 void CHIP8::LD_KEY(const Instruction& instr){
     // block execution until key is pressed
-    bool debug = true;
     auto reg = instr.get_lhn();
     while(this->running){
         this->update_window();

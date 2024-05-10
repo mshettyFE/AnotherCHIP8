@@ -32,7 +32,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
 
 int main(int argc, char *argv[]){
 #ifdef __EMSCRIPTEN__
-  interpreter.load("/roms/Breakout.ch8");
+  interpreter.load("../data/roms/Breakout.ch8");
   emscripten_set_main_loop(callback,0,1);
   emscripten_cancel_main_loop();
 #else

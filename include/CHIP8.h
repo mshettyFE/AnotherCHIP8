@@ -19,6 +19,7 @@ private:
     bool loaded=true; // wheather a ROM has been loaded or not
     bool update_draw = false; // flag to see if we need to update the screen
     bool running = true; // flag to check if we should keep reading instructions
+    bool paused = false; // flag to check if during run_eternal, we should enter a pause loop
     std::chrono::steady_clock::time_point last_instruction_time; // time last instruction finished executing. Used to sync the frame rate
     std::chrono::steady_clock::time_point last_keyboard_time; // time since the keyboard queue was emptied. Used to poll client input at 60 Hz
 
@@ -107,6 +108,10 @@ public:
     // not all instructions are parsable, and that's OK. It could be data
 
     void set_run(bool val){this->running = val;}
+    bool get_run(bool val){return this->running;}
+
+    void set_pause(bool val){this->paused = val;}
+    bool get_pause(bool val){return this->paused;}
 
     void reset(); // Hard reset system to known starting state
 
@@ -119,6 +124,7 @@ public:
 
     void update_window(bool debug =false); // Given current system state, update screen. Also handle SDL mouse events (ie. Close window)
     void tick_clock(); // deal with all the timing stuff, like advancing sound and delay registers, playing sound, updating keyboard state, maintaining frame rate
+    void tick_clock_paused(); // deal with timing stuff when game is paused
 
     std::string decode_keys(uint16_t encrypted_keys); // given the keyboard state encoded as 16bit number, print all the keys that were pressed
 

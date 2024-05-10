@@ -3,10 +3,6 @@
 
 #include <iostream>
 
-Keyboard::Keyboard(){
-    present_keys = 0;
-}
-
 void Keyboard::update_state(bool debug){
     // in order to extract  keys, we OR the associated bit in present key if that key was pressed within the last 1/60th of a second
     present_keys = 0;
@@ -28,6 +24,7 @@ void Keyboard::update_state(bool debug){
     if(keyStates[SDL_SCANCODE_X]){present_keys  |= ZERO_PRESENT; if(debug){std::cout << "ZERO" << std::endl;}}
     if(keyStates[SDL_SCANCODE_C]){present_keys  |= B_PRESENT; if(debug){std::cout << "B" << std::endl;}}
     if(keyStates[SDL_SCANCODE_V]){present_keys  |= F_PRESENT; if(debug){std::cout << "F" << std::endl;}}
+    
     if(debug){
         std::cout << present_keys << std::endl;
     }

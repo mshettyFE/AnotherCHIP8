@@ -169,6 +169,8 @@
       <button data-key="v">F</button>
     </div>
 
+    <div>Thanks to <a href="https://nickgirardo.com/">_nickg</a> for helping me with the mobile UI!</div>
+
     <script type="text/javascript">
       function downHandler(ev, char) {
         if (!ev.buttons & 1) return;
@@ -203,8 +205,8 @@
         }
 
         // Initialize the rom select
-        const roms = Object.keys(FS.analyzePath("/roms").object.contents).map(
-          (p) => "/roms/" + p,
+        const roms = Object.keys(FS.analyzePath("data/roms").object.contents).map(
+          (p) => "data/roms/" + p,
         );
 
         const romSelect = document.getElementById("rom-select");

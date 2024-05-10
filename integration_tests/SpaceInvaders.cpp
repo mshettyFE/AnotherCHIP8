@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[]){
   CHIP8 interpreter(true);
-  interpreter.load("../roms/SpaceInvaders.ch8");
+  interpreter.load("../data/roms/SpaceInvaders.ch8");
   interpreter.run_eternal();
   return 0;
 }
