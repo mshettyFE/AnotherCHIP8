@@ -2,6 +2,7 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#include <emscripten/bind.h>
 #endif
 #include <stdio.h>
 #include <iostream>
@@ -15,9 +16,23 @@ void callback(){
   interpreter.update_window();
 }
 
+
+void load_rom(std::string filename) {
+  interpreter.set_run(false);
+  interpreter.reset();
+  interpreter.load(filename);
+}
+
+#ifdef __EMSCRIPTEN__
+EMSCRIPTEN_BINDINGS(my_module) {
+  emscripten::function("load_rom", &load_rom);
+}
+#endif
+
+
 int main(int argc, char *argv[]){
 #ifdef __EMSCRIPTEN__
-  interpreter.load("../roms/Breakout.ch8");
+  interpreter.load("/roms/Breakout.ch8");
   emscripten_set_main_loop(callback,0,1);
   emscripten_cancel_main_loop();
 #else

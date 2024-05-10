@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Another CHIP8 Emulator</title>
+
+    <style>
+      .emscripten {
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
+      textarea.emscripten {
+        font-family: monospace;
+        width: 80%;
+      }
+      div.emscripten {
+        text-align: center;
+      }
+      .spinner {
+        height: 50px;
+        width: 50px;
+        margin: 0px auto;
+        -webkit-animation: rotation 0.8s linear infinite;
+        -moz-animation: rotation 0.8s linear infinite;
+        -o-animation: rotation 0.8s linear infinite;
+        animation: rotation 0.8s linear infinite;
+        border-left: 10px solid rgb(0, 150, 240);
+        border-right: 10px solid rgb(0, 150, 240);
+        border-bottom: 10px solid rgb(0, 150, 240);
+        border-top: 10px solid rgb(100, 0, 200);
+        border-radius: 100%;
+        background-color: rgb(200, 100, 250);
+      }
+
+      @-webkit-keyframes rotation {
+        from {
+          -webkit-transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+      @-moz-keyframes rotation {
+        from {
+          -moz-transform: rotate(0deg);
+        }
+        to {
+          -moz-transform: rotate(360deg);
+        }
+      }
+      @-o-keyframes rotation {
+        from {
+          -o-transform: rotate(0deg);
+        }
+        to {
+          -o-transform: rotate(360deg);
+        }
+      }
+      @keyframes rotation {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        overflow: hidden;
+        touch-action: none;
+      }
+
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas {
+        border: 0px none;
+        background-color: black;
+        aspect-ratio: 1 / 1;
+        margin: 0;
+      }
+
+      #keys {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        width: min-content;
+      }
+
+      @media screen and (min-width: 640px) {
+        body {
+          gap: 1rem;
+          max-height: 100vh;
+          justify-content: center;
+          align-items: center;
+        }
+
+        canvas {
+          width: 320px;
+        }
+
+        #keys {
+          gap: 0.25rem;
+
+          > button {
+            width: 2em;
+            height: 2em;
+          }
+        }
+      }
+
+      @media screen and (max-width: 639px) {
+        canvas {
+          width: 100vw;
+        }
+
+        #keys {
+          width: 100vw;
+          grid-template-rows: repeat(4, 2em);
+          gap: 0;
+
+          > button {
+            user-select: none;
+            -webkit-user-select: none;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <figure style="overflow: hidden" id="spinner">
+      <div class="spinner"></div>
+    </figure>
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden="1"></progress>
+    </div>
+
+    <select id="rom-select">
+      <option value="">--Select a rom--</option>
+    </select>
+
+    <canvas
+      id="canvas"
+      oncontextmenu="event.preventDefault()"
+      tabindex="-1"
+    ></canvas>
+
+    <div id="keys">
+      <button data-key="1">1</button>
+      <button data-key="2">2</button>
+      <button data-key="3">3</button>
+      <button data-key="4">C</button>
+      <button data-key="q">4</button>
+      <button data-key="w">5</button>
+      <button data-key="e">6</button>
+      <button data-key="r">D</button>
+      <button data-key="a">7</button>
+      <button data-key="s">8</button>
+      <button data-key="d">9</button>
+      <button data-key="f">E</button>
+      <button data-key="z">A</button>
+      <button data-key="x">0</button>
+      <button data-key="c">B</button>
+      <button data-key="v">F</button>
+    </div>
+
+    <script type="text/javascript">
+      function downHandler(ev, char) {
+        if (!ev.buttons & 1) return;
+        const keyboardEvent = new KeyboardEvent("keydown", {
+          key: char,
+          keyCode: char.charCodeAt(0),
+          code: `Key${char.toUpperCase()}`,
+        });
+        window.dispatchEvent(keyboardEvent);
+      }
+
+      function upHandler(ev, char) {
+        const keyboardEvent = new KeyboardEvent("keyup", {
+          key: char,
+          keyCode: char.charCodeAt(0),
+          code: `Key${char.toUpperCase()}`,
+        });
+        window.dispatchEvent(keyboardEvent);
+      }
+
+      function init() {
+        // Initialize the fake keyboard
+        const keys = document.querySelectorAll("#keys > button");
+
+        for (const key of keys) {
+          const char = key.dataset.key;
+
+          key.addEventListener("pointerdown", (ev) => downHandler(ev, char));
+          key.addEventListener("pointerenter", (ev) => downHandler(ev, char));
+          key.addEventListener("pointerup", (ev) => upHandler(ev, char));
+          key.addEventListener("pointerleave", (ev) => upHandler(ev, char));
+        }
+
+        // Initialize the rom select
+        const roms = Object.keys(FS.analyzePath("/roms").object.contents).map(
+          (p) => "/roms/" + p,
+        );
+
+        const romSelect = document.getElementById("rom-select");
+
+        for (const rom of roms) {
+          const opt = document.createElement("option");
+          opt.value = rom;
+          opt.innerHTML = rom;
+
+          romSelect.appendChild(opt);
+        }
+
+        romSelect.addEventListener("change", (ev) =>
+          Module.load_rom(ev.target.value),
+        );
+      }
+    </script>
+
+    <script type="text/javascript">
+      var statusElement = document.getElementById("status");
+      var progressElement = document.getElementById("progress");
+      var spinnerElement = document.getElementById("spinner");
+
+      var Module = {
+        print: (function () {
+          var element = document.getElementById("output");
+          if (element) element.value = ""; // clear browser cache
+          return (...args) => {
+            var text = args.join(" ");
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          };
+        })(),
+        canvas: (() => {
+          var canvas = document.getElementById("canvas");
+
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+          canvas.addEventListener(
+            "webglcontextlost",
+            (e) => {
+              alert("WebGL context lost. You will need to reload the page.");
+              e.preventDefault();
+            },
+            false,
+          );
+
+          return canvas;
+        })(),
+        onRuntimeInitialized: () => init(),
+        setStatus: (text) => {
+          if (!Module.setStatus.last)
+            Module.setStatus.last = { time: Date.now(), text: "" };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2]) * 100;
+            progressElement.max = parseInt(m[4]) * 100;
+            progressElement.hidden = false;
+            spinnerElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            if (!text) spinnerElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: (left) => {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(
+            left
+              ? "Preparing... (" +
+                  (this.totalDependencies - left) +
+                  "/" +
+                  this.totalDependencies +
+                  ")"
+              : "All downloads complete.",
+          );
+        },
+      };
+      Module.setStatus("Downloading...");
+      window.onerror = () => {
+        Module.setStatus("Exception thrown, see JavaScript console");
+        spinnerElement.style.display = "none";
+        Module.setStatus = (text) => {
+          if (text) console.error("[post-exception status] " + text);
+        };
+      };
+    </script>
+
+    {{{ SCRIPT }}}
+  </body>
+</html>
