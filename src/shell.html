@@ -223,12 +223,17 @@
     </div>
 
     <script type="text/javascript">
+      function codeFromChar(char) {
+        const isDigit = !Number.isNaN(parseInt(char));
+        return (isDigit ? "Digit" : "Key") + char.toUpperCase();
+      }
+
       function downHandler(ev, char) {
         if (!ev.buttons & 1) return;
         const keyboardEvent = new KeyboardEvent("keydown", {
           key: char,
           keyCode: char.charCodeAt(0),
-          code: `Key${char.toUpperCase()}`,
+          code: codeFromChar(char),
         });
         window.dispatchEvent(keyboardEvent);
       }
@@ -237,7 +242,7 @@
         const keyboardEvent = new KeyboardEvent("keyup", {
           key: char,
           keyCode: char.charCodeAt(0),
-          code: `Key${char.toUpperCase()}`,
+          code: codeFromChar(char),
         });
         window.dispatchEvent(keyboardEvent);
       }
