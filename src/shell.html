@@ -91,12 +91,6 @@
         width: min-content;
       }
 
-      #instruction-mobile,
-      #instruction-desktop {
-        display: block;
-        margin-bottom: 1rem;
-      }
-
       /* Desktop styles */
       @media screen and (min-width: 640px) {
         body {
@@ -166,15 +160,34 @@
       tabindex="-1"
     ></canvas>
 
-    <dialog id="instructions">
-      <h3 id="instruction-title"></h3>
-      <div id="instruction-desktop"></div>
-      <div id="instruction-mobile"></div>
-      <form method="dialog">
-        <button autofocus>Close</button>
-      </form>
-    </dialog>
-    <button id="open-modal">Instructions</button>
+    <div>
+      <dialog id="instructions-modal">
+        <h3 id="instruction-title"></h3>
+        <p id="instruction-desktop"></p>
+        <p id="instruction-mobile"></p>
+        <form method="dialog">
+          <button autofocus>Close</button>
+        </form>
+      </dialog>
+      <button id="open-instructions">Instructions</button>
+
+      <dialog id="about-modal">
+        <h3>About</h3>
+        <p>
+          CHIP8 Emulator by
+          <a href="https://mushetty.me/" target="_blank">Mihir Shetty</a>
+        </p>
+        <p>
+          Web UI by
+          <a href="https://nickgirardo.com/" target="_blank">Nick Girardo</a>
+        </p>
+        <p>ROMs by their respective creators</p>
+        <form method="dialog">
+          <button autofocus>Close</button>
+        </form>
+      </dialog>
+      <button id="open-about">About</button>
+    </div>
 
     <div id="keys">
       <button data-key="1">1</button>
@@ -193,11 +206,6 @@
       <button data-key="x">0</button>
       <button data-key="c">B</button>
       <button data-key="v">F</button>
-    </div>
-
-    <div>
-      Thanks to <a href="https://nickgirardo.com/">_nickg</a> for helping me
-      with the mobile UI!
     </div>
 
     <script type="text/javascript">
@@ -276,8 +284,14 @@
         setInstructions("/data/instr/Breakout.txt");
 
         // Attach the event listener to the button which opens the dialog
-        document.getElementById("open-modal").addEventListener("click", () => {
-          document.querySelector("dialog#instructions").showModal();
+        document
+          .getElementById("open-instructions")
+          .addEventListener("click", () => {
+            document.querySelector("dialog#instructions-modal").showModal();
+          });
+
+        document.getElementById("open-about").addEventListener("click", () => {
+          document.querySelector("dialog#about-modal").showModal();
         });
       }
     </script>
