@@ -108,10 +108,10 @@ public:
     // not all instructions are parsable, and that's OK. It could be data
 
     void set_run(bool val){this->running = val;}
-    bool get_run(bool val){return this->running;}
+    bool get_run(){return this->running;}
 
     void set_pause(bool val){this->paused = val;}
-    bool get_pause(bool val){return this->paused;}
+    bool get_pause(){return this->paused;}
 
     void reset(); // Hard reset system to known starting state
 

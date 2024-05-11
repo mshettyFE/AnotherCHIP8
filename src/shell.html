@@ -197,7 +197,7 @@
           Web UI by
           <a href="https://nickgirardo.com/" target="_blank">Nick Girardo</a>
         </p>
-        <form method="dialog">
+        <form id="dialog-close" method="dialog">
           <button autofocus>Close</button>
         </form>
       </dialog>
@@ -249,7 +249,6 @@
       }
 
       function setInstructions(filename) {
-        console.log(filename);
         const data = FS.readFile(filename);
         const text = new TextDecoder().decode(data);
 
@@ -264,6 +263,9 @@
         form.method = "dialog";
         const button = document.createElement("button");
         button.innerHTML = "Close";
+        button.addEventListener("click", () => {
+          Module.set_pause(false);
+        });
         form.appendChild(button);
         modal.appendChild(form);
       }
@@ -316,11 +318,22 @@
         document
           .getElementById("open-instructions")
           .addEventListener("click", () => {
+            Module.set_pause(true);
+            console.log(Module.get_paused());
             document.querySelector("dialog#instructions-modal").showModal();
           });
 
         document.getElementById("open-about").addEventListener("click", () => {
+          Module.set_pause(true);
+          console.log(Module.get_paused());
           document.querySelector("dialog#about-modal").showModal();
+        });
+
+        // same thing for upon closing. game should pause when popups open
+
+        document.getElementById("dialog-close").addEventListener("click", () => {
+          Module.set_pause(false);
+          console.log(Module.get_paused());
         });
       }
     </script>

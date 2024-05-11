@@ -23,16 +23,26 @@ void load_rom(std::string filename) {
   interpreter.load(filename);
 }
 
+void set_pause(bool val){
+  interpreter.set_pause(val);
+}
+
+bool get_paused(){
+  return interpreter.get_pause();
+}
+
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_BINDINGS(my_module) {
   emscripten::function("load_rom", &load_rom);
+  emscripten::function("set_pause", &set_pause);
+  emscripten::function("get_paused", &get_paused);
 }
 #endif
 
 
 int main(int argc, char *argv[]){
 #ifdef __EMSCRIPTEN__
-  interpreter.load("../data/roms/Breakout.ch8");
+  interpreter.load("../data/roms/tetris.ch8");
   emscripten_set_main_loop(callback,0,1);
   emscripten_cancel_main_loop();
 #else
