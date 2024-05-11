@@ -1,3 +1,0 @@
-CHIP8 Logo
-Test suite logo. Non-interactive
-Test suite logo. Non-interactive

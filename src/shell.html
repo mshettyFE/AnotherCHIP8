@@ -91,6 +91,12 @@
         width: min-content;
       }
 
+      #instructions-modal {
+        .controls ul {
+          margin-top: 0.5rem;
+        }
+      }
+
       /* Desktop styles */
       @media screen and (min-width: 640px) {
         body {
@@ -111,10 +117,6 @@
             width: 2em;
             height: 2em;
           }
-        }
-
-        #instruction-mobile {
-          display: none;
         }
       }
 
@@ -147,7 +149,7 @@
           }
         }
 
-        #instruction-desktop {
+        .desktop-only {
           display: none;
         }
       }
@@ -195,7 +197,6 @@
           Web UI by
           <a href="https://nickgirardo.com/" target="_blank">Nick Girardo</a>
         </p>
-        <p>ROMs by their respective creators</p>
         <form method="dialog">
           <button autofocus>Close</button>
         </form>
@@ -248,14 +249,23 @@
       }
 
       function setInstructions(filename) {
+        console.log(filename);
         const data = FS.readFile(filename);
         const text = new TextDecoder().decode(data);
 
-        const [title, desktopText, mobileText] = text.split("\n");
+        const modal = document.getElementById("instructions-modal");
 
-        document.getElementById("instruction-title").innerHTML = title;
-        document.getElementById("instruction-desktop").innerHTML = desktopText;
-        document.getElementById("instruction-mobile").innerHTML = mobileText;
+        // NOTE DANGER!
+        // This would be very dangerous if we weren't in control of this text exactly!!
+        modal.innerHTML = text;
+
+        // Create the close button for the modal
+        const form = document.createElement("form");
+        form.method = "dialog";
+        const button = document.createElement("button");
+        button.innerHTML = "Close";
+        form.appendChild(button);
+        modal.appendChild(form);
       }
 
       function init() {
@@ -282,7 +292,7 @@
 
           const withoutExt = rom.split(".")[0];
 
-          opt.dataset.instructions = `/data/instr/${withoutExt}.txt`;
+          opt.dataset.instructions = `/data/instr/${withoutExt}.html`;
           opt.innerHTML = rom;
 
           romSelect.appendChild(opt);
@@ -300,7 +310,7 @@
 
         // Set instructions for the default rom
         // Remember to update this if the default rom is changed
-        setInstructions("/data/instr/Breakout.txt");
+        setInstructions("/data/instr/Breakout.html");
 
         // Attach the event listener to the button which opens the dialog
         document

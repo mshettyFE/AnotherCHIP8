@@ -1,3 +1,0 @@
-Breakout
-Breakout Clone. Q to move left, E to move right.
-Breakout Clone. 4 to move left, 6 to move right.

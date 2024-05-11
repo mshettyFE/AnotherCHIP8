@@ -1,3 +1,0 @@
-Pong
-Pong clone. Use 1 and Q to move left paddle.  Use 4 and R to move right paddle.
-Pong clone. Use 1 and 4 to move left paddle.  Use C and D to move right paddle.

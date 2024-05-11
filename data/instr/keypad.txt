@@ -1,3 +1,0 @@
-Keypad test
-Keypad test demo; When a key is pressed, it get's highlighted. All of the keys work
-Keypad test demo; When a key is pressed, it get's highlighted. All of the keys work

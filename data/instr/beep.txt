@@ -1,3 +1,0 @@
-Beep
-Sound Test Demo. Plays SOS in Morse Code. Non-interactive
-Sound Test Demo. Plays SOS in Morse Code. Non-interactive
