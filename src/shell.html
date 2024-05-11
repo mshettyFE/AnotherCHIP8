@@ -91,6 +91,13 @@
         width: min-content;
       }
 
+      #instructions-modal {
+        .controls ul {
+          margin-top: 0.5rem;
+        }
+      }
+
+      /* Desktop styles */
       @media screen and (min-width: 640px) {
         body {
           gap: 1rem;
@@ -113,7 +120,18 @@
         }
       }
 
+      /* Mobile styles */
       @media screen and (max-width: 639px) {
+        body {
+          height: 100dvh;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        #modals {
+          width: max-content;
+        }
+
         canvas {
           width: 100vw;
         }
@@ -122,22 +140,30 @@
           width: 100vw;
           grid-template-rows: repeat(4, 2em);
           gap: 0;
+          /* Sends to the end of the container */
+          margin-top: auto;
 
           > button {
             user-select: none;
             -webkit-user-select: none;
           }
         }
+
+        .desktop-only {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <figure style="overflow: hidden" id="spinner">
-      <div class="spinner"></div>
-    </figure>
-    <div class="emscripten" id="status">Downloading...</div>
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden="1"></progress>
+    <div>
+      <figure style="overflow: hidden" id="spinner">
+        <div class="spinner"></div>
+      </figure>
+      <div class="emscripten" id="status">Downloading...</div>
+      <div class="emscripten">
+        <progress value="0" max="100" id="progress" hidden="1"></progress>
+      </div>
     </div>
 
     <select id="rom-select">
@@ -149,6 +175,34 @@
       oncontextmenu="event.preventDefault()"
       tabindex="-1"
     ></canvas>
+
+    <div id="modals">
+      <dialog id="instructions-modal">
+        <h3 id="instruction-title"></h3>
+        <p id="instruction-desktop"></p>
+        <p id="instruction-mobile"></p>
+        <form method="dialog">
+          <button autofocus>Close</button>
+        </form>
+      </dialog>
+      <button id="open-instructions">Instructions</button>
+
+      <dialog id="about-modal">
+        <h3>About</h3>
+        <p>
+          CHIP8 Emulator by
+          <a href="https://mushetty.me/" target="_blank">Mihir Shetty</a>
+        </p>
+        <p>
+          Web UI by
+          <a href="https://nickgirardo.com/" target="_blank">Nick Girardo</a>
+        </p>
+        <form method="dialog">
+          <button autofocus>Close</button>
+        </form>
+      </dialog>
+      <button id="open-about">About</button>
+    </div>
 
     <div id="keys">
       <button data-key="1">1</button>
@@ -169,15 +223,18 @@
       <button data-key="v">F</button>
     </div>
 
-    <div>Thanks to <a href="https://nickgirardo.com/">_nickg</a> for helping me with the mobile UI!</div>
-
     <script type="text/javascript">
+      function codeFromChar(char) {
+        const isDigit = !Number.isNaN(parseInt(char));
+        return (isDigit ? "Digit" : "Key") + char.toUpperCase();
+      }
+
       function downHandler(ev, char) {
         if (!ev.buttons & 1) return;
         const keyboardEvent = new KeyboardEvent("keydown", {
           key: char,
           keyCode: char.charCodeAt(0),
-          code: `Key${char.toUpperCase()}`,
+          code: codeFromChar(char),
         });
         window.dispatchEvent(keyboardEvent);
       }
@@ -186,9 +243,29 @@
         const keyboardEvent = new KeyboardEvent("keyup", {
           key: char,
           keyCode: char.charCodeAt(0),
-          code: `Key${char.toUpperCase()}`,
+          code: codeFromChar(char),
         });
         window.dispatchEvent(keyboardEvent);
+      }
+
+      function setInstructions(filename) {
+        console.log(filename);
+        const data = FS.readFile(filename);
+        const text = new TextDecoder().decode(data);
+
+        const modal = document.getElementById("instructions-modal");
+
+        // NOTE DANGER!
+        // This would be very dangerous if we weren't in control of this text exactly!!
+        modal.innerHTML = text;
+
+        // Create the close button for the modal
+        const form = document.createElement("form");
+        form.method = "dialog";
+        const button = document.createElement("button");
+        button.innerHTML = "Close";
+        form.appendChild(button);
+        modal.appendChild(form);
       }
 
       function init() {
@@ -205,23 +282,46 @@
         }
 
         // Initialize the rom select
-        const roms = Object.keys(FS.analyzePath("data/roms").object.contents).map(
-          (p) => "data/roms/" + p,
-        );
+        const roms = Object.keys(FS.analyzePath("/data/roms").object.contents);
 
         const romSelect = document.getElementById("rom-select");
 
         for (const rom of roms) {
           const opt = document.createElement("option");
-          opt.value = rom;
+          opt.value = `/data/roms/${rom}`;
+
+          const withoutExt = rom.split(".")[0];
+
+          opt.dataset.instructions = `/data/instr/${withoutExt}.html`;
           opt.innerHTML = rom;
 
           romSelect.appendChild(opt);
         }
 
-        romSelect.addEventListener("change", (ev) =>
-          Module.load_rom(ev.target.value),
-        );
+        romSelect.addEventListener("change", (ev) => {
+          const sel = ev.target;
+          if (sel.selectedIndex === -1) return;
+
+          const opt = sel.options[sel.selectedIndex];
+
+          Module.load_rom(opt.value);
+          setInstructions(opt.dataset.instructions);
+        });
+
+        // Set instructions for the default rom
+        // Remember to update this if the default rom is changed
+        setInstructions("/data/instr/Breakout.html");
+
+        // Attach the event listener to the button which opens the dialog
+        document
+          .getElementById("open-instructions")
+          .addEventListener("click", () => {
+            document.querySelector("dialog#instructions-modal").showModal();
+          });
+
+        document.getElementById("open-about").addEventListener("click", () => {
+          document.querySelector("dialog#about-modal").showModal();
+        });
       }
     </script>
 

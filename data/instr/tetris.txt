@@ -1,1 +1,0 @@
-Tetris clone. Q for rotation. A for drop. W for left. E for right.
