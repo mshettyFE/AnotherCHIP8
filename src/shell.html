@@ -91,6 +91,13 @@
         width: min-content;
       }
 
+      #instruction-mobile,
+      #instruction-desktop {
+        display: block;
+        margin-bottom: 1rem;
+      }
+
+      /* Desktop styles */
       @media screen and (min-width: 640px) {
         body {
           gap: 1rem;
@@ -111,8 +118,13 @@
             height: 2em;
           }
         }
+
+        #instruction-mobile {
+          display: none;
+        }
       }
 
+      /* Desktop styles */
       @media screen and (max-width: 639px) {
         canvas {
           width: 100vw;
@@ -127,6 +139,10 @@
             user-select: none;
             -webkit-user-select: none;
           }
+        }
+
+        #instruction-desktop {
+          display: none;
         }
       }
     </style>
@@ -150,6 +166,16 @@
       tabindex="-1"
     ></canvas>
 
+    <dialog id="instructions">
+      <h3 id="instruction-title"></h3>
+      <div id="instruction-desktop"></div>
+      <div id="instruction-mobile"></div>
+      <form method="dialog">
+        <button autofocus>Close</button>
+      </form>
+    </dialog>
+    <button id="open-modal">Instructions</button>
+
     <div id="keys">
       <button data-key="1">1</button>
       <button data-key="2">2</button>
@@ -169,7 +195,10 @@
       <button data-key="v">F</button>
     </div>
 
-    <div>Thanks to <a href="https://nickgirardo.com/">_nickg</a> for helping me with the mobile UI!</div>
+    <div>
+      Thanks to <a href="https://nickgirardo.com/">_nickg</a> for helping me
+      with the mobile UI!
+    </div>
 
     <script type="text/javascript">
       function downHandler(ev, char) {
@@ -191,6 +220,17 @@
         window.dispatchEvent(keyboardEvent);
       }
 
+      function setInstructions(filename) {
+        const data = FS.readFile(filename);
+        const text = new TextDecoder().decode(data);
+
+        const [title, desktopText, mobileText] = text.split("\n");
+
+        document.getElementById("instruction-title").innerHTML = title;
+        document.getElementById("instruction-desktop").innerHTML = desktopText;
+        document.getElementById("instruction-mobile").innerHTML = mobileText;
+      }
+
       function init() {
         // Initialize the fake keyboard
         const keys = document.querySelectorAll("#keys > button");
@@ -205,23 +245,40 @@
         }
 
         // Initialize the rom select
-        const roms = Object.keys(FS.analyzePath("data/roms").object.contents).map(
-          (p) => "data/roms/" + p,
-        );
+        const roms = Object.keys(FS.analyzePath("/data/roms").object.contents);
 
         const romSelect = document.getElementById("rom-select");
 
         for (const rom of roms) {
           const opt = document.createElement("option");
-          opt.value = rom;
+          opt.value = `/data/roms/${rom}`;
+
+          const withoutExt = rom.split(".")[0];
+
+          opt.dataset.instructions = `/data/instr/${withoutExt}.txt`;
           opt.innerHTML = rom;
 
           romSelect.appendChild(opt);
         }
 
-        romSelect.addEventListener("change", (ev) =>
-          Module.load_rom(ev.target.value),
-        );
+        romSelect.addEventListener("change", (ev) => {
+          const sel = ev.target;
+          if (sel.selectedIndex === -1) return;
+
+          const opt = sel.options[sel.selectedIndex];
+
+          Module.load_rom(opt.value);
+          setInstructions(opt.dataset.instructions);
+        });
+
+        // Set instructions for the default rom
+        // Remember to update this if the default rom is changed
+        setInstructions("/data/instr/Breakout.txt");
+
+        // Attach the event listener to the button which opens the dialog
+        document.getElementById("open-modal").addEventListener("click", () => {
+          document.querySelector("dialog#instructions").showModal();
+        });
       }
     </script>
 
