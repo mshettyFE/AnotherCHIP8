@@ -1,1 +1,3 @@
+Space Invaders
 Space Invaders clone. Q to move left. W to shoot. E to move right.
+Space Invaders clone. 4 to move left. 5 to shoot. 6 to move right.
