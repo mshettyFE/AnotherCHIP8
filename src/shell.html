@@ -118,8 +118,18 @@
         }
       }
 
-      /* Desktop styles */
+      /* Mobile styles */
       @media screen and (max-width: 639px) {
+        body {
+          height: 100dvh;
+          gap: 0.5rem;
+          align-items: center;
+        }
+
+        #modals {
+          width: max-content;
+        }
+
         canvas {
           width: 100vw;
         }
@@ -128,6 +138,8 @@
           width: 100vw;
           grid-template-rows: repeat(4, 2em);
           gap: 0;
+          /* Sends to the end of the container */
+          margin-top: auto;
 
           > button {
             user-select: none;
@@ -142,12 +154,14 @@
     </style>
   </head>
   <body>
-    <figure style="overflow: hidden" id="spinner">
-      <div class="spinner"></div>
-    </figure>
-    <div class="emscripten" id="status">Downloading...</div>
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden="1"></progress>
+    <div>
+      <figure style="overflow: hidden" id="spinner">
+        <div class="spinner"></div>
+      </figure>
+      <div class="emscripten" id="status">Downloading...</div>
+      <div class="emscripten">
+        <progress value="0" max="100" id="progress" hidden="1"></progress>
+      </div>
     </div>
 
     <select id="rom-select">
@@ -160,7 +174,7 @@
       tabindex="-1"
     ></canvas>
 
-    <div>
+    <div id="modals">
       <dialog id="instructions-modal">
         <h3 id="instruction-title"></h3>
         <p id="instruction-desktop"></p>
